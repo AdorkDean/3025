@@ -35,7 +35,7 @@
     // Do any additional setup after loading the view.
     
     // 设定导航栏颜色
-    [[UINavigationBar appearance] setBarTintColor:kAppThemeColor];
+    [[UINavigationBar appearance] setBarTintColor:kNavigationColor];
     
     self.viewControllers = @[
                              [[MKNavigationController alloc] initWithRootViewController:self.homeViewController],
@@ -106,9 +106,9 @@
     
     [tabBarItem setTitle:title];
     // 未选中时文字颜色
-    [tabBarItem setTitleTextAttributes:@{NSForegroundColorAttributeName:kAppTitleColor} forState:UIControlStateNormal];
+    [tabBarItem setTitleTextAttributes:@{NSForegroundColorAttributeName:kTabbarTitleColor} forState:UIControlStateNormal];
     // 选中时文字颜色
-    [tabBarItem setTitleTextAttributes:@{NSForegroundColorAttributeName:kAppTitleSelectedColor} forState:UIControlStateSelected];
+    [tabBarItem setTitleTextAttributes:@{NSForegroundColorAttributeName:kTabbarTitleSelectedColor} forState:UIControlStateSelected];
     // 调整文字位置
     [tabBarItem setTitlePositionAdjustment:kTitlePositionAdjustment];
     

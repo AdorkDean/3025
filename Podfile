@@ -7,4 +7,5 @@ target '3025' do
     pod 'MJRefresh', '~> 3.1.12'
     pod 'MJExtension', '~> 3.0.13'
     pod 'FMDB', '~> 2.6.2'
+    pod 'SVProgressHUD', '~> 2.1.2'
 end

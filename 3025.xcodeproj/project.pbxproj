@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		5DE9D51D18706F04CE00EE19 /* libPods-3025.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BE253F74D16EACEF8C30066C /* libPods-3025.a */; };
+		6B4F16F41E8B53AE005972C5 /* UserListModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B4F16F31E8B53AE005972C5 /* UserListModel.m */; };
+		6B4F16F71E8BB88B005972C5 /* DatabaseUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B4F16F61E8BB88B005972C5 /* DatabaseUtil.m */; };
 		6B8B79D91E8A2298006B5D11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6B8B79D81E8A2298006B5D11 /* Assets.xcassets */; };
 		6B8B7A061E8A235A006B5D11 /* ActivityViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8B79E71E8A235A006B5D11 /* ActivityViewController.m */; };
 		6B8B7A071E8A235A006B5D11 /* MKNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8B79EC1E8A235A006B5D11 /* MKNavigationController.m */; };
@@ -18,9 +20,15 @@
 		6B8B7A0C1E8A235A006B5D11 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8B79F91E8A235A006B5D11 /* main.m */; };
 		6B8B7A0D1E8A235A006B5D11 /* MessageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8B79FD1E8A235A006B5D11 /* MessageViewController.m */; };
 		6B8B7A0E1E8A235A006B5D11 /* ProfileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8B7A021E8A235A006B5D11 /* ProfileViewController.m */; };
+		6B8B7A111E8A2E0D006B5D11 /* UserModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8B7A101E8A2E0D006B5D11 /* UserModel.m */; };
+		6B8B7A151E8A34E8006B5D11 /* UserCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8B7A141E8A34E8006B5D11 /* UserCell.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6B4F16F21E8B53AE005972C5 /* UserListModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserListModel.h; sourceTree = "<group>"; };
+		6B4F16F31E8B53AE005972C5 /* UserListModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserListModel.m; sourceTree = "<group>"; };
+		6B4F16F51E8BB88B005972C5 /* DatabaseUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatabaseUtil.h; sourceTree = "<group>"; };
+		6B4F16F61E8BB88B005972C5 /* DatabaseUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DatabaseUtil.m; sourceTree = "<group>"; };
 		6B8B79C91E8A2298006B5D11 /* 3025.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = 3025.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B8B79D81E8A2298006B5D11 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6B8B79DD1E8A2298006B5D11 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -42,6 +50,10 @@
 		6B8B7A011E8A235A006B5D11 /* ProfileViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProfileViewController.h; sourceTree = "<group>"; };
 		6B8B7A021E8A235A006B5D11 /* ProfileViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProfileViewController.m; sourceTree = "<group>"; };
 		6B8B7A051E8A235A006B5D11 /* Constant.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constant.h; sourceTree = "<group>"; };
+		6B8B7A0F1E8A2E0D006B5D11 /* UserModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserModel.h; sourceTree = "<group>"; };
+		6B8B7A101E8A2E0D006B5D11 /* UserModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserModel.m; sourceTree = "<group>"; };
+		6B8B7A131E8A34E8006B5D11 /* UserCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserCell.h; sourceTree = "<group>"; };
+		6B8B7A141E8A34E8006B5D11 /* UserCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserCell.m; sourceTree = "<group>"; };
 		6CCD74F8E3D47A97882344F6 /* Pods-3025.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-3025.release.xcconfig"; path = "Pods/Target Support Files/Pods-3025/Pods-3025.release.xcconfig"; sourceTree = "<group>"; };
 		8B3F3B6FF85BB7B07B6100E6 /* Pods-3025.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-3025.debug.xcconfig"; path = "Pods/Target Support Files/Pods-3025/Pods-3025.debug.xcconfig"; sourceTree = "<group>"; };
 		BE253F74D16EACEF8C30066C /* libPods-3025.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-3025.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -159,6 +171,7 @@
 			isa = PBXGroup;
 			children = (
 				6B8B79F21E8A235A006B5D11 /* controller */,
+				6B8B7A121E8A34C1006B5D11 /* view */,
 				6B8B79F51E8A235A006B5D11 /* model */,
 			);
 			path = home;
@@ -176,6 +189,10 @@
 		6B8B79F51E8A235A006B5D11 /* model */ = {
 			isa = PBXGroup;
 			children = (
+				6B8B7A0F1E8A2E0D006B5D11 /* UserModel.h */,
+				6B8B7A101E8A2E0D006B5D11 /* UserModel.m */,
+				6B4F16F21E8B53AE005972C5 /* UserListModel.h */,
+				6B4F16F31E8B53AE005972C5 /* UserListModel.m */,
 			);
 			path = model;
 			sourceTree = "<group>";
@@ -244,8 +261,19 @@
 			isa = PBXGroup;
 			children = (
 				6B8B7A051E8A235A006B5D11 /* Constant.h */,
+				6B4F16F51E8BB88B005972C5 /* DatabaseUtil.h */,
+				6B4F16F61E8BB88B005972C5 /* DatabaseUtil.m */,
 			);
 			path = util;
+			sourceTree = "<group>";
+		};
+		6B8B7A121E8A34C1006B5D11 /* view */ = {
+			isa = PBXGroup;
+			children = (
+				6B8B7A131E8A34E8006B5D11 /* UserCell.h */,
+				6B8B7A141E8A34E8006B5D11 /* UserCell.m */,
+			);
+			path = view;
 			sourceTree = "<group>";
 		};
 		8063F3DBCEC808E71055A093 /* Pods */ = {
@@ -391,8 +419,12 @@
 				6B8B7A0B1E8A235A006B5D11 /* AppDelegate.m in Sources */,
 				6B8B7A071E8A235A006B5D11 /* MKNavigationController.m in Sources */,
 				6B8B7A0A1E8A235A006B5D11 /* HomeViewController.m in Sources */,
+				6B4F16F41E8B53AE005972C5 /* UserListModel.m in Sources */,
+				6B8B7A111E8A2E0D006B5D11 /* UserModel.m in Sources */,
 				6B8B7A0C1E8A235A006B5D11 /* main.m in Sources */,
+				6B4F16F71E8BB88B005972C5 /* DatabaseUtil.m in Sources */,
 				6B8B7A0D1E8A235A006B5D11 /* MessageViewController.m in Sources */,
+				6B8B7A151E8A34E8006B5D11 /* UserCell.m in Sources */,
 				6B8B7A081E8A235A006B5D11 /* MKTabBarController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

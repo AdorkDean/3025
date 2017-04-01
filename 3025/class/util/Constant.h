@@ -10,8 +10,15 @@
 
 @interface Constant : NSObject
 
-#define kAppThemeColor [UIColor colorWithRed:254.0f/255.0f green:202.0f/255.0f blue:202.0f/255.0f alpha:1.0f]
-#define kAppTitleColor [UIColor colorWithRed:54.0f/255.0f green:54.0f/255.0f blue:54.0f/255.0f alpha:1.0f]
-#define kAppTitleSelectedColor [UIColor colorWithRed:224.0f/255.0f green:128.0f/255.0f blue:128.0f/255.0f alpha:1.0f]
+#define kDomain @"http://www.viewatmobile.cn/3025/"
+
+#define kScreenWidth [UIScreen mainScreen].bounds.size.width
+#define kScreenHeight [UIScreen mainScreen].bounds.size.height
+
+#define kNavigationColor [UIColor colorWithRed:254.0f/255.0f green:202.0f/255.0f blue:202.0f/255.0f alpha:1.0f]
+#define kBackgroundColor [UIColor colorWithRed:252.0f/255.0f green:247.0f/255.0f blue:246.0f/255.0f alpha:1.0f]
+#define kTabbarTitleColor [UIColor colorWithRed:54.0f/255.0f green:54.0f/255.0f blue:54.0f/255.0f alpha:1.0f]
+#define kTabbarTitleSelectedColor [UIColor colorWithRed:224.0f/255.0f green:128.0f/255.0f blue:128.0f/255.0f alpha:1.0f]
+#define kKeyColor [UIColor colorWithRed:193.0f/255.0f green:155.0f/255.0f blue:115.0f/255.0f alpha:1.0f]
 
 @end
