@@ -18,8 +18,11 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    [self.view setBackgroundColor:[UIColor whiteColor]];
-    self.navigationItem.title = @"消息";
+    [self.view setAutoresizesSubviews:NO];
+    [self.view setBackgroundColor:kBackgroundColor];
+    
+    [self setupNavigtion];
+    [self setupUI];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -36,5 +39,27 @@
     // Pass the selected object to the new view controller.
 }
 */
+
+#pragma mark - UI
+
+/**
+ *  设定UI
+ */
+- (void)setupUI {
+    
+}
+
+- (void)setupNavigtion {
+    
+    // 导航栏标题
+    UILabel *titleLabel = [[UILabel alloc] init];
+    titleLabel.font = [UIFont boldSystemFontOfSize:16.0f];
+    titleLabel.textColor = kNavigationTitleColor;
+    titleLabel.textAlignment = NSTextAlignmentCenter;
+    titleLabel.text = @"消息";
+    titleLabel.frame = CGRectMake(0, 7, 50, 30);
+
+    self.navigationItem.titleView = titleLabel;
+}
 
 @end

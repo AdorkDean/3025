@@ -15,9 +15,11 @@
 #import "UIImageView+WebCache.h"
 #import "SVProgressHUD.h"
 #import "Constant.h"
+#import "UserModel.h"
 
 @interface MKViewController : UIViewController
 
 @property (nonatomic, copy) NSString *userid;
+@property (nonatomic, strong) UserModel *me;
 
 @end

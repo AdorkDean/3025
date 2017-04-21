@@ -86,7 +86,7 @@
 - (ProfileViewController *)profileViewController {
     if (!_profileViewController) {
         _profileViewController = [[ProfileViewController alloc] init];
-        [_profileViewController setTabBarItem:[self tabBarItem:@"设置" image:[UIImage imageNamed:@"profile"] selectedImage:[UIImage imageNamed:@"profile_selected"]]];
+        [_profileViewController setTabBarItem:[self tabBarItem:@"我的" image:[UIImage imageNamed:@"profile"] selectedImage:[UIImage imageNamed:@"profile_selected"]]];
     }
     return _profileViewController;
 }

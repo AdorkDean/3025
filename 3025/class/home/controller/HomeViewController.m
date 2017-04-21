@@ -36,12 +36,11 @@
     
     [self.view setAutoresizesSubviews:NO];
     [self.view setBackgroundColor:kBackgroundColor];
-
-    self.navigationItem.title = @"首页";
     
     self.userList = [NSArray array];
     self.cellHeightDict = [NSMutableDictionary dictionary];
     
+    [self setupNavigtion];
     [self setupUI];
     
     self.pageNumber = 0;
@@ -220,6 +219,7 @@
     if (!_tableView) {
         
         _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleGrouped];
+        _tableView.backgroundColor = self.view.backgroundColor;
         _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
         _tableView.mj_header = self.refreshHeader;
         _tableView.mj_footer = self.refreshFooter;
@@ -283,6 +283,9 @@
 
 #pragma mark - 自定义
 
+/**
+ *  设定UI
+ */
 - (void)setupUI {
     
     [self.view addSubview:self.headView];
@@ -298,6 +301,59 @@
         make.left.width.mas_equalTo(self.view);
         make.bottom.mas_equalTo(self.mas_bottomLayoutGuide);
     }];
+}
+
+- (void)setupNavigtion {
+    
+    UIView *customView = [[UIView alloc] init];
+
+    UILabel *locationLabel = [[UILabel alloc] init];
+    locationLabel.font = [UIFont systemFontOfSize:14.0f];
+    locationLabel.textColor = kNavigationTitleColor;
+    locationLabel.text = @"上海";
+    
+    UIImageView *locationImageView = [[UIImageView alloc] init];
+    locationImageView.contentMode = UIViewContentModeScaleToFill;
+    locationImageView.image = [UIImage imageNamed:@"location"];
+    
+    [customView addSubview:locationLabel];
+    [customView addSubview:locationImageView];
+    
+    [locationLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(customView);
+        make.centerY.mas_equalTo(customView);
+    }];
+    [locationImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(locationLabel.mas_right).offset(0);
+        make.centerY.mas_equalTo(customView);
+        make.height.width.mas_equalTo(16);
+    }];
+    
+    // 导航栏左侧
+    UIBarButtonItem *leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:customView];
+    
+    // 导航栏标题
+    UILabel *titleLabel = [[UILabel alloc] init];
+    titleLabel.font = [UIFont boldSystemFontOfSize:16.0f];
+    titleLabel.textColor = kNavigationTitleColor;
+    titleLabel.textAlignment = NSTextAlignmentCenter;
+    titleLabel.text = @"首页";
+    titleLabel.frame = CGRectMake(0, 7, 50, 30);
+    
+    UIButton *filterButton = [[UIButton alloc] init];
+    filterButton.backgroundColor = kKeyColor;
+    filterButton.layer.cornerRadius = 5;
+    filterButton.frame = CGRectMake(0, 7, 50, 30);
+    [filterButton setTitle:@"筛选" forState:UIControlStateNormal];
+    [filterButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [filterButton.titleLabel setFont:[UIFont systemFontOfSize:14.0f]];
+    
+    // 导航栏右侧
+    UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:filterButton];
+    
+    self.navigationItem.leftBarButtonItem = leftBarButtonItem;
+    self.navigationItem.titleView = titleLabel;
+    self.navigationItem.rightBarButtonItem = rightBarButtonItem;
 }
 
 /**
@@ -337,10 +393,6 @@
     httpSessionManager.responseSerializer = [AFHTTPResponseSerializer serializer];
 
     [httpSessionManager POST:url parameters:patamterDict progress:^(NSProgress * _Nonnull uploadProgress) {
-        
-        NSLog(@"*** progress %@ ***", uploadProgress.description);
-        [self.tableView.mj_header endRefreshing];
-        [self.tableView.mj_footer endRefreshing];
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
         NSString *json = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
@@ -374,6 +426,9 @@
             [SVProgressHUD showImage:nil status:@"已加载全部数据"];
             [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
             [SVProgressHUD dismissWithDelay:1.5];
+            
+            [self.tableView.mj_header endRefreshing];
+            [self.tableView.mj_footer endRefreshing];
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         
