@@ -13,13 +13,22 @@
     
 }
 
+@property (nonatomic, strong) UIWindow *keyWindow;
 @property (nonatomic, strong) UIView *headView;
 @property (nonatomic, strong) UIView *filterView;
+@property (nonatomic, strong) UIButton *filterButton;
 @property (nonatomic, strong) UIView *joinView;
-@property (nonatomic, strong) UIView *tabBarShadowView;
+@property (nonatomic, strong) UIButton *joinButton;
+@property (nonatomic, strong) UIImageView *joinImageView;
+@property (nonatomic, strong) UIView *shadowView;
 @property (nonatomic, strong) UITableView *tableView;
 
 @property (nonatomic, copy) NSArray *activityArray;
+
+@property (nonatomic, strong) MASConstraint *filterTopConstraint;
+@property (nonatomic, strong) MASConstraint *filterBottomConstraint;
+@property (nonatomic, strong) MASConstraint *joinTopConstraint;
+@property (nonatomic, strong) MASConstraint *joinBottomConstraint;
 
 @end
 
@@ -63,18 +72,28 @@
         make.left.width.bottom.mas_equalTo(self.view);
     }];
     [self.filterView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(self.headView.mas_bottom);
+        self.filterTopConstraint = make.top.mas_equalTo(self.headView.mas_bottom);
         make.left.width.mas_equalTo(self.view);
-        make.bottom.mas_equalTo(self.mas_bottomLayoutGuide);
+        make.height.mas_equalTo(200);
+        self.filterBottomConstraint = make.bottom.mas_equalTo(self.headView.mas_bottom);
     }];
     [self.joinView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(self.headView.mas_bottom);
+        self.joinTopConstraint = make.top.mas_equalTo(self.headView.mas_bottom);
         make.left.width.mas_equalTo(self.view);
-        make.bottom.mas_equalTo(self.mas_bottomLayoutGuide);
+        make.height.mas_equalTo(160);
+        self.joinBottomConstraint = make.bottom.mas_equalTo(self.headView.mas_bottom);
     }];
+    
+    [self.view bringSubviewToFront:self.headView];
     
     self.filterView.hidden = YES;
     self.joinView.hidden = YES;
+    
+    [self.filterTopConstraint deactivate];
+    [self.filterBottomConstraint activate];
+    
+    [self.joinTopConstraint deactivate];
+    [self.joinBottomConstraint activate];
 }
 
 /**
@@ -117,16 +136,22 @@
     titleLabel.text = @"活动";
     titleLabel.frame = CGRectMake(0, 0, 50, 30);
     
-    UIButton *filterButton = [[UIButton alloc] init];
-    filterButton.backgroundColor = kKeyColor;
-    filterButton.layer.cornerRadius = 5;
-    filterButton.frame = CGRectMake(0, 0, 75, 30);
-    [filterButton setTitle:@"发起活动" forState:UIControlStateNormal];
-    [filterButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [filterButton.titleLabel setFont:[UIFont systemFontOfSize:14.0f]];
+    // 自定义导航栏右侧 - 发起活动
+    UIButton *createButton = [[UIButton alloc] init];
+    createButton.backgroundColor = kKeyColor;
+    createButton.layer.cornerRadius = 5;
+    createButton.frame = CGRectMake(7, 0, 75, 30);
+    [createButton setTitle:@"发起活动" forState:UIControlStateNormal];
+    [createButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [createButton.titleLabel setFont:[UIFont systemFontOfSize:14.0f]];
+    
+    // 自定义导航栏右侧
+    UIView *rightCustomView = [[UIView alloc] init];
+    rightCustomView.frame = CGRectMake(0, 0, 75, 30);
+    [rightCustomView addSubview:createButton];
     
     // 导航栏右侧
-    UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:filterButton];
+    UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightCustomView];
     
     self.navigationItem.leftBarButtonItem = leftBarButtonItem;
     self.navigationItem.titleView = titleLabel;
@@ -171,42 +196,172 @@
 
 - (void)showFilter:(UIButton *)button {
     
-    if (button.tag != 0 && button.tag != 1) {
-        return;
-    }
+    [self.view endEditing:YES];
     
-    BOOL hidden;
     if (button.tag == 0) {
         
-        hidden = self.filterView.hidden;
-        
-        self.joinView.hidden = YES;
-        self.filterView.hidden = !hidden;
-    } else {
-        
-        hidden = self.joinView.hidden;
-        
-        self.filterView.hidden = YES;
-        self.joinView.hidden = !hidden;
-    }
-    
-    button.imageView.transform = CGAffineTransformMakeRotation(hidden ? -M_PI_2 : M_PI_2);
-    if (hidden) {
-        UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
-        if (!keyWindow) {
-            keyWindow = [UIApplication sharedApplication].windows.firstObject;
+        if (!self.joinView.hidden) {
+
+            self.joinView.hidden = YES;
+            
+            [self.joinTopConstraint deactivate];
+            [self.joinBottomConstraint activate];
+            
+            self.joinButton.imageView.transform = CGAffineTransformMakeRotation(M_PI_2);
+            
+            [self.shadowView removeFromSuperview];
         }
-        [keyWindow addSubview:self.tabBarShadowView];
-        [self.tabBarShadowView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.width.bottom.mas_equalTo(keyWindow);
-            make.height.mas_equalTo(49);
-        }];
-    } else {
-        [self.tabBarShadowView removeFromSuperview];
+        if (self.filterView.hidden) {
+            
+            self.filterView.hidden = NO;
+            
+            self.shadowView.frame = CGRectMake(0, 148, kScreenWidth, kScreenHeight - 148);
+            self.shadowView.tag = 0;
+            [self.shadowView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(shadowViewTapped:)]];
+            [self.keyWindow addSubview:self.shadowView];
+            
+            [self.filterTopConstraint activate];
+            [self.filterBottomConstraint deactivate];
+            
+            [UIView animateWithDuration:0.25 animations:^{
+                
+                [self.view setNeedsLayout];
+                [self.view layoutIfNeeded];
+                
+                self.shadowView.frame = CGRectMake(0, 348, kScreenWidth, kScreenHeight - 348);
+                self.shadowView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.3];
+            } completion:^(BOOL finished) {
+                if (finished) {
+                    
+                    button.imageView.transform = CGAffineTransformMakeRotation(-M_PI_2);
+                }
+            }];
+        } else {
+            
+            [self.filterTopConstraint deactivate];
+            [self.filterBottomConstraint activate];
+            
+            [self.view bringSubviewToFront:self.headView];
+            
+            [UIView animateWithDuration:0.25 animations:^{
+                
+                [self.view setNeedsLayout];
+                [self.view layoutIfNeeded];
+                
+                self.shadowView.frame = CGRectMake(0, 148, kScreenWidth, kScreenHeight - 148);
+                self.shadowView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.0];
+            } completion:^(BOOL finished) {
+                if (finished) {
+                    
+                    self.filterView.hidden = YES;
+                    self.shadowView.gestureRecognizers = [NSArray array];
+                    [self.shadowView removeFromSuperview];
+                    
+                    button.imageView.transform = CGAffineTransformMakeRotation(M_PI_2);
+                }
+            }];
+        }
+    } else if (button.tag == 1) {
+        
+        if (!self.filterView.hidden) {
+
+            self.filterView.hidden = YES;
+            
+            [self.filterTopConstraint deactivate];
+            [self.filterBottomConstraint activate];
+            
+            [self.shadowView removeFromSuperview];
+            
+            self.filterButton.imageView.transform = CGAffineTransformMakeRotation(M_PI_2);
+        }
+        if (self.joinView.hidden) {
+            
+            self.joinView.hidden = NO;
+            
+            self.shadowView.frame = CGRectMake(0, 148, kScreenWidth, kScreenHeight - 148);
+            self.shadowView.tag = 1;
+            [self.shadowView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(shadowViewTapped:)]];
+            [self.keyWindow addSubview:self.shadowView];
+            
+            [self.joinTopConstraint activate];
+            [self.joinBottomConstraint deactivate];
+            
+            [UIView animateWithDuration:0.25 animations:^{
+
+                [self.view setNeedsLayout];
+                [self.view layoutIfNeeded];
+                
+                self.shadowView.frame = CGRectMake(0, 308, kScreenWidth, kScreenHeight - 308);
+                self.shadowView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.3];
+            } completion:^(BOOL finished) {
+                if (finished) {
+                    
+                    button.imageView.transform = CGAffineTransformMakeRotation(-M_PI_2);
+                }
+            }];
+        } else {
+            
+            [self.joinTopConstraint deactivate];
+            [self.joinBottomConstraint activate];
+            
+            [self.view bringSubviewToFront:self.headView];
+
+            [UIView animateWithDuration:0.25 animations:^{
+
+                [self.view setNeedsLayout];
+                [self.view layoutIfNeeded];
+                
+                self.shadowView.frame = CGRectMake(0, 148, kScreenWidth, kScreenHeight - 148);
+                self.shadowView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.0];
+            } completion:^(BOOL finished) {
+                if (finished) {
+                    
+                    self.joinView.hidden = YES;
+                    self.shadowView.gestureRecognizers = [NSArray array];
+                    [self.shadowView removeFromSuperview];
+                    
+                    button.imageView.transform = CGAffineTransformMakeRotation(M_PI_2);
+                }
+            }];
+        }
     }
 }
 
+- (void)shadowViewTapped:(UITapGestureRecognizer *)gestureRecognizer {
+    
+    if (gestureRecognizer.view.tag == 0) {
+        
+        [self showFilter:self.filterButton];
+    } else if (gestureRecognizer.view.tag == 1) {
+        
+        [self showFilter:self.joinButton];
+    }
+}
+
+- (void)joinLabelTapped:(UITapGestureRecognizer *)gestureRecognizer {
+    
+    UILabel *titleLabel = (UILabel *)gestureRecognizer.view;
+
+    self.joinImageView.hidden = NO;
+    
+    [self.joinImageView mas_remakeConstraints:^(MASConstraintMaker *make) {
+        make.centerY.mas_equalTo(titleLabel);
+        make.right.mas_equalTo(_joinView).mas_offset(-20);
+    }];
+}
+
 #pragma mark - setter & getter
+
+- (UIWindow *)keyWindow {
+    
+    _keyWindow = [UIApplication sharedApplication].keyWindow;
+    if (!_keyWindow) {
+        
+        _keyWindow = [UIApplication sharedApplication].windows.firstObject;
+    }
+    
+    return _keyWindow;
+}
 
 - (UIView *)headView {
 
@@ -253,6 +408,7 @@
         [filterButton setTitleEdgeInsets:UIEdgeInsetsMake(0, -15, 0, 15)];
         [filterButton setImageEdgeInsets:UIEdgeInsetsMake(0, 70, 0, -70)];
         [filterButton addTarget:self action:@selector(showFilter:) forControlEvents:UIControlEventTouchUpInside];
+        self.filterButton = filterButton;
         
         UIView *vLineView = [[UIView alloc] init];
         vLineView.backgroundColor = [UIColor lightGrayColor];
@@ -268,6 +424,7 @@
         [joinButton setTitleEdgeInsets:UIEdgeInsetsMake(0, -15, 0, 15)];
         [joinButton setImageEdgeInsets:UIEdgeInsetsMake(0, 70, 0, -70)];
         [joinButton addTarget:self action:@selector(showFilter:) forControlEvents:UIControlEventTouchUpInside];
+        self.joinButton = joinButton;
         
         UIView *bottomLineView = [[UIView alloc] init];
         bottomLineView.backgroundColor = [UIColor lightGrayColor];
@@ -336,22 +493,140 @@
     if (!_filterView) {
         
         _filterView = [[UIView alloc] init];
-        _filterView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.3f];
+        _filterView.backgroundColor = [UIColor whiteColor];
+
+        NSArray *titleArray = @[@"活动地址", @"活动日期", @"活动类型", @"TA已报名"];
+        UILabel *layoutLabel;
+        for (int i=0; i<titleArray.count; i++) {
+            
+            UILabel *titleLabel = [[UILabel alloc] init];
+            titleLabel.font = [UIFont systemFontOfSize:14.0f];
+            titleLabel.textColor = [UIColor blackColor];
+            titleLabel.text = [NSString stringWithFormat:@"%@", [titleArray objectAtIndex:i]];
+            titleLabel.backgroundColor = [UIColor whiteColor];
+            
+            UITextField *textField = [[UITextField alloc] init];
+            textField.layer.cornerRadius = 5;
+            textField.layer.borderWidth = 0.5;
+            textField.layer.borderColor = [UIColor lightGrayColor].CGColor;
+            textField.layer.masksToBounds = YES;
+            textField.textColor = [UIColor blackColor];
+            textField.font = [UIFont systemFontOfSize:14.0f];
+            textField.placeholder = [NSString stringWithFormat:@"  请选择"];
+            
+            UIView *hLineView;
+            UITextField *endTextField;
+            if (i == 1) {
+                
+                hLineView = [[UIView alloc] init];
+                hLineView.backgroundColor = [UIColor lightGrayColor];
+                
+                endTextField = [[UITextField alloc] init];
+                endTextField.layer.cornerRadius = 5;
+                endTextField.layer.borderWidth = 0.5;
+                endTextField.layer.borderColor = [UIColor lightGrayColor].CGColor;
+                endTextField.layer.masksToBounds = YES;
+                endTextField.textColor = [UIColor blackColor];
+                endTextField.font = [UIFont systemFontOfSize:14.0f];
+                endTextField.placeholder = [NSString stringWithFormat:@"  请选择"];
+            }
+            
+            UIView *lineView = [[UIView alloc] init];
+            lineView.backgroundColor = [UIColor lightGrayColor];
+            
+            [_filterView addSubview:titleLabel];
+            [_filterView addSubview:textField];
+            if (i == 1) {
+                [_filterView addSubview:hLineView];
+                [_filterView addSubview:endTextField];
+            }
+            [_filterView addSubview:lineView];
+            
+            [titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.top.mas_equalTo(layoutLabel?layoutLabel.mas_bottom:_filterView);
+                make.left.mas_equalTo(_filterView).mas_offset(20);
+                make.width.mas_equalTo(60);
+                make.height.mas_equalTo(40);
+            }];
+            [textField mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.centerY.mas_equalTo(titleLabel);
+                make.left.mas_equalTo(titleLabel.mas_right).mas_offset(20);
+                make.height.mas_equalTo(30);
+                if (i == 1) {
+                    make.width.mas_equalTo((kScreenWidth-150)/2);
+                } else {
+                    make.right.mas_equalTo(_filterView).mas_offset(-20);
+                }
+            }];
+            if (i == 1) {
+                [hLineView mas_makeConstraints:^(MASConstraintMaker *make) {
+                    make.centerY.mas_equalTo(titleLabel);
+                    make.left.mas_equalTo(textField.mas_right).mas_offset(10);
+                    make.height.mas_equalTo(1);
+                    make.width.mas_equalTo(10);
+                }];
+                [endTextField mas_makeConstraints:^(MASConstraintMaker *make) {
+                    make.centerY.mas_equalTo(titleLabel);
+                    make.left.mas_equalTo(hLineView.mas_right).mas_offset(10);
+                    make.right.mas_equalTo(_filterView).mas_offset(-20);
+                    make.height.width.mas_equalTo(textField);
+                }];
+            }
+            [lineView mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.bottom.mas_equalTo(titleLabel).mas_offset((i == (titleArray.count - 1)) ? 0.5 : 0);
+                make.left.mas_equalTo(titleLabel);
+                make.right.mas_equalTo(_filterView);
+                make.height.mas_equalTo(0.5);
+            }];
+            
+            layoutLabel = titleLabel;
+        }
         
+        UIButton *cancelButton = [[UIButton alloc] init];
+        cancelButton.layer.borderWidth = 0.5;
+        cancelButton.layer.borderColor = [UIColor lightGrayColor].CGColor;
+        cancelButton.layer.masksToBounds = YES;
+        [cancelButton.titleLabel setFont:[UIFont systemFontOfSize:16.0f]];
+        [cancelButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        [cancelButton setTitle:@"取消" forState:UIControlStateNormal];
+
+        UIButton *submitButton = [[UIButton alloc] init];
+        submitButton.layer.borderWidth = 0.5;
+        submitButton.layer.borderColor = [UIColor lightGrayColor].CGColor;
+        submitButton.layer.masksToBounds = YES;
+        submitButton.backgroundColor = [UIColor colorWithRed:228.0f/255.0f green:128.0f/255.0f blue:128.0f/255.0f alpha:1.0f];
+        [submitButton.titleLabel setFont:[UIFont systemFontOfSize:16.0f]];
+        [submitButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        [submitButton setTitle:@"确定" forState:UIControlStateNormal];
+        
+        [_filterView addSubview:cancelButton];
+        [_filterView addSubview:submitButton];
+        
+        [cancelButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.mas_equalTo(layoutLabel.mas_bottom);
+            make.bottom.mas_equalTo(_filterView);
+            make.left.mas_equalTo(_filterView);
+            make.right.mas_equalTo(_filterView.mas_centerX);
+        }];
+        [submitButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.bottom.mas_equalTo(cancelButton);
+            make.left.mas_equalTo(cancelButton.mas_right);
+            make.right.mas_equalTo(_filterView);
+        }];
     }
     
     return _filterView;
 }
 
-- (UIView *)tabBarShadowView {
+- (UIView *)shadowView {
     
-    if (!_tabBarShadowView) {
+    if (!_shadowView) {
         
-        _tabBarShadowView = [[UIView alloc] init];
-        _tabBarShadowView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.3f];
+        _shadowView = [[UIView alloc] init];
+        _shadowView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.0f];
     }
     
-    return _tabBarShadowView;
+    return _shadowView;
 }
 
 - (UIView *)joinView {
@@ -359,8 +634,8 @@
     if (!_joinView) {
         
         _joinView = [[UIView alloc] init];
-        _joinView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.3f];
-
+        _joinView.backgroundColor = [UIColor whiteColor];
+        
         NSArray *titleArray = @[@"全部活动", @"我发起的", @"我报名的", @"往届回顾"];
         UILabel *layoutLabel;
         for (int i=0; i<titleArray.count; i++) {
@@ -370,6 +645,9 @@
             titleLabel.textColor = [UIColor blackColor];
             titleLabel.text = [NSString stringWithFormat:@"     %@", [titleArray objectAtIndex:i]];
             titleLabel.backgroundColor = [UIColor whiteColor];
+            titleLabel.tag = i;
+            titleLabel.userInteractionEnabled = YES;
+            [titleLabel addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(joinLabelTapped:)]];
             
             UIView *lineView = [[UIView alloc] init];
             lineView.backgroundColor = [UIColor lightGrayColor];
@@ -384,7 +662,7 @@
                 make.height.mas_equalTo(40);
             }];
             [lineView mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.bottom.mas_equalTo(titleLabel);
+                make.bottom.mas_equalTo(titleLabel).mas_offset((i == (titleArray.count - 1)) ? 0.25 : 0);
                 make.left.mas_equalTo(_joinView).offset(20);
                 make.right.mas_equalTo(_joinView);
                 make.height.mas_equalTo(0.5);
@@ -392,8 +670,18 @@
             
             layoutLabel = titleLabel;
         }
-
-        layoutLabel = nil;
+        
+        UIImageView *joinImageView = [[UIImageView alloc] init];
+        joinImageView.image = [UIImage imageNamed:@"checked"];
+        joinImageView.hidden = YES;
+        self.joinImageView = joinImageView;
+        
+        [_joinView addSubview:joinImageView];
+        
+        [joinImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.mas_equalTo(layoutLabel);
+            make.right.mas_equalTo(_joinView).mas_offset(-20);
+        }];
     }
     
     return _joinView;
