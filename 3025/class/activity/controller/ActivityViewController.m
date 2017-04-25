@@ -22,6 +22,7 @@
 @property (nonatomic, strong) UIImageView *joinImageView;
 @property (nonatomic, strong) UIView *shadowView;
 @property (nonatomic, strong) UITableView *tableView;
+@property (nonatomic, strong) MJRefreshNormalHeader *refreshNormalHeader;
 
 @property (nonatomic, copy) NSArray *activityArray;
 
@@ -38,11 +39,12 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    [self.view setAutoresizesSubviews:NO];
+    [self setAutomaticallyAdjustsScrollViewInsets:NO];
     [self.view setBackgroundColor:kBackgroundColor];
     
     [self setupNavigtion];
     [self setupUI];
+    [self loadData];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -69,7 +71,8 @@
     }];
     [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.mas_equalTo(self.headView.mas_bottom);
-        make.left.width.bottom.mas_equalTo(self.view);
+        make.left.width.mas_equalTo(self.view);
+        make.bottom.mas_equalTo(self.mas_bottomLayoutGuide);
     }];
     [self.filterView mas_makeConstraints:^(MASConstraintMaker *make) {
         self.filterTopConstraint = make.top.mas_equalTo(self.headView.mas_bottom);
@@ -179,8 +182,8 @@
     ActivityCell *cell = [tableView dequeueReusableCellWithIdentifier:cellID];
     if (!cell) {
         cell = [[ActivityCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellID];
-        cell.selectionStyle = UITableViewCellSelectionStyleNone;
     }
+    [cell setupData:self.activityArray[indexPath.row]];
     
     return cell;
 }
@@ -189,7 +192,17 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    return 100;
+    static NSString *cellID = @"ActivityCell";
+    static ActivityCell *cell;
+    static dispatch_once_t predicate;
+    
+    dispatch_once(&predicate, ^{
+        cell = [[ActivityCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellID];
+    });
+    
+    [cell setupData:self.activityArray[indexPath.row]];
+    
+    return [cell systemLayoutSizeFittingSize:UILayoutFittingCompressedSize].height + 1;
 }
 
 #pragma mark - 事件处理
@@ -693,11 +706,56 @@
         
         _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
         _tableView.backgroundColor = kBackgroundColor;
+        _tableView.mj_header = self.refreshNormalHeader;
         _tableView.dataSource = self;
         _tableView.delegate = self;
     }
     
     return _tableView;
+}
+
+- (MJRefreshNormalHeader *)refreshNormalHeader {
+    
+    if (!_refreshNormalHeader) {
+        
+        _refreshNormalHeader = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+
+            [self loadData];
+        }];
+    }
+    
+    return _refreshNormalHeader;
+}
+
+#pragma mark - 数据处理
+
+- (void)loadData {
+    
+    NSString *URLString = [NSString stringWithFormat:@"%@%@", kDomain, @"activity/filter.html"];
+    NSDictionary *parameters = @{
+                                 @"conditionUserid": self.me.userid,
+                                 @"myUserid": self.me.userid
+                                 };
+    
+    AFHTTPSessionManager *httpSessionManager = [AFHTTPSessionManager manager];
+    httpSessionManager.requestSerializer = [AFHTTPRequestSerializer serializer];
+    httpSessionManager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    
+    [httpSessionManager POST:URLString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
+        
+        NSLog(@"*** %@ ***", uploadProgress);
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        NSString *json = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+        self.activityArray = [NSArray mj_objectArrayWithKeyValuesArray:json];
+        
+        [self.tableView reloadData];
+        [self.tableView.mj_header endRefreshing];
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        
+        [self.tableView.mj_header endRefreshing];
+        NSLog(@"*** %@ ***", error);
+    }];
 }
 
 @end

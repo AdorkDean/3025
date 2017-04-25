@@ -10,4 +10,6 @@
 
 @interface ActivityCell : UITableViewCell
 
+- (void)setupData:(NSDictionary *)dict;
+
 @end
