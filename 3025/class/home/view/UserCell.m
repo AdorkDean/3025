@@ -152,7 +152,7 @@
     // 用户ID
     [self.idLable setText:[NSString stringWithFormat:@"ID: %@", model.userid]];
     // 用户职业
-    [self.careerLable setText:[NSString stringWithFormat:@"职业: %@%@", model.unitNature, model.position]];
+    [self.careerLable setText:[NSString stringWithFormat:@"职业: %@ %@", model.unitNature, model.position]];
     // 用户简介
     NSString *intro = [NSString stringWithFormat:@"%@, 现居%@, 户籍%@, %@, %@, %@", model.sex, model.residence, model.domicile, model.birthday, model.height, model.education];
     NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];

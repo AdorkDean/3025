@@ -7,6 +7,7 @@
 //
 
 #import "ProfileViewController.h"
+#import "WXApi.h"
 
 @interface ProfileViewController () <UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate> {
 
@@ -14,6 +15,10 @@
 
 @property (nonatomic, copy) NSArray *menuArray;
 @property (nonatomic, strong) UIView *headView;
+@property (nonatomic, strong) UIImageView *posterImageView;
+@property (nonatomic, strong) UILabel *idLabel;
+@property (nonatomic, strong) UILabel *nicknameLabel;
+@property (nonatomic, strong) UILabel *careerLabel;
 @property (nonatomic, strong) UITableView *tableView;
 
 @end
@@ -24,11 +29,13 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    [self.view setAutoresizesSubviews:NO];
+    [self setAutomaticallyAdjustsScrollViewInsets:NO];
     [self.view setBackgroundColor:kBackgroundColor];
     
     [self setupNavigtion];
     [self setupUI];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(wxAuthNotification:) name:kWXAuthNotification object:nil];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -75,7 +82,25 @@
     return 0.01f;
 }
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    if (!self.me.userid) {
+        [self login:nil];
+    } else {
+        
+    }
+}
+
 #pragma mark - UIScrollViewDelegate
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    
+    if (scrollView == self.tableView) {
+        if (scrollView.contentOffset.y < 0) {
+            scrollView.contentOffset = CGPointMake(scrollView.contentOffset.x, 0);
+        }
+    }
+}
 
 #pragma mark - UI
 
@@ -86,7 +111,7 @@
     
     [self.view addSubview:self.tableView];
     [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(self.view);
+        make.top.mas_equalTo(self.mas_topLayoutGuide);
         make.left.width.mas_equalTo(self.view);
         make.bottom.mas_equalTo(self.view);
     }];
@@ -123,6 +148,74 @@
     self.navigationItem.rightBarButtonItem = rightBarButtonItem;
 }
 
+#pragma mark - 事件处理
+
+- (void)login:(UITapGestureRecognizer *)gestureRecognizer {
+    
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"" message:@"" preferredStyle:UIAlertControllerStyleAlert];
+    [alertController addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        [alertController dismissViewControllerAnimated:YES completion:nil];
+    }]];
+    
+    if (self.me.userid) {
+        
+        alertController.title = @"退出帐号";
+        alertController.message = @"确定要退出账号吗？";
+        
+        [alertController addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [alertController dismissViewControllerAnimated:YES completion:nil];
+
+            [[NSUserDefaults standardUserDefaults] removeObjectForKey:kLoginUser];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            
+            [self refreshHeadView];
+        }]];
+    } else {
+        
+        alertController.title = @"登录帐号";
+        alertController.message = @"目前仅支持微信授权登陆";
+        
+        [alertController addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [self wxLogin];
+            [alertController dismissViewControllerAnimated:YES completion:nil];
+        }]];
+    }
+    
+    [self presentViewController:alertController animated:YES completion:nil];
+}
+
+- (void)wxLogin {
+    
+    SendAuthReq *authReq =[[SendAuthReq alloc] init];
+    authReq.scope = @"snsapi_userinfo" ;
+    authReq.state = @"123" ;
+    
+    [WXApi sendReq:authReq];
+}
+
+- (void)wxAuthNotification:(NSNotification *)notification {
+    
+    NSDictionary *dict = notification.userInfo;
+    self.me = [UserModel mj_objectWithKeyValues:dict];
+    
+    [self refreshHeadView];
+}
+
+- (void)refreshHeadView {
+    
+    if (self.me.userid) {
+        [self.posterImageView sd_setImageWithURL:[NSURL URLWithString:self.me.poster] placeholderImage:[UIImage imageNamed:@"poster"]];
+        self.idLabel.text = [NSString stringWithFormat:@"ID: %@", self.me.userid];
+        self.nicknameLabel.text = [NSString stringWithFormat:@"%@", self.me.nickname];
+        self.careerLabel.text = [NSString stringWithFormat:@"职业: %@ %@", self.me.unitNature, self.me.position];
+    } else {
+        [self.posterImageView setImage:[UIImage imageNamed:@"poster"]];
+        self.idLabel.text = @"";
+        self.nicknameLabel.text = @"点击登录";
+        self.nicknameLabel.userInteractionEnabled = YES;
+        self.careerLabel.text = @"";
+    }
+}
 
 #pragma mark - setter & getter
 
@@ -160,7 +253,7 @@
         posterImageView.layer.cornerRadius = 30;
         posterImageView.layer.masksToBounds = YES;
         posterImageView.contentMode = UIViewContentModeScaleToFill;
-        [posterImageView sd_setImageWithURL:[NSURL URLWithString:self.me.poster] placeholderImage:[UIImage imageNamed:@"poster"]];
+        self.posterImageView = posterImageView;
         
         // ID
         UILabel *idLabel = [[UILabel alloc] init];
@@ -168,7 +261,7 @@
         idLabel.numberOfLines = 1;
         idLabel.textColor = kNavigationTitleColor;
         idLabel.font = [UIFont systemFontOfSize:14.0f];
-        idLabel.text = [NSString stringWithFormat:@"ID: %@", self.me.userid];
+        self.idLabel = idLabel;
         
         // 昵称
         UILabel *nicknameLabel = [[UILabel alloc] init];
@@ -176,7 +269,9 @@
         nicknameLabel.numberOfLines = 1;
         nicknameLabel.textColor = kNavigationTitleColor;
         nicknameLabel.font = [UIFont systemFontOfSize:14.0f];
-        nicknameLabel.text = [NSString stringWithFormat:@"%@", self.me.nickname];
+        nicknameLabel.userInteractionEnabled = YES;
+        [nicknameLabel addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(login:)]];
+        self.nicknameLabel = nicknameLabel;
         
         // 职业
         UILabel *careerLabel = [[UILabel alloc] init];
@@ -184,7 +279,7 @@
         careerLabel.numberOfLines = 1;
         careerLabel.textColor = kNavigationTitleColor;
         careerLabel.font = [UIFont systemFontOfSize:14.0f];
-        careerLabel.text = [NSString stringWithFormat:@"职业: %@ %@", self.me.unitNature, self.me.position];
+        self.careerLabel = careerLabel;
         
         [_headView addSubview:backgroundImageView];
         [_headView addSubview:posterImageView];
@@ -213,6 +308,8 @@
             make.centerX.mas_equalTo(_headView);
             make.bottom.mas_equalTo(_headView).offset(-10);
         }];
+        
+        [self refreshHeadView];
     }
     
     return _headView;

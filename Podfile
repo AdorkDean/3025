@@ -8,4 +8,5 @@ target '3025' do
     pod 'MJExtension', '~> 3.0.13'
     pod 'FMDB', '~> 2.6.2'
     pod 'SVProgressHUD', '~> 2.1.2'
+    pod 'WechatOpenSDK'
 end

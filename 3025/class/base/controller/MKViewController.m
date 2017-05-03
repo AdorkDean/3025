@@ -40,14 +40,14 @@
 
 - (UserModel *)me {
 
-    if (!_me) {
-    
+    NSDictionary *userInfo = [[NSUserDefaults standardUserDefaults] objectForKey:kLoginUser];
+    if (userInfo) {
+        _me = [UserModel mj_objectWithKeyValues:userInfo];
+    } else {
+        _me = nil;
+        
         _me = [[UserModel alloc] init];
         _me.userid = @"1138";
-        _me.poster = @"http://www.viewatmobile.cn/3025/pages/upload/1138/poster_1486449253075.jpg";
-        _me.nickname = @"风满楼2017";
-        _me.unitNature = @"NEC";
-        _me.position = @"高级经理";
     }
     
     return _me;

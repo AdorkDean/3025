@@ -23,6 +23,7 @@
 		6B8B7A111E8A2E0D006B5D11 /* UserModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8B7A101E8A2E0D006B5D11 /* UserModel.m */; };
 		6B8B7A151E8A34E8006B5D11 /* UserCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8B7A141E8A34E8006B5D11 /* UserCell.m */; };
 		6BD45E081EA9F08D009887DD /* ActivityCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BD45E071EA9F08D009887DD /* ActivityCell.m */; };
+		6BE9338E1EAF231C00A827A7 /* ActivityModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BE9338D1EAF231C00A827A7 /* ActivityModel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,6 +58,8 @@
 		6B8B7A141E8A34E8006B5D11 /* UserCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserCell.m; sourceTree = "<group>"; };
 		6BD45E061EA9F08D009887DD /* ActivityCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActivityCell.h; sourceTree = "<group>"; };
 		6BD45E071EA9F08D009887DD /* ActivityCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ActivityCell.m; sourceTree = "<group>"; };
+		6BE9338C1EAF231C00A827A7 /* ActivityModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActivityModel.h; sourceTree = "<group>"; };
+		6BE9338D1EAF231C00A827A7 /* ActivityModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ActivityModel.m; sourceTree = "<group>"; };
 		6CCD74F8E3D47A97882344F6 /* Pods-3025.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-3025.release.xcconfig"; path = "Pods/Target Support Files/Pods-3025/Pods-3025.release.xcconfig"; sourceTree = "<group>"; };
 		8B3F3B6FF85BB7B07B6100E6 /* Pods-3025.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-3025.debug.xcconfig"; path = "Pods/Target Support Files/Pods-3025/Pods-3025.debug.xcconfig"; sourceTree = "<group>"; };
 		BE253F74D16EACEF8C30066C /* libPods-3025.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-3025.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -146,6 +149,8 @@
 		6B8B79E81E8A235A006B5D11 /* model */ = {
 			isa = PBXGroup;
 			children = (
+				6BE9338C1EAF231C00A827A7 /* ActivityModel.h */,
+				6BE9338D1EAF231C00A827A7 /* ActivityModel.m */,
 			);
 			path = model;
 			sourceTree = "<group>";
@@ -437,6 +442,7 @@
 				6B8B7A0C1E8A235A006B5D11 /* main.m in Sources */,
 				6B4F16F71E8BB88B005972C5 /* DatabaseUtil.m in Sources */,
 				6B8B7A0D1E8A235A006B5D11 /* MessageViewController.m in Sources */,
+				6BE9338E1EAF231C00A827A7 /* ActivityModel.m in Sources */,
 				6B8B7A151E8A34E8006B5D11 /* UserCell.m in Sources */,
 				6BD45E081EA9F08D009887DD /* ActivityCell.m in Sources */,
 				6B8B7A081E8A235A006B5D11 /* MKTabBarController.m in Sources */,

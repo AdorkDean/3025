@@ -28,6 +28,7 @@
 @property (nonatomic, copy) NSString *sex;
 @property (nonatomic, copy) NSString *signature;
 @property (nonatomic, copy) NSString *unitNature;
+@property (nonatomic, copy) NSString *unit_nature;
 @property (nonatomic, copy) NSString *condition;
 @property (nonatomic, copy) NSString *conditionAge;
 @property (nonatomic, copy) NSString *conditionDomicile;

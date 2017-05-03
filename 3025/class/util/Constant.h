@@ -10,6 +10,13 @@
 
 @interface Constant : NSObject
 
+#define kWXAppKey @"wxad48b0df5c0ca7af"
+#define kWXAppSecret @"00c2102413f8139ebb7fb0ab196c91e7"
+
+#define kWXAuthNotification @"wxAuthNotification"
+
+#define kLoginUser @"loginUser"
+
 #define kDomain @"http://www.viewatmobile.cn/3025/"
 
 #define kScreenWidth [UIScreen mainScreen].bounds.size.width
@@ -20,6 +27,7 @@
 #define kTabbarTitleColor [UIColor colorWithRed:54.0f/255.0f green:54.0f/255.0f blue:54.0f/255.0f alpha:1.0f]
 #define kTabbarTitleSelectedColor [UIColor colorWithRed:224.0f/255.0f green:128.0f/255.0f blue:128.0f/255.0f alpha:1.0f]
 #define kKeyColor [UIColor colorWithRed:193.0f/255.0f green:155.0f/255.0f blue:115.0f/255.0f alpha:1.0f]
+#define kLineColor [UIColor colorWithRed:204.0f/255.0f green:204.0f/255.0f blue:204.0f/255.0f alpha:1.0f]
 
 #define kNavigationTitleColor [UIColor colorWithRed:116.0f/255.0f green:87.0f/255.0f blue:88.0f/255.0f alpha:1.0f]
 

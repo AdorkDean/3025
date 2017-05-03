@@ -205,6 +205,14 @@
     return [cell systemLayoutSizeFittingSize:UILayoutFittingCompressedSize].height + 1;
 }
 
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return 0.01f;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+    return 0.01f;
+}
+
 #pragma mark - 事件处理
 
 - (void)showFilter:(UIButton *)button {
@@ -704,8 +712,9 @@
     
     if (!_tableView) {
         
-        _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+        _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleGrouped];
         _tableView.backgroundColor = kBackgroundColor;
+        _tableView.separatorInset = UIEdgeInsetsMake(0, 80, 0, 0);
         _tableView.mj_header = self.refreshNormalHeader;
         _tableView.dataSource = self;
         _tableView.delegate = self;
