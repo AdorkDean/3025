@@ -149,7 +149,7 @@
     
     self.titleLabel.text = dict[@"activityname"];
     
-    self.capacityLabel.text = [NSString stringWithFormat:@" %@ ", dict[@"capacityTo"]];
+    self.capacityLabel.text = [NSString stringWithFormat:@" %@人 ", dict[@"capacityTo"]];
     
     self.categoryLabel.text = [NSString stringWithFormat:@" %@ ", dict[@"category"]];
     
