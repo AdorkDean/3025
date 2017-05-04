@@ -413,7 +413,7 @@
                          u.salary, \
                          u.sex, \
                          u.signature, \
-                         u.unit_nature unitNature, \
+                         u.unit_nature, \
                          u.userid, \
                          concat(c.ageFrom, '-', c.ageTo) conditionAge, \
                          concat(c.domicileprovince, '-', c.domicilecity) conditionDomicile \
@@ -424,6 +424,8 @@
                      on \
                              c.userid = u.userid \
                          and c.category = '01' \
+                     order by \
+                         u.updatetime desc \
                      limit \
                          %ld, 10;", self.pageNumber*10];
         parameterDict = @{ @"sql": sql };
