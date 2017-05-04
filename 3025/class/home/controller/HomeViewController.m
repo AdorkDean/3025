@@ -263,6 +263,22 @@
 - (void)click:(UIButton *)button {
     
     self.isAttentive = (button.tag == 1);
+    if (self.isAttentive) {
+        
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"未登录" message:@"请先登录帐号" preferredStyle:UIAlertControllerStyleAlert];
+        [alertController addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            [alertController dismissViewControllerAnimated:YES completion:nil];
+        }]];
+        [alertController addAction:[UIAlertAction actionWithTitle:@"去登录" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [alertController dismissViewControllerAnimated:YES completion:nil];
+            self.tabBarController.selectedViewController = [self.tabBarController.viewControllers lastObject];
+        }]];
+        
+        [self presentViewController:alertController animated:YES completion:nil];
+        
+        return;
+    }
+    
     self.pageNumber = 0;
     [self loadData];
     
@@ -361,42 +377,91 @@
  */
 - (void)loadData {
     
-    NSString *url = [NSString stringWithFormat:@"%@%@", kDomain, @"userListPerPage.html"];
-    NSString *interest = (self.isAttentive ? @"1" : @"0");
-    NSString *cacheUrl = [NSString stringWithFormat:@"%@?interest=%@", url, interest];
+    NSString *url;
+    NSString *cacheUrl;
+    NSString *interest;
+    NSDictionary *parameterDict;
+    NSString *userid = self.me.userid;
+    
+    if (userid) {
+
+        interest = (self.isAttentive ? @"1" : @"0");
+        url = [NSString stringWithFormat:@"%@%@", kDomain, @"userListPerPage.html"];
+        cacheUrl = [NSString stringWithFormat:@"%@?interest=%@", url, (self.isAttentive ? @"1" : @"0")];
+        parameterDict = @{
+                          @"pageNumber":[NSString stringWithFormat:@"%ld", self.pageNumber],
+                          @"interest":interest,
+                          @"userid":userid
+                        };
+    } else {
+        url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/query.html"];
+        cacheUrl = [NSString stringWithFormat:@"%@?page=%@", url, @"Home"];
+        NSString *sql = [NSString stringWithFormat:@"\
+                     select \
+                         u.birthday, \
+                         u.comment, \
+                         u.domicile, \
+                         u.education, \
+                         u.height, \
+                         u.house, \
+                         u.important, \
+                         u.marital_status maritalStatus, \
+                         u.nickname, \
+                         u.position, \
+                         u.poster, \
+                         u.residence, \
+                         u.salary, \
+                         u.sex, \
+                         u.signature, \
+                         u.unit_nature unitNature, \
+                         u.userid, \
+                         concat(c.ageFrom, '-', c.ageTo) conditionAge, \
+                         concat(c.domicileprovince, '-', c.domicilecity) conditionDomicile \
+                     from \
+                         user u \
+                     left join \
+                         conditions c \
+                     on \
+                             c.userid = u.userid \
+                         and c.category = '01' \
+                     limit \
+                         %ld, 10;", self.pageNumber*10];
+        parameterDict = @{ @"sql": sql };
+    }
     
     // 初次加载数据或者刷新
     if (self.pageNumber == 0) {
         
         // 取缓存数据
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            
-            NSString *response = [DatabaseUtil response:cacheUrl effective:60];
-            if (response) {
+        NSString *response = [DatabaseUtil response:cacheUrl effective:60];
+        if (response) {
+            if (userid) {
                 
                 self.userList = [NSArray mj_objectArrayWithKeyValuesArray:response];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    
-                    [self.tableView reloadData];
-                });
+            } else {
+                
+                NSData *responseData = [response dataUsingEncoding:NSUTF8StringEncoding];
+                NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseData options:NSJSONReadingMutableContainers error:nil];
+                self.userList = responseDict[@"list"];
             }
-        });
+
+            [self.tableView reloadData];
+        }
     }
 
     //获取网络数据
-    NSDictionary *patamterDict = @{@"pageNumber":[NSString stringWithFormat:@"%ld", self.pageNumber],
-                                   @"interest":interest,
-                                   @"userid":self.userid};
-    
-    AFHTTPSessionManager *httpSessionManager = [AFHTTPSessionManager manager];
-    httpSessionManager.requestSerializer = [AFHTTPRequestSerializer serializer];
-    httpSessionManager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    [HttpUtil query:url parameter:parameterDict success:^(id responseObject) {
 
-    [httpSessionManager POST:url parameters:patamterDict progress:^(NSProgress * _Nonnull uploadProgress) {
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        
         NSString *json = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
-        NSArray *array = [NSArray mj_objectArrayWithKeyValuesArray:json];
+        NSArray *array;
+        if (userid) {
+
+            array = [NSArray mj_objectArrayWithKeyValuesArray:json];
+        } else {
+
+            NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+            array = responseDict[@"list"];
+        }
         
         if (array.count > 0) {
             
@@ -416,11 +481,9 @@
                 self.userList = [NSArray arrayWithArray:mArray];
             }
             
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.tableView reloadData];
-                [self.tableView.mj_header endRefreshing];
-                [self.tableView.mj_footer endRefreshing];
-            });
+            [self.tableView reloadData];
+            [self.tableView.mj_header endRefreshing];
+            [self.tableView.mj_footer endRefreshing];
         } else {
             
             [SVProgressHUD showImage:nil status:@"已加载全部数据"];
@@ -430,8 +493,8 @@
             [self.tableView.mj_header endRefreshing];
             [self.tableView.mj_footer endRefreshing];
         }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        
+    } failure:^(NSError *error) {
+
         NSLog(@"*** failure %@ ***", error.description);
         [self.tableView.mj_header endRefreshing];
         [self.tableView.mj_footer endRefreshing];

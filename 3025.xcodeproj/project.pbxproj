@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		5DE9D51D18706F04CE00EE19 /* libPods-3025.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BE253F74D16EACEF8C30066C /* libPods-3025.a */; };
+		6B4B8FBA1EBABCBB009DD89B /* MessageCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B4B8FB91EBABCBB009DD89B /* MessageCell.m */; };
+		6B4B8FBD1EBAC01A009DD89B /* MessageModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B4B8FBC1EBAC01A009DD89B /* MessageModel.m */; };
+		6B4B8FC01EBB21E3009DD89B /* HttpUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B4B8FBF1EBB21E3009DD89B /* HttpUtil.m */; };
+		6B4B8FC31EBB2249009DD89B /* ConversionUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B4B8FC21EBB2249009DD89B /* ConversionUtil.m */; };
 		6B4F16F41E8B53AE005972C5 /* UserListModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B4F16F31E8B53AE005972C5 /* UserListModel.m */; };
 		6B4F16F71E8BB88B005972C5 /* DatabaseUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B4F16F61E8BB88B005972C5 /* DatabaseUtil.m */; };
 		6B8B79D91E8A2298006B5D11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6B8B79D81E8A2298006B5D11 /* Assets.xcassets */; };
@@ -27,6 +31,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6B4B8FB81EBABCBB009DD89B /* MessageCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageCell.h; sourceTree = "<group>"; };
+		6B4B8FB91EBABCBB009DD89B /* MessageCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MessageCell.m; sourceTree = "<group>"; };
+		6B4B8FBB1EBAC01A009DD89B /* MessageModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageModel.h; sourceTree = "<group>"; };
+		6B4B8FBC1EBAC01A009DD89B /* MessageModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MessageModel.m; sourceTree = "<group>"; };
+		6B4B8FBE1EBB21E3009DD89B /* HttpUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpUtil.h; sourceTree = "<group>"; };
+		6B4B8FBF1EBB21E3009DD89B /* HttpUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HttpUtil.m; sourceTree = "<group>"; };
+		6B4B8FC11EBB2249009DD89B /* ConversionUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConversionUtil.h; sourceTree = "<group>"; };
+		6B4B8FC21EBB2249009DD89B /* ConversionUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConversionUtil.m; sourceTree = "<group>"; };
 		6B4F16F21E8B53AE005972C5 /* UserListModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserListModel.h; sourceTree = "<group>"; };
 		6B4F16F31E8B53AE005972C5 /* UserListModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserListModel.m; sourceTree = "<group>"; };
 		6B4F16F51E8BB88B005972C5 /* DatabaseUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatabaseUtil.h; sourceTree = "<group>"; };
@@ -77,6 +89,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6B4B8FB61EBABCBB009DD89B /* model */ = {
+			isa = PBXGroup;
+			children = (
+				6B4B8FBB1EBAC01A009DD89B /* MessageModel.h */,
+				6B4B8FBC1EBAC01A009DD89B /* MessageModel.m */,
+			);
+			path = model;
+			sourceTree = "<group>";
+		};
+		6B4B8FB71EBABCBB009DD89B /* view */ = {
+			isa = PBXGroup;
+			children = (
+				6B4B8FB81EBABCBB009DD89B /* MessageCell.h */,
+				6B4B8FB91EBABCBB009DD89B /* MessageCell.m */,
+			);
+			path = view;
+			sourceTree = "<group>";
+		};
 		6B8B79C01E8A2298006B5D11 = {
 			isa = PBXGroup;
 			children = (
@@ -220,7 +250,8 @@
 			isa = PBXGroup;
 			children = (
 				6B8B79FB1E8A235A006B5D11 /* controller */,
-				6B8B79FE1E8A235A006B5D11 /* model */,
+				6B4B8FB71EBABCBB009DD89B /* view */,
+				6B4B8FB61EBABCBB009DD89B /* model */,
 			);
 			path = message;
 			sourceTree = "<group>";
@@ -232,13 +263,6 @@
 				6B8B79FD1E8A235A006B5D11 /* MessageViewController.m */,
 			);
 			path = controller;
-			sourceTree = "<group>";
-		};
-		6B8B79FE1E8A235A006B5D11 /* model */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = model;
 			sourceTree = "<group>";
 		};
 		6B8B79FF1E8A235A006B5D11 /* profile */ = {
@@ -272,6 +296,10 @@
 				6B8B7A051E8A235A006B5D11 /* Constant.h */,
 				6B4F16F51E8BB88B005972C5 /* DatabaseUtil.h */,
 				6B4F16F61E8BB88B005972C5 /* DatabaseUtil.m */,
+				6B4B8FBE1EBB21E3009DD89B /* HttpUtil.h */,
+				6B4B8FBF1EBB21E3009DD89B /* HttpUtil.m */,
+				6B4B8FC11EBB2249009DD89B /* ConversionUtil.h */,
+				6B4B8FC21EBB2249009DD89B /* ConversionUtil.m */,
 			);
 			path = util;
 			sourceTree = "<group>";
@@ -435,15 +463,19 @@
 				6B8B7A0E1E8A235A006B5D11 /* ProfileViewController.m in Sources */,
 				6B8B7A061E8A235A006B5D11 /* ActivityViewController.m in Sources */,
 				6B8B7A0B1E8A235A006B5D11 /* AppDelegate.m in Sources */,
+				6B4B8FBD1EBAC01A009DD89B /* MessageModel.m in Sources */,
 				6B8B7A071E8A235A006B5D11 /* MKNavigationController.m in Sources */,
 				6B8B7A0A1E8A235A006B5D11 /* HomeViewController.m in Sources */,
+				6B4B8FC01EBB21E3009DD89B /* HttpUtil.m in Sources */,
 				6B4F16F41E8B53AE005972C5 /* UserListModel.m in Sources */,
 				6B8B7A111E8A2E0D006B5D11 /* UserModel.m in Sources */,
 				6B8B7A0C1E8A235A006B5D11 /* main.m in Sources */,
+				6B4B8FC31EBB2249009DD89B /* ConversionUtil.m in Sources */,
 				6B4F16F71E8BB88B005972C5 /* DatabaseUtil.m in Sources */,
 				6B8B7A0D1E8A235A006B5D11 /* MessageViewController.m in Sources */,
 				6BE9338E1EAF231C00A827A7 /* ActivityModel.m in Sources */,
 				6B8B7A151E8A34E8006B5D11 /* UserCell.m in Sources */,
+				6B4B8FBA1EBABCBB009DD89B /* MessageCell.m in Sources */,
 				6BD45E081EA9F08D009887DD /* ActivityCell.m in Sources */,
 				6B8B7A081E8A235A006B5D11 /* MKTabBarController.m in Sources */,
 			);

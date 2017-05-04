@@ -250,6 +250,8 @@
         backgroundImageView.image = [UIImage imageNamed:@"header"];
         
         UIImageView *posterImageView = [[UIImageView alloc] init];
+        posterImageView.layer.borderColor = kKeyColor.CGColor;
+        posterImageView.layer.borderWidth = 1;
         posterImageView.layer.cornerRadius = 30;
         posterImageView.layer.masksToBounds = YES;
         posterImageView.contentMode = UIViewContentModeScaleToFill;

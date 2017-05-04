@@ -43,13 +43,49 @@
                              [[MKNavigationController alloc] initWithRootViewController:self.activityViewController],
                              [[MKNavigationController alloc] initWithRootViewController:self.profileViewController]
                              ];
-    self.selectedIndex = 0;
+    self.selectedViewController = [self.viewControllers firstObject];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
+}
+
+- (void)setSelectedViewController:(__kindof UIViewController *)selectedViewController {
+    [super setSelectedViewController:selectedViewController];
     
+    NSString *userid = self.homeViewController.me.userid;
+    if (!userid) {
+        return;
+    }
+    
+    NSString *url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/query.html"];
+    NSString *sql = [NSString stringWithFormat:@"SELECT COALESCE(COUNT(withUserid), 0) count FROM message WHERE userid = %@ AND status = '0'", userid];
+    NSDictionary *paramDict = @{ @"sql": sql };
+    
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.requestSerializer = [AFHTTPRequestSerializer serializer];
+    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    
+    [manager POST:url parameters:paramDict progress:^(NSProgress * _Nonnull uploadProgress) {
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        NSLog(@"*** %@ ***", dict);
+        
+        int count = [dict[@"list"][0][@"count"] intValue];
+        if (count > 0) {
+        
+            self.messageViewController.tabBarItem.badgeValue = [NSString stringWithFormat:@"%d", count];
+        } else {
+            
+            self.tabBarItem.badgeValue = nil;
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        
+        NSLog(@"*** %@ ***", error);
+    }];
 }
 
 - (void)didReceiveMemoryWarning {

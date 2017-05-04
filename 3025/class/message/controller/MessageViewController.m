@@ -9,7 +9,7 @@
 #import "MessageViewController.h"
 #import "MessageCell.h"
 
-@interface MessageViewController () <UITableViewDataSource, UITableViewDelegate> {
+@interface MessageViewController () <UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate> {
 
 }
 
@@ -40,6 +40,17 @@
     
     [self setupDiscover];
     [self setupMessages];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self setupDiscover];
+    [self setupMessages];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -82,6 +93,14 @@
     self.navigationItem.titleView = titleLabel;
 }
 
+#pragma mark - 事件处理
+
+- (void)goDiscover:(UIGestureRecognizer *)gestureRecognizer {
+
+    NSLog(@"*** %@ ***", NSStringFromSelector(_cmd));
+    [self updateLasttime];
+}
+
 #pragma mark - UITableViewDataSource
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -97,12 +116,15 @@
     }
     
     NSDictionary *messageDict = [self.messageList objectAtIndex:indexPath.row];
+    MessageModel *messageModel = [MessageModel mj_objectWithKeyValues:messageDict];
     
-    cell.textLabel.text = messageDict[@"other_nickname"];
-    cell.detailTextLabel.text = messageDict[@"content"];
-    [cell.imageView sd_setImageWithURL:[NSURL URLWithString:messageDict[@"other_poster"]] placeholderImage:[UIImage imageNamed:@"poster"]];
+    [cell setupData:messageModel];
     
     return cell;
+}
+
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    return YES;
 }
 
 #pragma mark - UITableViewDelegate
@@ -119,6 +141,43 @@
     return 0.01f;
 }
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    NSLog(@"*** %@ ***", NSStringFromSelector(_cmd));
+    
+    MessageModel *messageModel = [MessageModel mj_objectWithKeyValues:[self.messageList objectAtIndex:indexPath.row]];
+    if ([messageModel.status isEqualToString:@"0"]) {
+        
+        [self updateMessage:messageModel status:@"1"];
+    }
+}
+
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return UITableViewCellEditingStyleDelete;
+}
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    NSLog(@"*** %@ ***", NSStringFromSelector(_cmd));
+    
+    MessageModel *messageModel = [MessageModel mj_objectWithKeyValues:[self.messageList objectAtIndex:indexPath.row]];
+    [self updateMessage:messageModel status:@"9"];
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return @"删除";
+}
+
+#pragma mark - UIScrollViewDelegate
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    if (scrollView == self.tableView) {
+        if (scrollView.contentOffset.y < 0) {
+            scrollView.contentOffset = CGPointMake(0, 0);
+        }
+    }
+}
+
 #pragma mark - setter and getter
 
 - (UIView *)headerView {
@@ -127,6 +186,7 @@
         
         _headerView = [[UIView alloc] init];
         _headerView.backgroundColor = [UIColor whiteColor];
+        [_headerView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(goDiscover:)]];
         
         UIImageView *leftImageView = [[UIImageView alloc] init];
         leftImageView.image = [UIImage imageNamed:@"discover"];
@@ -137,6 +197,8 @@
         titleLabel.text = @"查看生活圈";
         
         UIImageView *posterImageView = [[UIImageView alloc] init];
+        posterImageView.layer.borderColor = kKeyColor.CGColor;
+        posterImageView.layer.borderWidth = 1;
         posterImageView.layer.cornerRadius = 20.0f;
         posterImageView.layer.masksToBounds = YES;
         posterImageView.image = [UIImage imageNamed:@"poster"];
@@ -175,7 +237,8 @@
             make.height.width.mas_equalTo(40);
         }];
         [dotImageView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.top.right.mas_equalTo(posterImageView);
+            make.centerY.mas_equalTo(posterImageView.mas_top);
+            make.centerX.mas_equalTo(posterImageView.mas_right);
             make.height.width.mas_equalTo(10);
         }];
         [rightImageView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -200,6 +263,7 @@
         
         _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleGrouped];
         _tableView.backgroundColor = kBackgroundColor;
+        _tableView.separatorInset = UIEdgeInsetsMake(0, 60, 0, 0);
         _tableView.dataSource = self;
         _tableView.delegate = self;
     }
@@ -209,6 +273,7 @@
 
 #pragma mark - 获取数据
 
+// 获取生活圈数据
 - (void)setupDiscover {
     
     if (self.me.userid) {
@@ -257,6 +322,7 @@
     }];
 }
 
+// 获取上一次打开生活圈的时间
 - (void)setupLasttime {
     
     NSString *url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/query.html"];
@@ -303,14 +369,20 @@
     }];
 }
 
+// 获取消息数据
 - (void)setupMessages {
     
     if (!self.me.userid) {
+        
+        self.messageList = [NSMutableArray array];
+        [self.tableView reloadData];
+        
         return;
     }
     
     NSString *url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/query.html"];
     NSString *sql = [NSString stringWithFormat:@"SELECT \
+                                                    m1.withUserid, \
                                                     m1.createtime, \
                                                     m1.content, \
                                                     m1.status, \
@@ -367,6 +439,145 @@
             NSLog(@"*** %@ ***", exception);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"*** %@ ***", error);
+    }];
+}
+
+// 更新打开生活圈的时间
+- (void)updateLasttime {
+    
+    if (!self.me.userid) {
+        return;
+    }
+    
+    NSString *url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/query.html"];
+    NSString *sql = [NSString stringWithFormat:@"delete from preference where userid = %@ and page = 'message' and item = 'lasttime'", self.me.userid];
+    NSDictionary *paramDict = @{ @"sql": sql };
+    
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.requestSerializer = [AFHTTPRequestSerializer serializer];
+    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    
+    [manager POST:url parameters:paramDict progress:^(NSProgress * _Nonnull uploadProgress) {
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        NSLog(@"*** %@ ***", dict);
+        
+        // 获得当前时间
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        dateFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
+        NSString *now = [dateFormatter stringFromDate:[NSDate date]];
+        
+        NSString *url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/query.html"];
+        NSString *sql = [NSString stringWithFormat:@"insert into preference ( \
+                                                                                userid, \
+                                                                                page, \
+                                                                                item, \
+                                                                                value, \
+                                                                                createtime, \
+                                                                                updatetime \
+                                                                            ) values \
+                                                                            ( \
+                                                                                '%@', \
+                                                                                'message', \
+                                                                                'lasttime', \
+                                                                                '%@', \
+                                                                                now(), \
+                                                                                now() \
+                                                                            )", self.me.userid, now];
+        NSDictionary *paramDict = @{ @"sql": sql };
+        
+        AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+        manager.requestSerializer = [AFHTTPRequestSerializer serializer];
+        manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+        
+        [manager POST:url parameters:paramDict progress:^(NSProgress * _Nonnull uploadProgress) {
+            
+        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            
+            NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+            NSLog(@"*** %@ ***", dict);
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            
+            NSLog(@"*** %@ ***", error);
+        }];
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        
+        NSLog(@"*** %@ ***", error);
+    }];
+}
+
+// 更新消息状态（0:未读，1:已读，9:删除）
+- (void)updateMessage:(MessageModel *)messageModel status:(NSString *)status {
+    
+    if (!self.me.userid) {
+        return;
+    }
+    
+    NSString *url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/query.html"];
+    NSString *sql = [NSString stringWithFormat:@"update message set status = '%@' where userid = %@ and withUserid = %@ %@", status, self.me.userid, messageModel.withUserid, [status isEqualToString:@"9"]?@"and status != '9'":@"and status = '0'"];
+    
+    NSDictionary *paramDict = @{ @"sql": sql };
+    
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.requestSerializer = [AFHTTPRequestSerializer serializer];
+    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    
+    [manager POST:url parameters:paramDict progress:^(NSProgress * _Nonnull uploadProgress) {
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        NSLog(@"*** %@ ***", dict);
+        
+        if ([status isEqualToString:@"9"]) {
+            
+            [self setupMessages];
+        } else {
+            
+            [self setupUnreadCount];
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        
+        NSLog(@"*** %@ ***", error);
+    }];
+}
+
+// 设定未读消息数
+- (void)setupUnreadCount {
+
+    NSString *userid = self.me.userid;
+    if (!userid) {
+        return;
+    }
+    
+    NSString *url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/query.html"];
+    NSString *sql = [NSString stringWithFormat:@"SELECT COALESCE(COUNT(withUserid), 0) count FROM message WHERE userid = %@ AND status = '0'", userid];
+    NSDictionary *paramDict = @{ @"sql": sql };
+    
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.requestSerializer = [AFHTTPRequestSerializer serializer];
+    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    
+    [manager POST:url parameters:paramDict progress:^(NSProgress * _Nonnull uploadProgress) {
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        NSLog(@"*** %@ ***", dict);
+        
+        int count = [dict[@"list"][0][@"count"] intValue];
+        if (count > 0) {
+            
+            self.tabBarItem.badgeValue = [NSString stringWithFormat:@"%d", count];
+        } else {
+            
+            self.tabBarItem.badgeValue = nil;
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        
         NSLog(@"*** %@ ***", error);
     }];
 }

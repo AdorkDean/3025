@@ -43,7 +43,7 @@
     UIImageView *posterImageView = [[UIImageView alloc] init];
     posterImageView.contentMode = UIViewContentModeScaleToFill;
     posterImageView.layer.borderColor = kKeyColor.CGColor;
-    posterImageView.layer.borderWidth = 0;
+    posterImageView.layer.borderWidth = 1;
     posterImageView.layer.cornerRadius = 5;
     posterImageView.layer.masksToBounds = YES;
     

@@ -7,7 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "MessageModel.h"
 
 @interface MessageCell : UITableViewCell
+
+- (void)setupData:(MessageModel *)messageModel;
 
 @end
