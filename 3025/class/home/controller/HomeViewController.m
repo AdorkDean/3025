@@ -23,7 +23,7 @@
 @property (nonatomic, strong) MJRefreshBackNormalFooter *refreshFooter;
 @property (nonatomic, strong) MASConstraint *leftConstraint;
 @property (nonatomic, strong) MASConstraint *rightConstraint;
-@property (nonatomic, assign) NSUInteger pageNumber;
+@property (nonatomic, assign) NSInteger pageNumber;
 @property (nonatomic, assign) BOOL isAttentive;
 
 @end
@@ -265,18 +265,9 @@
     self.isAttentive = (button.tag == 1);
     if (self.isAttentive) {
         
-        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"未登录" message:@"请先登录帐号" preferredStyle:UIAlertControllerStyleAlert];
-        [alertController addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-            [alertController dismissViewControllerAnimated:YES completion:nil];
-        }]];
-        [alertController addAction:[UIAlertAction actionWithTitle:@"去登录" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            [alertController dismissViewControllerAnimated:YES completion:nil];
-            self.tabBarController.selectedViewController = [self.tabBarController.viewControllers lastObject];
-        }]];
-        
-        [self presentViewController:alertController animated:YES completion:nil];
-        
-        return;
+        if ([self goLogin:nil message:@"查看关注需要先登录帐号"]) {
+            return;
+        }
     }
     
     self.pageNumber = 0;
@@ -465,36 +456,33 @@
             array = responseDict[@"list"];
         }
         
-        if (array.count > 0) {
+        if (self.pageNumber == 0) {
             
-            if (self.pageNumber == 0) {
+            self.userList = array;
+            
+            // 缓存网络请求数据到本地
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 
-                self.userList = array;
-                
-                // 缓存网络请求数据到本地
-                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                    
-                    [DatabaseUtil cacheResponse:json forURL:cacheUrl];
-                });
-            } else {
+                [DatabaseUtil cacheResponse:json forURL:cacheUrl];
+            });
+        } else {
+            if (array.count > 0) {
                 
                 NSMutableArray *mArray = [NSMutableArray arrayWithArray:self.userList];
                 [mArray addObjectsFromArray:array];
                 self.userList = [NSArray arrayWithArray:mArray];
+            } else {
+                
+                [SVProgressHUD showImage:nil status:@"已加载全部数据"];
+                [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
+                [SVProgressHUD dismissWithDelay:1.5];
             }
-            
-            [self.tableView reloadData];
-            [self.tableView.mj_header endRefreshing];
-            [self.tableView.mj_footer endRefreshing];
-        } else {
-            
-            [SVProgressHUD showImage:nil status:@"已加载全部数据"];
-            [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
-            [SVProgressHUD dismissWithDelay:1.5];
-            
-            [self.tableView.mj_header endRefreshing];
-            [self.tableView.mj_footer endRefreshing];
         }
+        
+        [self.tableView reloadData];
+        [self.tableView.mj_header endRefreshing];
+        [self.tableView.mj_footer endRefreshing];
+        
     } failure:^(NSError *error) {
 
         NSLog(@"*** failure %@ ***", error.description);

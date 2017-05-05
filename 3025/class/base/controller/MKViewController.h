@@ -25,4 +25,6 @@
 @property (nonatomic, copy) NSString *userid;
 @property (nonatomic, strong) UserModel *me;
 
+- (BOOL)goLogin:(NSString *)title message:(NSString *)message;
+
 @end

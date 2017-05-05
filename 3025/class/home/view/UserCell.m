@@ -160,7 +160,7 @@
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:intro attributes:@{NSParagraphStyleAttributeName : paragraphStyle}];
     [self.introLable setAttributedText:attributedString];
     // 择偶标准
-    [self.expectionLable setText:(model.condition ? [NSString stringWithFormat:@"期望: %@, 户籍%@", model.conditionAge, model.conditionDomicile] : @"期望: 未设定")];
+    [self.expectionLable setText:(model.condition ? [NSString stringWithFormat:@"期望: %@, 户籍%@", model.conditionAge, model.conditionDomicile] : @"期望: 未填写")];
     // 查看详情
     [self.detailLable setText:@"查看详情"];
 }

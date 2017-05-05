@@ -180,15 +180,16 @@
 
 - (NSString *)conditionAge {
     if ([_conditionAge containsString:@"年"]) {
+        
     } else if ([_conditionAge containsString:@"-"]) {
         NSArray *arr = [_conditionAge componentsSeparatedByString:@"-"];
         if (arr.count == 2) {
             if ([arr[0] isEqualToString:@"0"] && [arr[1] isEqualToString:@"0"]) {
                 _conditionAge = @"年龄不限";
             } else if ([arr[0] isEqualToString:@"0"] && ![arr[1] isEqualToString:@"0"]) {
-                _conditionAge = [NSString stringWithFormat:@"%@年前", [arr[1] substringFromIndex:2]];
+                _conditionAge = [NSString stringWithFormat:@"不限-%@年", [arr[1] substringFromIndex:2]];
             } else if (![arr[0] isEqualToString:@"0"] && [arr[1] isEqualToString:@"0"]) {
-                _conditionAge = [NSString stringWithFormat:@"%@年后", [arr[0] substringFromIndex:2]];
+                _conditionAge = [NSString stringWithFormat:@"%@年-不限", [arr[0] substringFromIndex:2]];
             } else {
                 _conditionAge = [NSString stringWithFormat:@"%@年-%@年", [arr[0] substringFromIndex:2], [arr[1] substringFromIndex:2]];
             }

@@ -31,4 +31,14 @@
 
 #define kNavigationTitleColor [UIColor colorWithRed:116.0f/255.0f green:87.0f/255.0f blue:88.0f/255.0f alpha:1.0f]
 
+#define kActivityCategory (@[@"不限", @"兴趣", @"玩乐", @"交友", @"运动", @"户外", @"生活", @"行业"])
+#define kActivityCategory1 (@[@"全部", @"创客聚会", @"宠物", @"影视动漫", @"摄影", @"音乐", @"文学", @"电竞", @"艺术收藏", @"兴趣"])
+#define kActivityCategory2 (@[@"全部", @"美食", @"麻将棋牌", @"泡吧", @"郊游旅游", @"K歌", @"玩乐"])
+#define kActivityCategory3 (@[@"全部", @"车友会", @"70后", @"80后", @"90后", @"同城同乡", @"交友"])
+#define kActivityCategory4 (@[@"全部", @"武术", @"跑步", @"健身房", @"台球", @"游泳", @"篮球", @"足球" @"运动"])
+#define kActivityCategory5 (@[@"全部", @"徒步", @"垂钓", @"登山", @"露营", @"自驾游", @"骑行", @"户外"])
+#define kActivityCategory6 (@[@"全部", @"健康养生", @"茶", @"红酒", @"花草", @"宗教", @"心理学", @"生活"])
+#define kActivityCategory7 (@[@"全部", @"投资理财", @"创业", @"公益", @"法律", @"互联网", @"教育", @"行业"])
+#define kActivityCategorys (@[@[@"不限"], kActivityCategory1, kActivityCategory2, kActivityCategory3, kActivityCategory4, kActivityCategory5, kActivityCategory6, kActivityCategory7])
+
 @end

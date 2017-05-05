@@ -8,13 +8,18 @@
 
 #import "ActivityViewController.h"
 #import "ActivityCell.h"
+#import "ActivityModel.h"
 
-@interface ActivityViewController () <UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate> {
+#define kHasTa (@[@"不限", @"有TA"])
+
+@interface ActivityViewController () <UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, UITextFieldDelegate, UIPickerViewDataSource, UIPickerViewDelegate> {
     
 }
 
 @property (nonatomic, strong) UIWindow *keyWindow;
 @property (nonatomic, strong) UIView *headView;
+@property (nonatomic, strong) UITextField *textField;
+@property (nonatomic, strong) UIPickerView *pickerView;
 @property (nonatomic, strong) UIView *filterView;
 @property (nonatomic, strong) UIButton *filterButton;
 @property (nonatomic, strong) UIView *joinView;
@@ -23,8 +28,17 @@
 @property (nonatomic, strong) UIView *shadowView;
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, strong) MJRefreshNormalHeader *refreshNormalHeader;
+@property (nonatomic, strong) MJRefreshBackNormalFooter *refreshNormalFooter;
 
+@property (nonatomic, assign) NSUInteger pageNumber;
 @property (nonatomic, copy) NSArray *activityArray;
+
+@property (nonatomic, copy) NSString *filer_location;
+@property (nonatomic, copy) NSString *filer_timeFrom;
+@property (nonatomic, copy) NSString *filer_timeTo;
+@property (nonatomic, copy) NSString *filer_category;
+@property (nonatomic, assign) BOOL filer_hasTa;
+@property (nonatomic, assign) NSInteger filer_join;
 
 @property (nonatomic, strong) MASConstraint *filterTopConstraint;
 @property (nonatomic, strong) MASConstraint *filterBottomConstraint;
@@ -44,6 +58,8 @@
     
     [self setupNavigtion];
     [self setupUI];
+    
+    self.pageNumber = 0;
     [self loadData];
 }
 
@@ -168,6 +184,152 @@
     [self.view endEditing:YES];
 }
 
+#pragma mark - UITextFieldDelegate
+
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField {
+    
+    self.textField = textField;
+    
+    if (!self.pickerView) {
+        self.pickerView = [[UIPickerView alloc] init];
+        self.pickerView.backgroundColor = kBackgroundColor;
+        self.pickerView.showsSelectionIndicator = YES;
+        self.pickerView.dataSource = self;
+        self.pickerView.delegate = self;
+    }
+    
+    [self.keyWindow addSubview:self.pickerView];
+    [self.pickerView mas_remakeConstraints:^(MASConstraintMaker *make) {
+        make.left.width.mas_equalTo(self.keyWindow);
+        make.bottom.mas_equalTo(self.keyWindow);
+    }];
+    
+    [self.pickerView reloadAllComponents];
+    if (self.textField.tag == 2) {
+        [self.pickerView reloadComponent:0];
+        [self.pickerView selectRow:2 inComponent:0 animated:YES];
+        [self.pickerView reloadComponent:1];
+        [self.pickerView selectRow:2 inComponent:1 animated:YES];
+    } else if (self.textField.tag == 3) {
+        [self.pickerView reloadComponent:0];
+        [self.pickerView selectRow:1 inComponent:0 animated:YES];
+    }
+    
+    return NO;
+}
+
+#pragma mark - UIPickerViewDataSource
+
+- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView {
+
+    if (self.textField.tag == 0) { // 活动地址
+
+        return 3;
+    } else if (self.textField.tag == 2) { // 活动类型
+
+        return 2;
+    } else if (self.textField.tag == 3) { // TA已报名
+
+        return 1;
+    }
+
+    return 1;
+}
+
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
+
+    if (self.textField.tag == 0) { // 活动地址
+
+        return 3;
+    } else if (self.textField.tag == 2) { // 活动类型
+
+        if (component == 0) { // 大分类
+
+            return kActivityCategory.count;
+        } else if (component == 1) { // 小分类
+
+            NSInteger selectedRow = [pickerView selectedRowInComponent:0];
+            return [kActivityCategorys[selectedRow] count];
+        }
+    } else if (self.textField.tag == 3) { // TA已报名
+
+        return kHasTa.count;
+    }
+
+    return 0;
+}
+
+#pragma mark - UIPickerViewDelegate
+
+- (nullable NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
+    
+    if (self.textField.tag == 0) { // 活动地址
+
+        return @"";
+    } else if (self.textField.tag == 2) { // 活动类型
+
+        if (component == 0) { // 大分类
+
+            return kActivityCategory[row];
+        } else if (component == 1) { // 小分类
+
+            NSInteger selectedRow = [pickerView selectedRowInComponent:0];
+            if (row >0 && row == ([kActivityCategorys[selectedRow] count] - 1)) {
+                return @"其他";
+            }
+            return [kActivityCategorys[selectedRow] objectAtIndex:row];
+        }
+    } else if (self.textField.tag == 3) { // TA已报名
+
+        return kHasTa[row];
+    }
+
+    return @"";
+}
+
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
+    
+    NSString *title;
+    
+    if (self.textField.tag == 0) { // 活动地址
+        
+        if (component == 0) { // 省
+            
+            [pickerView reloadComponent:1];
+        } else if (component == 1) { // 市
+            
+            [pickerView reloadComponent:2];
+        } else if (component == 2) { // 区
+            
+            
+        }
+    } else if (self.textField.tag == 2) { // 活动类型
+        
+        if (component == 0) { // 大分类
+            
+            [pickerView reloadComponent:1];
+            [pickerView selectRow:0 inComponent:1 animated:YES];
+            NSInteger selectedRow = [pickerView selectedRowInComponent:0];
+            title = [NSString stringWithFormat:@"%@-%@", kActivityCategory[selectedRow], [kActivityCategorys[selectedRow] objectAtIndex:0]];
+        } else if (component == 1) { // 小分类
+            
+            NSInteger selectedRow = [pickerView selectedRowInComponent:0];
+            if (row == ([kActivityCategorys[selectedRow] count] - 1)) {
+                title = [NSString stringWithFormat:@"%@-%@", kActivityCategory[selectedRow], @"其他"];
+            } else {
+                title = [NSString stringWithFormat:@"%@-%@", kActivityCategory[selectedRow], [kActivityCategorys[selectedRow] objectAtIndex:row]];
+            }
+        }
+    } else if (self.textField.tag == 3) { // TA已报名
+        
+        title = kHasTa[row];
+    }
+    
+    if (title) {
+        self.textField.text = [NSString stringWithFormat:@"  %@", [title isEqualToString:@"不限-不限"] ? @"不限" : title];
+    }
+}
+
 #pragma mark - UITableViewDataSource
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -183,7 +345,8 @@
     if (!cell) {
         cell = [[ActivityCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellID];
     }
-    [cell setupData:self.activityArray[indexPath.row]];
+    ActivityModel *activityModel = [ActivityModel mj_objectWithKeyValues:self.activityArray[indexPath.row]];
+    [cell setupData:activityModel];
     
     return cell;
 }
@@ -200,7 +363,8 @@
         cell = [[ActivityCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellID];
     });
     
-    [cell setupData:self.activityArray[indexPath.row]];
+    ActivityModel *activityModel = [ActivityModel mj_objectWithKeyValues:self.activityArray[indexPath.row]];
+    [cell setupData:activityModel];
     
     return [cell systemLayoutSizeFittingSize:UILayoutFittingCompressedSize].height + 1;
 }
@@ -357,18 +521,48 @@
         
         [self showFilter:self.joinButton];
     }
+    
+    NSLog(@"*** %ld ***", [self.pickerView selectedRowInComponent:0]);
+    [self.pickerView removeFromSuperview];
 }
 
 - (void)joinLabelTapped:(UITapGestureRecognizer *)gestureRecognizer {
     
     UILabel *titleLabel = (UILabel *)gestureRecognizer.view;
+    
+    if (titleLabel.tag == 1 || titleLabel.tag == 2) {
+        if ([self goLogin:nil message:@"该操作需要您先登录"]) {
+            
+            [self shadowViewTapped:[self.shadowView.gestureRecognizers firstObject]];
+            return;
+        }
+    }
 
     self.joinImageView.hidden = NO;
-    
     [self.joinImageView mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.centerY.mas_equalTo(titleLabel);
         make.right.mas_equalTo(_joinView).mas_offset(-20);
     }];
+    
+    [self shadowViewTapped:[self.shadowView.gestureRecognizers firstObject]];
+    
+    self.filer_join = titleLabel.tag;
+    self.pageNumber = 0;
+    [self loadData];
+}
+
+- (void)cancel:(UIButton *)button {
+    [self shadowViewTapped:[self.shadowView.gestureRecognizers firstObject]];
+}
+
+- (void)filter:(UIButton *)button {
+
+    // 收起检索条件区域
+    [self shadowViewTapped:[self.shadowView.gestureRecognizers firstObject]];
+
+    // 检索数据
+    self.pageNumber = 0;
+    [self loadData];
 }
 
 #pragma mark - setter & getter
@@ -534,6 +728,8 @@
             textField.textColor = [UIColor blackColor];
             textField.font = [UIFont systemFontOfSize:14.0f];
             textField.placeholder = [NSString stringWithFormat:@"  请选择"];
+            textField.tag = i;
+            textField.delegate = self;
             
             UIView *hLineView;
             UITextField *endTextField;
@@ -550,6 +746,8 @@
                 endTextField.textColor = [UIColor blackColor];
                 endTextField.font = [UIFont systemFontOfSize:14.0f];
                 endTextField.placeholder = [NSString stringWithFormat:@"  请选择"];
+                endTextField.tag = i*10+i;
+                endTextField.delegate = self;
             }
             
             UIView *lineView = [[UIView alloc] init];
@@ -610,6 +808,7 @@
         [cancelButton.titleLabel setFont:[UIFont systemFontOfSize:16.0f]];
         [cancelButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
         [cancelButton setTitle:@"取消" forState:UIControlStateNormal];
+        [cancelButton addTarget:self action:@selector(cancel:) forControlEvents:UIControlEventTouchUpInside];
 
         UIButton *submitButton = [[UIButton alloc] init];
         submitButton.layer.borderWidth = 0.5;
@@ -619,6 +818,7 @@
         [submitButton.titleLabel setFont:[UIFont systemFontOfSize:16.0f]];
         [submitButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
         [submitButton setTitle:@"确定" forState:UIControlStateNormal];
+        [submitButton addTarget:self action:@selector(filter:) forControlEvents:UIControlEventTouchUpInside];
         
         [_filterView addSubview:cancelButton];
         [_filterView addSubview:submitButton];
@@ -694,13 +894,13 @@
         
         UIImageView *joinImageView = [[UIImageView alloc] init];
         joinImageView.image = [UIImage imageNamed:@"checked"];
-        joinImageView.hidden = YES;
+        joinImageView.hidden = NO;
         self.joinImageView = joinImageView;
         
         [_joinView addSubview:joinImageView];
         
         [joinImageView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.centerY.mas_equalTo(layoutLabel);
+            make.centerY.mas_equalTo(layoutLabel).offset(-120);
             make.right.mas_equalTo(_joinView).mas_offset(-20);
         }];
     }
@@ -716,6 +916,7 @@
         _tableView.backgroundColor = kBackgroundColor;
         _tableView.separatorInset = UIEdgeInsetsMake(0, 80, 0, 0);
         _tableView.mj_header = self.refreshNormalHeader;
+        _tableView.mj_footer = self.refreshNormalFooter;
         _tableView.dataSource = self;
         _tableView.delegate = self;
     }
@@ -729,6 +930,7 @@
         
         _refreshNormalHeader = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
 
+            self.pageNumber = 0;
             [self loadData];
         }];
     }
@@ -736,33 +938,125 @@
     return _refreshNormalHeader;
 }
 
+- (MJRefreshBackNormalFooter *)refreshNormalFooter {
+    
+    if (!_refreshNormalFooter) {
+        
+        _refreshNormalFooter = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+            
+            self.userid ? (self.pageNumber = 0) : self.pageNumber++;
+            [self loadData];
+        }];
+    }
+    
+    return _refreshNormalFooter;
+}
+
 #pragma mark - 数据处理
 
 - (void)loadData {
     
-    NSString *URLString = [NSString stringWithFormat:@"%@%@", kDomain, @"activity/filter.html"];
-    NSDictionary *parameters = @{
-                                 @"conditionUserid": self.me.userid,
-                                 @"myUserid": self.me.userid
-                                 };
+    NSString *url;
+    NSDictionary *parameterDict;
     
-    AFHTTPSessionManager *httpSessionManager = [AFHTTPSessionManager manager];
-    httpSessionManager.requestSerializer = [AFHTTPRequestSerializer serializer];
-    httpSessionManager.responseSerializer = [AFHTTPResponseSerializer serializer];
-    
-    [httpSessionManager POST:URLString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
+    if (self.userid) {
+
+        url = [NSString stringWithFormat:@"%@%@", kDomain, @"activity/filter.html"];
+        parameterDict = @{
+                          @"conditionUserid": self.userid,
+                          @"myUserid": self.userid
+                        };
+        NSMutableDictionary *mDict = [NSMutableDictionary dictionaryWithDictionary:parameterDict];
+        switch (self.filer_join) {
+            case 1:
+                [mDict setObject:self.userid forKey:@"userid"];
+                break;
+            case 2:
+                [mDict setObject:self.userid forKey:@"registered"];
+                break;
+            case 3:
+                [mDict setObject:@"1" forKey:@"history"];
+                break;
+            default:
+                break;
+        }
+        parameterDict = [NSDictionary dictionaryWithDictionary:mDict];
+    } else {
+        NSMutableString *filter = [NSMutableString stringWithFormat:@""];
+        if (self.filer_join == 3) {
+            [filter appendString:[NSString stringWithFormat:@" and a.userid = %@ ", self.userid]];
+            [filter appendString:@" and a.activitytime > now() "];
+        }
         
-        NSLog(@"*** %@ ***", uploadProgress);
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSString *sql = [NSString stringWithFormat:@"\
+                     select \
+                         u.poster, \
+                         a.activityid, \
+                         a.activityname, \
+                         a.capacityTo, \
+                         a.category, \
+                         a.content, \
+                         a.province, \
+                         a.city, \
+                         a.district \
+                     from \
+                         activity a \
+                     left join \
+                         user u \
+                     on \
+                         a.userid = u.userid \
+                     where \
+                         a.status != '00' %@ \
+                     order by \
+                         a.updatetime desc \
+                     limit \
+                         %ld, 10;", filter, self.pageNumber*10];
+        
+        url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/query.html"];
+        parameterDict = @{ @"sql": sql };
+    }
+
+    [HttpUtil query:url parameter:parameterDict success:^(id responseObject) {
         
         NSString *json = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
-        self.activityArray = [NSArray mj_objectArrayWithKeyValuesArray:json];
-        
+        if (self.userid) {
+
+            NSArray *arr = [NSArray mj_objectArrayWithKeyValuesArray:json];
+            arr = [arr sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+                if ([obj1[@"updatetime"] integerValue] > [obj2[@"updatetime"] integerValue]) {
+                    return NSOrderedAscending;
+                }
+                return NSOrderedDescending;
+            }];
+            if (self.pageNumber > 0) {
+
+                NSMutableArray *mArr = [NSMutableArray arrayWithArray:self.activityArray];
+                [mArr addObjectsFromArray:arr];
+                self.activityArray = [NSArray arrayWithArray:mArr];
+            } else {
+                self.activityArray = [NSArray arrayWithArray:arr];
+            }
+        } else {
+            
+            NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+            NSArray *arr = responseDict[@"list"];
+            if (self.pageNumber > 0) {
+
+                NSMutableArray *mArr = [NSMutableArray arrayWithArray:self.activityArray];
+                [mArr addObjectsFromArray:arr];
+                self.activityArray = [NSArray arrayWithArray:mArr];
+            } else {
+                self.activityArray = [NSArray arrayWithArray:arr];
+            }
+        }
+
         [self.tableView reloadData];
         [self.tableView.mj_header endRefreshing];
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        [self.tableView.mj_footer endRefreshing];
+    } failure:^(NSError *error) {
         
         [self.tableView.mj_header endRefreshing];
+        [self.tableView.mj_footer endRefreshing];
         NSLog(@"*** %@ ***", error);
     }];
 }

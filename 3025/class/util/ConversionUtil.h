@@ -10,4 +10,6 @@
 
 @interface ConversionUtil : NSObject
 
++ (NSString *)activityCategory:(NSString *)code;
+
 @end

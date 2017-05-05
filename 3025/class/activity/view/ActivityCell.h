@@ -7,9 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "ActivityModel.h"
 
 @interface ActivityCell : UITableViewCell
 
-- (void)setupData:(NSDictionary *)dict;
+- (void)setupData:(ActivityModel *)activityModel;
 
 @end

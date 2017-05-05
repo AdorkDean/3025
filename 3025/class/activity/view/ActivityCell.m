@@ -87,6 +87,7 @@
     UILabel *locationLabel = [[UILabel alloc] init];
     locationLabel.font = [UIFont systemFontOfSize:14.0f];
     locationLabel.textColor = [UIColor lightGrayColor];
+    locationLabel.textAlignment = NSTextAlignmentRight;
     
     [self.contentView addSubview:posterImageView];
     [self.contentView addSubview:titleLabel];
@@ -143,25 +144,25 @@
     self.locationLabel = locationLabel;
 }
 
-- (void)setupData:(NSDictionary *)dict {
+- (void)setupData:(ActivityModel *)activityModel {
     
-    [self.posterImageView sd_setImageWithURL:[NSURL URLWithString:dict[@"user"][@"poster"]] placeholderImage:[UIImage imageNamed:@"activity_poster"]];
+    [self.posterImageView sd_setImageWithURL:[NSURL URLWithString:activityModel.poster] placeholderImage:[UIImage imageNamed:@"activity_poster"]];
     
-    self.titleLabel.text = dict[@"activityname"];
+    self.titleLabel.text = activityModel.activityname;
     
-    self.capacityLabel.text = [NSString stringWithFormat:@" %@人 ", dict[@"capacityTo"]];
+    self.capacityLabel.text = [NSString stringWithFormat:@" %@人 ", activityModel.capacityTo];
     
-    self.categoryLabel.text = [NSString stringWithFormat:@" %@ ", dict[@"category"]];
+    self.categoryLabel.text = [NSString stringWithFormat:@" %@ ", activityModel.category];
     
-    self.taLabel.hidden = ([[NSString stringWithFormat:@"%@", dict[@"match100"]] isEqualToString:@"0"]);
+    self.taLabel.hidden = !activityModel.hasTa;
     
     NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
     paragraphStyle.lineSpacing = 2;
     paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
     
-    self.detailLabel.attributedText = [[NSAttributedString alloc] initWithString:dict[@"content"] attributes:@{NSParagraphStyleAttributeName: paragraphStyle}];
+    self.detailLabel.attributedText = [[NSAttributedString alloc] initWithString:activityModel.content attributes:@{NSParagraphStyleAttributeName: paragraphStyle}];
 
-    self.locationLabel.text = [NSString stringWithFormat:@"%@ %@", dict[@"city"], dict[@"district"]];
+    self.locationLabel.text = activityModel.location;
 }
 
 @end
