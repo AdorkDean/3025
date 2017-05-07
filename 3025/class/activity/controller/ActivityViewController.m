@@ -984,8 +984,11 @@
     } else {
         NSMutableString *filter = [NSMutableString stringWithFormat:@""];
         if (self.filer_join == 3) {
-            [filter appendString:[NSString stringWithFormat:@" and a.userid = %@ ", self.userid]];
-            [filter appendString:@" and a.activitytime > now() "];
+            
+            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+            dateFormatter.dateFormat = @"yyyy/MM/dd HH:mm";
+            
+            [filter appendString:[NSString stringWithFormat:@" and a.activitytime < '%@' ", [dateFormatter stringFromDate:[NSDate date]]]];
         }
         
         NSString *sql = [NSString stringWithFormat:@"\
