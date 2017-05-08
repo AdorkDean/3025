@@ -9,11 +9,25 @@
 #import "ConversionUtil.h"
 #import "Constant.h"
 
-@interface ConversionUtil ()
+@interface ConversionUtil () {
+
+}
 
 @end
 
 @implementation ConversionUtil
+
++ (ConversionUtil *)util {
+    
+    static dispatch_once_t predicate;
+    static ConversionUtil *util;
+    
+    dispatch_once(&predicate, ^{
+        util = [[ConversionUtil alloc] init];
+    });
+    
+    return util;
+}
 
 + (NSString *)activityCategory:(NSString *)code {
     

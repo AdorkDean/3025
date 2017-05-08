@@ -18,8 +18,11 @@
 
 @property (nonatomic, strong) UIWindow *keyWindow;
 @property (nonatomic, strong) UIView *headView;
+@property (nonatomic, strong) UIView *shadowView2;
 @property (nonatomic, strong) UITextField *textField;
-@property (nonatomic, strong) UIPickerView *pickerView;
+@property (nonatomic, strong) UIView *pickerView;
+@property (nonatomic, strong) UIPickerView *picker;
+@property (nonatomic, strong) UIDatePicker *datePicker;
 @property (nonatomic, strong) UIView *filterView;
 @property (nonatomic, strong) UIButton *filterButton;
 @property (nonatomic, strong) UIView *joinView;
@@ -32,6 +35,10 @@
 
 @property (nonatomic, assign) NSUInteger pageNumber;
 @property (nonatomic, copy) NSArray *activityArray;
+
+@property (nonatomic, copy) NSArray *provinceList;
+@property (nonatomic, copy) NSArray *cityList;
+@property (nonatomic, copy) NSArray *districtList;
 
 @property (nonatomic, copy) NSString *filer_location;
 @property (nonatomic, copy) NSString *filer_timeFrom;
@@ -61,6 +68,19 @@
     
     self.pageNumber = 0;
     [self loadData];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    // 键盘弹出／收起通知
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -189,30 +209,155 @@
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField {
     
     self.textField = textField;
-    
-    if (!self.pickerView) {
-        self.pickerView = [[UIPickerView alloc] init];
-        self.pickerView.backgroundColor = kBackgroundColor;
-        self.pickerView.showsSelectionIndicator = YES;
-        self.pickerView.dataSource = self;
-        self.pickerView.delegate = self;
-    }
-    
-    [self.keyWindow addSubview:self.pickerView];
-    [self.pickerView mas_remakeConstraints:^(MASConstraintMaker *make) {
-        make.left.width.mas_equalTo(self.keyWindow);
-        make.bottom.mas_equalTo(self.keyWindow);
-    }];
-    
-    [self.pickerView reloadAllComponents];
-    if (self.textField.tag == 2) {
-        [self.pickerView reloadComponent:0];
-        [self.pickerView selectRow:2 inComponent:0 animated:YES];
-        [self.pickerView reloadComponent:1];
-        [self.pickerView selectRow:2 inComponent:1 animated:YES];
-    } else if (self.textField.tag == 3) {
-        [self.pickerView reloadComponent:0];
-        [self.pickerView selectRow:1 inComponent:0 animated:YES];
+    if (textField.tag == 1 || textField.tag == 11) { // 日期
+        
+        if (!self.datePicker) {
+            
+            self.datePicker = [[UIDatePicker alloc] init];
+            self.datePicker.backgroundColor = kBackgroundColor;
+            self.datePicker.datePickerMode = UIDatePickerModeDate;
+            [self.datePicker addTarget:self action:@selector(dateChanged:) forControlEvents:UIControlEventValueChanged];
+        }
+        
+        // 设定日期约束
+        self.datePicker.minimumDate = nil;
+        self.datePicker.maximumDate = nil;
+        
+        if (textField.tag == 1) {
+            
+            for (UIView *subview in textField.superview.subviews) {
+                if ([subview isKindOfClass:[UITextField class]] && subview.tag == 11) {
+                    
+                    UITextField *textField = (UITextField *)subview;
+                    NSString *text = [textField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+                    if ([text containsString:@"/"]) {
+                        
+                        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+                        dateFormatter.dateFormat = @"yyyy/MM/dd";
+                        self.datePicker.maximumDate = [dateFormatter dateFromString:text];
+                    }
+                }
+            }
+        } else if (textField.tag == 11) {
+            
+            for (UIView *subview in textField.superview.subviews) {
+                if ([subview isKindOfClass:[UITextField class]] && subview.tag == 1) {
+                    
+                    UITextField *textField = (UITextField *)subview;
+                    NSString *text = [textField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+                    if ([text containsString:@"/"]) {
+                        
+                        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+                        dateFormatter.dateFormat = @"yyyy/MM/dd";
+                        self.datePicker.minimumDate = [dateFormatter dateFromString:text];
+                    }
+                }
+            }
+        }
+        
+        NSString *text = [textField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        if ([text containsString:@"/"]) {
+
+            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+            dateFormatter.dateFormat = @"yyyy/MM/dd";
+            self.datePicker.date = [dateFormatter dateFromString:text];
+        }
+        
+        [self.pickerView removeFromSuperview];
+        self.pickerView = self.datePicker;
+        
+        self.pickerView.frame = CGRectMake(0, kScreenHeight, kScreenWidth, 216);
+        [self.keyWindow addSubview:self.pickerView];
+        
+        [UIView animateWithDuration:0.25 animations:^{
+            self.pickerView.frame = CGRectMake(0, kScreenHeight-216, kScreenWidth, 216);
+        }];
+    } else {
+        
+        if (!self.picker) {
+            
+            self.picker = [[UIPickerView alloc] init];
+            self.picker.backgroundColor = kBackgroundColor;
+            self.picker.showsSelectionIndicator = YES;
+            self.picker.dataSource = self;
+            self.picker.delegate = self;
+        }
+
+        [self.pickerView removeFromSuperview];
+        self.pickerView = self.picker;
+        
+        self.pickerView.frame = CGRectMake(0, kScreenHeight, kScreenWidth, 216);
+        [self.keyWindow addSubview:self.pickerView];
+        
+        [UIView animateWithDuration:0.25 animations:^{
+            self.pickerView.frame = CGRectMake(0, kScreenHeight-216, kScreenWidth, 216);
+        }];
+        
+        [self.picker reloadAllComponents];
+        if (self.textField.tag == 0) {
+            
+            NSInteger row = 0;
+            NSInteger row1 = 0;
+            NSInteger row2 = 0;
+            
+            NSString *text = [self.textField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            NSArray *arr = [text componentsSeparatedByString:@"-"];
+            if (arr.count == 3) {
+                
+                NSString *province = arr[0];
+                NSString *city = arr[1];
+                NSString *district = arr[2];
+                
+                row = [self.provinceList indexOfObject:province];
+                row1 = [self.cityList[row] indexOfObject:city];
+                row2 = [self.districtList[row][row1] indexOfObject:district];
+            }
+            
+            [self.picker reloadComponent:0];
+            [self.picker selectRow:row inComponent:0 animated:YES];
+            
+            [self.picker reloadComponent:1];
+            [self.picker selectRow:row1 inComponent:1 animated:YES];
+            
+            [self.picker reloadComponent:2];
+            [self.picker selectRow:row2 inComponent:2 animated:YES];
+        } else if (self.textField.tag == 2) {
+            
+            NSInteger row = 0;
+            NSInteger row1 = 0;
+            
+            NSString *text = [self.textField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            NSArray *arr = [text componentsSeparatedByString:@"-"];
+            if (arr.count == 2) {
+                
+                NSString *category = arr[0];
+                NSString *subCategory = arr[1];
+                if ([subCategory isEqualToString:@"其他"]) {
+                    subCategory = category;
+                }
+                
+                row = [kActivityCategory indexOfObject:category];
+                row1 = [kActivityCategorys[row] indexOfObject:subCategory];
+            }
+            
+            [self.picker reloadComponent:0];
+            [self.picker selectRow:row inComponent:0 animated:YES];
+            
+            [self.picker reloadComponent:1];
+            [self.picker selectRow:row1 inComponent:1 animated:YES];
+        } else if (self.textField.tag == 3) {
+            
+            NSInteger row = 0;
+            
+            NSString *text = [self.textField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            if ([text isEqualToString:kHasTa[1]]) {
+                
+                row = 1;
+            }
+            
+            [self.picker reloadComponent:0];
+            [self.picker selectRow:row inComponent:0 animated:YES];
+        }
     }
     
     return NO;
@@ -239,8 +384,22 @@
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
 
     if (self.textField.tag == 0) { // 活动地址
-
-        return 3;
+        
+        if (component == 0) { // 省
+            
+            return self.provinceList.count;
+        } else if (component == 1) { // 市
+            
+            NSInteger selectedRow = [pickerView selectedRowInComponent:0];
+            
+            return [self.cityList[selectedRow] count];
+        } else if (component == 2) { // 区
+            
+            NSInteger selectedRow = [pickerView selectedRowInComponent:0];
+            NSInteger selectedRow1 = [pickerView selectedRowInComponent:1];
+            
+            return [self.districtList[selectedRow][selectedRow1] count];
+        }
     } else if (self.textField.tag == 2) { // 活动类型
 
         if (component == 0) { // 大分类
@@ -249,6 +408,7 @@
         } else if (component == 1) { // 小分类
 
             NSInteger selectedRow = [pickerView selectedRowInComponent:0];
+            
             return [kActivityCategorys[selectedRow] count];
         }
     } else if (self.textField.tag == 3) { // TA已报名
@@ -264,8 +424,22 @@
 - (nullable NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
     
     if (self.textField.tag == 0) { // 活动地址
-
-        return @"";
+        
+        if (component == 0) { // 省
+            
+            return self.provinceList[row];
+        } else if (component == 1) { // 市
+            
+            NSInteger selectedRow = [pickerView selectedRowInComponent:0];
+            
+            return self.cityList[selectedRow][row];
+        } else if (component == 2) { // 区
+            
+            NSInteger selectedRow = [pickerView selectedRowInComponent:0];
+            NSInteger selectedRow1 = [pickerView selectedRowInComponent:1];
+            
+            return self.districtList[selectedRow][selectedRow1][row];
+        }
     } else if (self.textField.tag == 2) { // 活动类型
 
         if (component == 0) { // 大分类
@@ -296,29 +470,41 @@
         if (component == 0) { // 省
             
             [pickerView reloadComponent:1];
+            [pickerView selectRow:0 inComponent:1 animated:YES];
+            [pickerView reloadComponent:2];
+            [pickerView selectRow:0 inComponent:2 animated:YES];
         } else if (component == 1) { // 市
             
             [pickerView reloadComponent:2];
+            [pickerView selectRow:0 inComponent:2 animated:YES];
         } else if (component == 2) { // 区
             
-            
         }
+        
+        NSInteger selectedRow = [pickerView selectedRowInComponent:0];
+        NSInteger selectedRow1 = [pickerView selectedRowInComponent:1];
+        NSInteger selectedRow2 = [pickerView selectedRowInComponent:2];
+        
+        NSString *province = self.provinceList[selectedRow];
+        NSString *city = self.cityList[selectedRow][selectedRow1];
+        NSString *district = self.districtList[selectedRow][selectedRow1][selectedRow2];
+        
+        title = [NSString stringWithFormat:@"%@-%@-%@", province, city, district];
     } else if (self.textField.tag == 2) { // 活动类型
         
         if (component == 0) { // 大分类
             
             [pickerView reloadComponent:1];
             [pickerView selectRow:0 inComponent:1 animated:YES];
-            NSInteger selectedRow = [pickerView selectedRowInComponent:0];
-            title = [NSString stringWithFormat:@"%@-%@", kActivityCategory[selectedRow], [kActivityCategorys[selectedRow] objectAtIndex:0]];
         } else if (component == 1) { // 小分类
             
-            NSInteger selectedRow = [pickerView selectedRowInComponent:0];
-            if (row == ([kActivityCategorys[selectedRow] count] - 1)) {
-                title = [NSString stringWithFormat:@"%@-%@", kActivityCategory[selectedRow], @"其他"];
-            } else {
-                title = [NSString stringWithFormat:@"%@-%@", kActivityCategory[selectedRow], [kActivityCategorys[selectedRow] objectAtIndex:row]];
-            }
+        }
+        
+        NSInteger selectedRow = [pickerView selectedRowInComponent:0];
+        if (row == ([kActivityCategorys[selectedRow] count] - 1)) {
+            title = [NSString stringWithFormat:@"%@-%@", kActivityCategory[selectedRow], @"其他"];
+        } else {
+            title = [NSString stringWithFormat:@"%@-%@", kActivityCategory[selectedRow], [kActivityCategorys[selectedRow] objectAtIndex:row]];
         }
     } else if (self.textField.tag == 3) { // TA已报名
         
@@ -326,7 +512,7 @@
     }
     
     if (title) {
-        self.textField.text = [NSString stringWithFormat:@"  %@", [title isEqualToString:@"不限-不限"] ? @"不限" : title];
+        self.textField.text = [NSString stringWithFormat:@"  %@", [title containsString:@"不限-"] ? @"不限" : title];
     }
 }
 
@@ -380,9 +566,7 @@
 #pragma mark - 事件处理
 
 - (void)showFilter:(UIButton *)button {
-    
-    [self.view endEditing:YES];
-    
+
     if (button.tag == 0) {
         
         if (!self.joinView.hidden) {
@@ -456,6 +640,7 @@
             [self.filterBottomConstraint activate];
             
             [self.shadowView removeFromSuperview];
+            [self.pickerView removeFromSuperview];
             
             self.filterButton.imageView.transform = CGAffineTransformMakeRotation(M_PI_2);
         }
@@ -522,8 +707,15 @@
         [self showFilter:self.joinButton];
     }
     
-    NSLog(@"*** %ld ***", [self.pickerView selectedRowInComponent:0]);
-    [self.pickerView removeFromSuperview];
+    if (self.pickerView.superview) {
+        [UIView animateWithDuration:0.25 animations:^{
+            
+            self.pickerView.frame = CGRectMake(0, kScreenHeight, kScreenWidth, 216);
+        } completion:^(BOOL finished) {
+            
+            [self.pickerView removeFromSuperview];
+        }];
+    }
 }
 
 - (void)joinLabelTapped:(UITapGestureRecognizer *)gestureRecognizer {
@@ -565,6 +757,51 @@
     [self loadData];
 }
 
+- (void)dateChanged:(UIDatePicker *)datePicker {
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    dateFormatter.dateFormat = @"yyyy/MM/dd";
+    self.textField.text = [NSString stringWithFormat:@"  %@", [dateFormatter stringFromDate:datePicker.date]];
+}
+
+- (void)keyboardWillShow:(NSNotification *)notification {
+    
+    if (self.shadowView.superview == self.keyWindow) {
+        
+        [self shadowViewTapped:[self.shadowView.gestureRecognizers firstObject]];
+    }
+
+    float duration = [[notification.userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
+    self.shadowView2.frame = CGRectMake(0, 108, kScreenWidth, kScreenHeight-108);
+    
+    [self.view addSubview:self.shadowView2];
+    [UIView animateWithDuration:duration animations:^{
+        
+        self.shadowView2.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.3];
+    }];
+}
+
+- (void)keyboardWillHide:(NSNotification *)notification {
+    
+    if (self.shadowView.superview == self.keyWindow) {
+        
+        [self shadowViewTapped:[self.shadowView.gestureRecognizers firstObject]];
+    }
+
+    float duration = [[notification.userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
+    
+    [UIView animateWithDuration:duration animations:^{
+        
+        self.shadowView2.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.0];
+    } completion:^(BOOL finished) {
+        
+        [self.shadowView2 removeFromSuperview];
+    }];
+}
+
+- (void)hideKeyboard:(UITapGestureRecognizer *)gestureRecognizer {
+    [self.view endEditing:YES];
+}
+
 #pragma mark - setter & getter
 
 - (UIWindow *)keyWindow {
@@ -595,7 +832,7 @@
         
         UISearchBar *searchBar = [[UISearchBar alloc] init];
         searchBar.backgroundImage = [[UIImage alloc] init];
-        searchBar.placeholder = @"搜索活动名称/活动AID";
+        searchBar.placeholder = @"搜索活动名称/活动ID";
         searchBar.returnKeyType = UIReturnKeyDone;
         searchBar.delegate = self;
         searchBar.subviews.firstObject.subviews[1].backgroundColor = [UIColor colorWithRed:225.0f/255.0f green:225.0f/255.0f blue:225.0f/255.0f alpha:1.0f];
@@ -850,6 +1087,18 @@
     return _shadowView;
 }
 
+- (UIView *)shadowView2 {
+    
+    if (!_shadowView2) {
+        
+        _shadowView2 = [[UIView alloc] initWithFrame:CGRectMake(0, 108, kScreenWidth, kScreenHeight-108)];
+        _shadowView2.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.0f];
+        [_shadowView2 addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideKeyboard:)]];
+    }
+    
+    return _shadowView2;
+}
+
 - (UIView *)joinView {
     
     if (!_joinView) {
@@ -950,6 +1199,45 @@
     }
     
     return _refreshNormalFooter;
+}
+
+- (NSArray *)provinceList {
+    
+    if (!_provinceList) {
+        
+        NSString *path = [[NSBundle mainBundle] pathForResource:@"pcd" ofType:@"plist"];
+        NSDictionary *pcdDict = [[NSDictionary alloc] initWithContentsOfFile:path];
+        
+        _provinceList = [pcdDict objectForKey:@"province"];
+    }
+    
+    return _provinceList;
+}
+
+- (NSArray *)cityList {
+    
+    if (!_cityList) {
+        
+        NSString *path = [[NSBundle mainBundle] pathForResource:@"pcd" ofType:@"plist"];
+        NSDictionary *pcdDict = [[NSDictionary alloc] initWithContentsOfFile:path];
+        
+        _cityList = [pcdDict objectForKey:@"city"];
+    }
+    
+    return _cityList;
+}
+
+- (NSArray *)districtList {
+
+    if (!_districtList) {
+
+        NSString *path = [[NSBundle mainBundle] pathForResource:@"pcd" ofType:@"plist"];
+        NSDictionary *pcdDict = [[NSDictionary alloc] initWithContentsOfFile:path];
+        
+        _districtList = [pcdDict objectForKey:@"district"];
+    }
+
+    return _districtList;
 }
 
 #pragma mark - 数据处理

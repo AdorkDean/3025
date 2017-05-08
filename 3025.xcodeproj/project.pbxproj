@@ -14,6 +14,7 @@
 		6B4B8FC31EBB2249009DD89B /* ConversionUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B4B8FC21EBB2249009DD89B /* ConversionUtil.m */; };
 		6B4F16F41E8B53AE005972C5 /* UserListModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B4F16F31E8B53AE005972C5 /* UserListModel.m */; };
 		6B4F16F71E8BB88B005972C5 /* DatabaseUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B4F16F61E8BB88B005972C5 /* DatabaseUtil.m */; };
+		6B58D9C31EC03FCE0090DCE4 /* pcd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6B58D9C21EC03FCE0090DCE4 /* pcd.plist */; };
 		6B8B79D91E8A2298006B5D11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6B8B79D81E8A2298006B5D11 /* Assets.xcassets */; };
 		6B8B7A061E8A235A006B5D11 /* ActivityViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8B79E71E8A235A006B5D11 /* ActivityViewController.m */; };
 		6B8B7A071E8A235A006B5D11 /* MKNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8B79EC1E8A235A006B5D11 /* MKNavigationController.m */; };
@@ -43,6 +44,7 @@
 		6B4F16F31E8B53AE005972C5 /* UserListModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserListModel.m; sourceTree = "<group>"; };
 		6B4F16F51E8BB88B005972C5 /* DatabaseUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatabaseUtil.h; sourceTree = "<group>"; };
 		6B4F16F61E8BB88B005972C5 /* DatabaseUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DatabaseUtil.m; sourceTree = "<group>"; };
+		6B58D9C21EC03FCE0090DCE4 /* pcd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = pcd.plist; sourceTree = "<group>"; };
 		6B8B79C91E8A2298006B5D11 /* 3025.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = 3025.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B8B79D81E8A2298006B5D11 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6B8B79DD1E8A2298006B5D11 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -139,6 +141,7 @@
 			children = (
 				6B8B79D81E8A2298006B5D11 /* Assets.xcassets */,
 				6B8B79DD1E8A2298006B5D11 /* Info.plist */,
+				6B58D9C21EC03FCE0090DCE4 /* pcd.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -400,6 +403,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6B58D9C31EC03FCE0090DCE4 /* pcd.plist in Resources */,
 				6B8B79D91E8A2298006B5D11 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

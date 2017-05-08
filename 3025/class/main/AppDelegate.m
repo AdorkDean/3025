@@ -11,6 +11,7 @@
 #import "MKTabBarController.h"
 #import "WXApi.h"
 #import "AFNetworking.h"
+#import "ConversionUtil.h"
 
 @interface AppDelegate () <WXApiDelegate> {
 }
