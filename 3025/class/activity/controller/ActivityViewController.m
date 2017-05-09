@@ -40,6 +40,7 @@
 @property (nonatomic, copy) NSArray *cityList;
 @property (nonatomic, copy) NSArray *districtList;
 
+@property (nonatomic, copy) NSString *filer_nameOrID;
 @property (nonatomic, copy) NSString *filer_location;
 @property (nonatomic, copy) NSString *filer_timeFrom;
 @property (nonatomic, copy) NSString *filer_timeTo;
@@ -199,9 +200,22 @@
 
 #pragma mark - UISearchBarDelegate
 
+- (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar {
+    searchBar.text = [searchBar.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+}
+
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
     
     [self.view endEditing:YES];
+    
+    self.filer_nameOrID = [searchBar.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    if (self.filer_nameOrID.length > 0) {
+        
+        self.pageNumber = 0;
+        [self loadData];
+        
+        self.filer_nameOrID = nil;
+    }
 }
 
 #pragma mark - UITextFieldDelegate
@@ -220,6 +234,7 @@
         }
         
         // 设定日期约束
+        self.datePicker.date = [NSDate date];
         self.datePicker.minimumDate = nil;
         self.datePicker.maximumDate = nil;
         
@@ -273,6 +288,14 @@
             self.pickerView.frame = CGRectMake(0, kScreenHeight-216, kScreenWidth, 216);
         }];
     } else {
+        
+        if (textField.tag == 3) {
+            if ([self goLogin:nil message:@"该操作需要您先登录"]) {
+                
+                [self shadowViewTapped:[self.shadowView.gestureRecognizers firstObject]];
+                return NO;
+            }
+        }
         
         if (!self.picker) {
             
@@ -501,10 +524,11 @@
         }
         
         NSInteger selectedRow = [pickerView selectedRowInComponent:0];
-        if (row == ([kActivityCategorys[selectedRow] count] - 1)) {
+        NSInteger selectedRow1 = [pickerView selectedRowInComponent:1];
+        if (selectedRow1 == ([kActivityCategorys[selectedRow] count] - 1)) {
             title = [NSString stringWithFormat:@"%@-%@", kActivityCategory[selectedRow], @"其他"];
         } else {
-            title = [NSString stringWithFormat:@"%@-%@", kActivityCategory[selectedRow], [kActivityCategorys[selectedRow] objectAtIndex:row]];
+            title = [NSString stringWithFormat:@"%@-%@", kActivityCategory[selectedRow], [kActivityCategorys[selectedRow] objectAtIndex:selectedRow1]];
         }
     } else if (self.textField.tag == 3) { // TA已报名
         
@@ -743,14 +767,68 @@
     [self loadData];
 }
 
-- (void)cancel:(UIButton *)button {
-    [self shadowViewTapped:[self.shadowView.gestureRecognizers firstObject]];
+- (void)reset:(UIButton *)button {
+    for (UIView *subviw in button.superview.subviews) {
+        if ([subviw isKindOfClass:[UITextField class]]) {
+            UITextField *textField = (UITextField *)subviw;
+            textField.text = @"";
+        }
+    }
+    self.filer_location = nil;
+    self.filer_timeFrom = nil;
+    self.filer_timeTo = nil;
+    self.filer_category = nil;
+    self.filer_hasTa = NO;
 }
 
 - (void)filter:(UIButton *)button {
 
     // 收起检索条件区域
     [self shadowViewTapped:[self.shadowView.gestureRecognizers firstObject]];
+    
+    for (UIView *subviw in button.superview.subviews) {
+        if ([subviw isKindOfClass:[UITextField class]]) {
+            UITextField *textField = (UITextField *)subviw;
+            NSInteger tag = textField.tag;
+            NSString *text = [textField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            if (tag == 0) {
+                self.filer_location = nil;
+                if (![text isEqualToString:@""] && ![text isEqualToString:@"不限"]) {
+                    text = [text stringByReplacingOccurrencesOfString:@"省" withString:@""];
+                    text = [text stringByReplacingOccurrencesOfString:@"市" withString:@""];
+                    self.filer_location = text;
+                }
+            } else if (tag == 1) {
+                self.filer_timeFrom = nil;
+                if (![text isEqualToString:@""] && ![text isEqualToString:@"不限"]) {
+                    self.filer_timeFrom = text;
+                }
+            } else if (tag == 11) {
+                self.filer_timeTo = nil;
+                if (![text isEqualToString:@""] && ![text isEqualToString:@"不限"]) {
+                    self.filer_timeTo = text;
+                }
+            } else if (tag == 2) {
+                self.filer_category = nil;
+                if (![text isEqualToString:@""] && ![text isEqualToString:@"不限"]) {
+                    NSArray *arr = [text componentsSeparatedByString:@"-"];
+                    if (arr.count == 2) {
+                        NSString *category = arr[0];
+                        NSString *subCategory = [arr[1] isEqualToString:@"其他"] ? arr[0] : arr[1];
+                        NSInteger idx = [kActivityCategory indexOfObject:category];
+                        if ([subCategory isEqualToString:@"全部"]) {
+                            self.filer_category = [NSString stringWithFormat:@"0%ld", idx];
+                        } else {
+                            NSInteger idx2 = [kActivityCategorys[idx] indexOfObject:subCategory];
+                            self.filer_category = [NSString stringWithFormat:@"0%ld0%ld", idx, idx2];
+                        }
+                    }
+                }
+            } else if (tag == 3) {
+                self.filer_hasTa = [text isEqualToString:kHasTa[1]];
+            }
+        }
+    }
 
     // 检索数据
     self.pageNumber = 0;
@@ -833,17 +911,9 @@
         UISearchBar *searchBar = [[UISearchBar alloc] init];
         searchBar.backgroundImage = [[UIImage alloc] init];
         searchBar.placeholder = @"搜索活动名称/活动ID";
-        searchBar.returnKeyType = UIReturnKeyDone;
+        searchBar.returnKeyType = UIReturnKeySearch;
         searchBar.delegate = self;
         searchBar.subviews.firstObject.subviews[1].backgroundColor = [UIColor colorWithRed:225.0f/255.0f green:225.0f/255.0f blue:225.0f/255.0f alpha:1.0f];
-        
-        UIButton *searchButton = [[UIButton alloc] init];
-        searchButton.backgroundColor = [UIColor colorWithRed:228.0f/255.0f green:128.0f/255.0f blue:128.0f/255.0f alpha:1.0f];
-        searchButton.layer.cornerRadius = 5;
-        searchButton.layer.masksToBounds = YES;
-        [searchButton setTitle:@"搜索" forState:UIControlStateNormal];
-        [searchButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        [searchButton.titleLabel setFont:[UIFont systemFontOfSize:14.0f]];
         
         UIView *middleLineView = [[UIView alloc] init];
         middleLineView.backgroundColor = [UIColor lightGrayColor];
@@ -884,7 +954,6 @@
         [_headView addSubview:notificationImageView];
         [_headView addSubview:redDotView];
         [_headView addSubview:searchBar];
-        [_headView addSubview:searchButton];
         [_headView addSubview:middleLineView];
         [_headView addSubview:filterButton];
         [_headView addSubview:vLineView];
@@ -902,13 +971,8 @@
         }];
         [searchBar mas_makeConstraints:^(MASConstraintMaker *make) {
             make.top.mas_equalTo(_headView);
-            make.left.mas_equalTo(notificationImageView.mas_right).mas_offset(0);
-        }];
-        [searchButton mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.centerY.mas_equalTo(searchBar);
-            make.left.mas_equalTo(searchBar.mas_right).mas_offset(0);
+            make.left.mas_equalTo(notificationImageView.mas_right).mas_offset(10);
             make.right.mas_equalTo(_headView).mas_offset(-10);
-            make.width.mas_equalTo(50);
         }];
         [middleLineView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.left.width.mas_equalTo(_headView);
@@ -1038,14 +1102,14 @@
             layoutLabel = titleLabel;
         }
         
-        UIButton *cancelButton = [[UIButton alloc] init];
-        cancelButton.layer.borderWidth = 0.5;
-        cancelButton.layer.borderColor = [UIColor lightGrayColor].CGColor;
-        cancelButton.layer.masksToBounds = YES;
-        [cancelButton.titleLabel setFont:[UIFont systemFontOfSize:16.0f]];
-        [cancelButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-        [cancelButton setTitle:@"取消" forState:UIControlStateNormal];
-        [cancelButton addTarget:self action:@selector(cancel:) forControlEvents:UIControlEventTouchUpInside];
+        UIButton *resetButton = [[UIButton alloc] init];
+        resetButton.layer.borderWidth = 0.5;
+        resetButton.layer.borderColor = [UIColor lightGrayColor].CGColor;
+        resetButton.layer.masksToBounds = YES;
+        [resetButton.titleLabel setFont:[UIFont systemFontOfSize:16.0f]];
+        [resetButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        [resetButton setTitle:@"重置" forState:UIControlStateNormal];
+        [resetButton addTarget:self action:@selector(reset:) forControlEvents:UIControlEventTouchUpInside];
 
         UIButton *submitButton = [[UIButton alloc] init];
         submitButton.layer.borderWidth = 0.5;
@@ -1057,18 +1121,18 @@
         [submitButton setTitle:@"确定" forState:UIControlStateNormal];
         [submitButton addTarget:self action:@selector(filter:) forControlEvents:UIControlEventTouchUpInside];
         
-        [_filterView addSubview:cancelButton];
+        [_filterView addSubview:resetButton];
         [_filterView addSubview:submitButton];
         
-        [cancelButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        [resetButton mas_makeConstraints:^(MASConstraintMaker *make) {
             make.top.mas_equalTo(layoutLabel.mas_bottom);
             make.bottom.mas_equalTo(_filterView);
             make.left.mas_equalTo(_filterView);
             make.right.mas_equalTo(_filterView.mas_centerX);
         }];
         [submitButton mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.top.bottom.mas_equalTo(cancelButton);
-            make.left.mas_equalTo(cancelButton.mas_right);
+            make.top.bottom.mas_equalTo(resetButton);
+            make.left.mas_equalTo(resetButton.mas_right);
             make.right.mas_equalTo(_filterView);
         }];
     }
@@ -1255,30 +1319,83 @@
                           @"myUserid": self.userid
                         };
         NSMutableDictionary *mDict = [NSMutableDictionary dictionaryWithDictionary:parameterDict];
-        switch (self.filer_join) {
-            case 1:
-                [mDict setObject:self.userid forKey:@"userid"];
-                break;
-            case 2:
-                [mDict setObject:self.userid forKey:@"registered"];
-                break;
-            case 3:
-                [mDict setObject:@"1" forKey:@"history"];
-                break;
-            default:
-                break;
+        if (self.filer_nameOrID) {
+            
+            [mDict setObject:self.filer_nameOrID forKey:@"activityid"];
+            [mDict setObject:self.filer_nameOrID forKey:@"activityname"];
+        } else {
+            
+            switch (self.filer_join) {
+                case 1:
+                    [mDict setObject:self.userid forKey:@"userid"];
+                    break;
+                case 2:
+                    [mDict setObject:self.userid forKey:@"registered"];
+                    break;
+                case 3:
+                    [mDict setObject:@"1" forKey:@"history"];
+                    break;
+                default:
+                    break;
+            }
+            // 活动地址
+            if (self.filer_location) {
+                NSArray *arr = [self.filer_location componentsSeparatedByString:@"-"];
+                [mDict setObject:arr[0] forKey:@"province"];
+                [mDict setObject:arr[1] forKey:@"city"];
+                [mDict setObject:arr[2] forKey:@"district"];
+            }
+            // 活动时间
+            if (self.filer_timeFrom) {
+                NSDate *date = [ConversionUtil dateFromString:self.filer_timeFrom dateFormat:@"yyyy/MM/dd"];
+                [mDict setObject:[ConversionUtil stringFromDate:date dateFormat:@"yyyy-MM-dd"] forKey:@"activitytimeFrom"];
+            }
+            if (self.filer_timeTo) {
+                NSDate *date = [ConversionUtil dateFromString:self.filer_timeTo dateFormat:@"yyyy/MM/dd"];
+                [mDict setObject:[ConversionUtil stringFromDate:date dateFormat:@"yyyy-MM-dd"] forKey:@"activitytimeTo"];
+            }
+            // 活动类别
+            if (self.filer_category) {
+                [mDict setObject:self.filer_category forKey:@"category"];
+            }
+            // 有TA
+            if (self.filer_hasTa) {
+                [mDict setObject:@"01" forKey:@"other"];
+            }
         }
         parameterDict = [NSDictionary dictionaryWithDictionary:mDict];
     } else {
         NSMutableString *filter = [NSMutableString stringWithFormat:@""];
-        if (self.filer_join == 3) {
-            
-            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-            dateFormatter.dateFormat = @"yyyy/MM/dd HH:mm";
-            
-            [filter appendString:[NSString stringWithFormat:@" and a.activitytime < '%@' ", [dateFormatter stringFromDate:[NSDate date]]]];
-        }
         
+        if (self.filer_nameOrID) {
+            
+            [filter appendString:[NSString stringWithFormat:@" and (a.activityid = '%@' or a.activityname like '%@%@%@') ", self.filer_nameOrID, @"%", self.filer_nameOrID, @"%"]];
+        } else {
+        
+            if (self.filer_join == 3) {
+                
+                NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+                dateFormatter.dateFormat = @"yyyy/MM/dd HH:mm";
+                
+                [filter appendString:[NSString stringWithFormat:@" and a.activitytime < '%@' ", [dateFormatter stringFromDate:[NSDate date]]]];
+            }
+            // 活动地址
+            if (self.filer_location) {
+                NSArray *arr = [self.filer_location componentsSeparatedByString:@"-"];
+                [filter appendString:[NSString stringWithFormat:@" and a.province = '%@' and a.city = '%@' and a.district = '%@' ", arr[0], arr[1], arr[2]]];
+            }
+            // 活动时间
+            if (self.filer_timeFrom) {
+                [filter appendString:[NSString stringWithFormat:@" and a.activitytime >= '%@ 00:00' ", self.filer_timeFrom]];
+            }
+            if (self.filer_timeTo) {
+                [filter appendString:[NSString stringWithFormat:@" and a.activitytime <= '%@ 23:59' ", self.filer_timeTo]];
+            }
+            // 活动类别
+            if (self.filer_category) {
+                [filter appendString:[NSString stringWithFormat:@" and a.category like '%@' ", self.filer_category]];
+            }
+        }
         NSString *sql = [NSString stringWithFormat:@"\
                      select \
                          u.poster, \

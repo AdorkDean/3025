@@ -11,5 +11,7 @@
 @interface ConversionUtil : NSObject
 
 + (NSString *)activityCategory:(NSString *)code;
++ (NSString *)stringFromDate:(NSDate *)date dateFormat:(NSString *)dateFormat;
++ (NSDate *)dateFromString:(NSString *)str dateFormat:(NSString *)dateFormat;
 
 @end

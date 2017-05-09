@@ -13,9 +13,18 @@
 
 }
 
+@property (nonatomic, strong) NSDateFormatter *dateFormatter;
+
 @end
 
 @implementation ConversionUtil
+
+- (instancetype)init {
+    if (self = [super init]) {
+        self.dateFormatter = [[NSDateFormatter alloc] init];
+    }
+    return self;
+}
 
 + (ConversionUtil *)util {
     
@@ -38,6 +47,22 @@
     }
     
     return code;
+}
+
++ (NSString *)stringFromDate:(NSDate *)date dateFormat:(NSString *)dateFormat {
+    
+    NSDateFormatter *dateFormatter = [ConversionUtil util].dateFormatter;
+    dateFormatter.dateFormat = dateFormat;
+
+    return [dateFormatter stringFromDate:date];
+}
+
++ (NSDate *)dateFromString:(NSString *)str dateFormat:(NSString *)dateFormat {
+    
+    NSDateFormatter *dateFormatter = [ConversionUtil util].dateFormatter;
+    dateFormatter.dateFormat = dateFormat;
+    
+    return [dateFormatter dateFromString:str];
 }
 
 @end
