@@ -15,6 +15,8 @@
 
 #define kWXAuthNotification @"wxAuthNotification"
 
+#define kSortUserid @"sortUserid"
+#define kUserSort @"userSort"
 #define kLoginUser @"loginUser"
 
 #define kDomain @"http://www.viewatmobile.cn/3025/"
@@ -28,6 +30,7 @@
 #define kTabbarTitleSelectedColor [UIColor colorWithRed:224.0f/255.0f green:128.0f/255.0f blue:128.0f/255.0f alpha:1.0f]
 #define kKeyColor [UIColor colorWithRed:193.0f/255.0f green:155.0f/255.0f blue:115.0f/255.0f alpha:1.0f]
 #define kLineColor [UIColor colorWithRed:204.0f/255.0f green:204.0f/255.0f blue:204.0f/255.0f alpha:1.0f]
+#define kButtonColor [UIColor colorWithRed:228.0f/255.0f green:128.0f/255.0f blue:128.0f/255.0f alpha:1.0f]
 
 #define kNavigationTitleColor [UIColor colorWithRed:116.0f/255.0f green:87.0f/255.0f blue:88.0f/255.0f alpha:1.0f]
 
@@ -40,5 +43,10 @@
 #define kActivityCategory6 (@[@"全部", @"健康养生", @"茶", @"红酒", @"花草", @"宗教", @"心理学", @"生活"])
 #define kActivityCategory7 (@[@"全部", @"投资理财", @"创业", @"公益", @"法律", @"互联网", @"教育", @"行业"])
 #define kActivityCategorys (@[@[@"不限"], kActivityCategory1, kActivityCategory2, kActivityCategory3, kActivityCategory4, kActivityCategory5, kActivityCategory6, kActivityCategory7])
+
+#define kUnitNature (@[@"政府机关", @"事业单位", @"外企", @"国企", @"私企", @"自己创业", @"其他"])
+#define kEducation (@[@"初中", @"高中", @"大专", @"本科", @"硕士", @"博士"])
+#define kMaritalStatus (@[@"未婚", @"有婚史（无子女）", @"有婚史（有子女）"])
+#define kHouseStatus (@[@"有独立婚房（无贷款）", @"有独立婚房（有贷款）", @"打算共同买房", @"打算租房"])
 
 @end

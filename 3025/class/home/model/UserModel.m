@@ -135,7 +135,7 @@
     if (!_height) {
         _height = [NSString stringWithFormat:@"身高%@", kPlaceholder];
     } else {
-        if (![_height containsString:@"cm"]) {
+        if (![_height containsString:kPlaceholder] && ![_height containsString:@"cm"]) {
             _height = [NSString stringWithFormat:@"%@cm", _height];
         }
     }

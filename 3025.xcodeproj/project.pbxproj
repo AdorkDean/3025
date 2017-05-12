@@ -28,6 +28,8 @@
 		6B8B7A111E8A2E0D006B5D11 /* UserModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8B7A101E8A2E0D006B5D11 /* UserModel.m */; };
 		6B8B7A151E8A34E8006B5D11 /* UserCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8B7A141E8A34E8006B5D11 /* UserCell.m */; };
 		6BD45E081EA9F08D009887DD /* ActivityCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BD45E071EA9F08D009887DD /* ActivityCell.m */; };
+		6BD595A11EC45E14004998DB /* SortViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BD595A01EC45E14004998DB /* SortViewController.m */; };
+		6BD595A41EC45E36004998DB /* SortCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BD595A31EC45E36004998DB /* SortCell.m */; };
 		6BE9338E1EAF231C00A827A7 /* ActivityModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BE9338D1EAF231C00A827A7 /* ActivityModel.m */; };
 /* End PBXBuildFile section */
 
@@ -72,6 +74,10 @@
 		6B8B7A141E8A34E8006B5D11 /* UserCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserCell.m; sourceTree = "<group>"; };
 		6BD45E061EA9F08D009887DD /* ActivityCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActivityCell.h; sourceTree = "<group>"; };
 		6BD45E071EA9F08D009887DD /* ActivityCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ActivityCell.m; sourceTree = "<group>"; };
+		6BD5959F1EC45E14004998DB /* SortViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SortViewController.h; sourceTree = "<group>"; };
+		6BD595A01EC45E14004998DB /* SortViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SortViewController.m; sourceTree = "<group>"; };
+		6BD595A21EC45E36004998DB /* SortCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SortCell.h; sourceTree = "<group>"; };
+		6BD595A31EC45E36004998DB /* SortCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SortCell.m; sourceTree = "<group>"; };
 		6BE9338C1EAF231C00A827A7 /* ActivityModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActivityModel.h; sourceTree = "<group>"; };
 		6BE9338D1EAF231C00A827A7 /* ActivityModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ActivityModel.m; sourceTree = "<group>"; };
 		6CCD74F8E3D47A97882344F6 /* Pods-3025.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-3025.release.xcconfig"; path = "Pods/Target Support Files/Pods-3025/Pods-3025.release.xcconfig"; sourceTree = "<group>"; };
@@ -224,6 +230,8 @@
 			children = (
 				6B8B79F31E8A235A006B5D11 /* HomeViewController.h */,
 				6B8B79F41E8A235A006B5D11 /* HomeViewController.m */,
+				6BD5959F1EC45E14004998DB /* SortViewController.h */,
+				6BD595A01EC45E14004998DB /* SortViewController.m */,
 			);
 			path = controller;
 			sourceTree = "<group>";
@@ -312,6 +320,8 @@
 			children = (
 				6B8B7A131E8A34E8006B5D11 /* UserCell.h */,
 				6B8B7A141E8A34E8006B5D11 /* UserCell.m */,
+				6BD595A21EC45E36004998DB /* SortCell.h */,
+				6BD595A31EC45E36004998DB /* SortCell.m */,
 			);
 			path = view;
 			sourceTree = "<group>";
@@ -465,6 +475,7 @@
 			files = (
 				6B8B7A091E8A235A006B5D11 /* MKViewController.m in Sources */,
 				6B8B7A0E1E8A235A006B5D11 /* ProfileViewController.m in Sources */,
+				6BD595A11EC45E14004998DB /* SortViewController.m in Sources */,
 				6B8B7A061E8A235A006B5D11 /* ActivityViewController.m in Sources */,
 				6B8B7A0B1E8A235A006B5D11 /* AppDelegate.m in Sources */,
 				6B4B8FBD1EBAC01A009DD89B /* MessageModel.m in Sources */,
@@ -472,6 +483,7 @@
 				6B8B7A0A1E8A235A006B5D11 /* HomeViewController.m in Sources */,
 				6B4B8FC01EBB21E3009DD89B /* HttpUtil.m in Sources */,
 				6B4F16F41E8B53AE005972C5 /* UserListModel.m in Sources */,
+				6BD595A41EC45E36004998DB /* SortCell.m in Sources */,
 				6B8B7A111E8A2E0D006B5D11 /* UserModel.m in Sources */,
 				6B8B7A0C1E8A235A006B5D11 /* main.m in Sources */,
 				6B4B8FC31EBB2249009DD89B /* ConversionUtil.m in Sources */,

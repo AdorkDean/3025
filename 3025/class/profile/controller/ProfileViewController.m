@@ -224,14 +224,12 @@
     if (!_menuArray) {
         
         _menuArray = @[
-                       @"实名认证",
                        @"我的基本资料",
                        @"我的择偶标准",
                        @"免打扰设置",
                        @"我的真实性验证",
                        @"关于门当户对",
-                       @"黑名单管理",
-                       @"系统问题反馈与改进建议"
+                       @"黑名单管理"
                        ];
     }
     
@@ -324,6 +322,7 @@
         _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleGrouped];
         _tableView.backgroundColor = self.view.backgroundColor;
         _tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
+        _tableView.scrollEnabled = NO;
         _tableView.dataSource = self;
         _tableView.delegate = self;
     }

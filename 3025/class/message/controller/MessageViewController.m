@@ -97,7 +97,6 @@
 
 - (void)goDiscover:(UIGestureRecognizer *)gestureRecognizer {
 
-    NSLog(@"*** %@ ***", NSStringFromSelector(_cmd));
     [self updateLasttime];
 }
 
@@ -143,8 +142,6 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 
-    NSLog(@"*** %@ ***", NSStringFromSelector(_cmd));
-    
     MessageModel *messageModel = [MessageModel mj_objectWithKeyValues:[self.messageList objectAtIndex:indexPath.row]];
     if ([messageModel.status isEqualToString:@"0"]) {
         
@@ -158,8 +155,6 @@
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
 
-    NSLog(@"*** %@ ***", NSStringFromSelector(_cmd));
-    
     MessageModel *messageModel = [MessageModel mj_objectWithKeyValues:[self.messageList objectAtIndex:indexPath.row]];
     [self updateMessage:messageModel status:@"9"];
 }
@@ -290,7 +285,7 @@
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
     
     [manager POST:url parameters:paramDict progress:^(NSProgress * _Nonnull uploadProgress) {
-        NSLog(@"*** %@ ***", uploadProgress);
+        
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         @try {
             
@@ -335,7 +330,7 @@
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
     
     [manager POST:url parameters:paramDict progress:^(NSProgress * _Nonnull uploadProgress) {
-        NSLog(@"*** %@ ***", uploadProgress);
+        
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         @try {
             
@@ -425,7 +420,7 @@
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
     
     [manager POST:url parameters:paramDict progress:^(NSProgress * _Nonnull uploadProgress) {
-        NSLog(@"*** %@ ***", uploadProgress);
+        
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         @try {
             
@@ -566,7 +561,6 @@
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
         NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
-        NSLog(@"*** %@ ***", dict);
         
         int count = [dict[@"list"][0][@"count"] intValue];
         if (count > 0) {

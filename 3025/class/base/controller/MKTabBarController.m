@@ -72,7 +72,6 @@
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
         NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
-        NSLog(@"*** %@ ***", dict);
         
         int count = [dict[@"list"][0][@"count"] intValue];
         if (count > 0) {

@@ -140,34 +140,7 @@
  *  设定导航栏
  */
 - (void)setupNavigtion {
-    
-    UIView *customView = [[UIView alloc] init];
-    
-    UILabel *locationLabel = [[UILabel alloc] init];
-    locationLabel.font = [UIFont systemFontOfSize:14.0f];
-    locationLabel.textColor = kNavigationTitleColor;
-    locationLabel.text = @"上海";
-    
-    UIImageView *locationImageView = [[UIImageView alloc] init];
-    locationImageView.contentMode = UIViewContentModeScaleToFill;
-    locationImageView.image = [UIImage imageNamed:@"location"];
-    
-    [customView addSubview:locationLabel];
-    [customView addSubview:locationImageView];
-    
-    [locationLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(customView);
-        make.centerY.mas_equalTo(customView);
-    }];
-    [locationImageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(locationLabel.mas_right).offset(0);
-        make.centerY.mas_equalTo(customView);
-        make.height.width.mas_equalTo(16);
-    }];
-    
-    // 导航栏左侧
-    UIBarButtonItem *leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:customView];
-    
+
     // 导航栏标题
     UILabel *titleLabel = [[UILabel alloc] init];
     titleLabel.font = [UIFont boldSystemFontOfSize:16.0f];
@@ -193,7 +166,6 @@
     // 导航栏右侧
     UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightCustomView];
     
-    self.navigationItem.leftBarButtonItem = leftBarButtonItem;
     self.navigationItem.titleView = titleLabel;
     self.navigationItem.rightBarButtonItem = rightBarButtonItem;
 }

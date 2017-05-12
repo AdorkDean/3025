@@ -10,6 +10,7 @@
 #import "UserModel.h"
 #import "UserCell.h"
 #import "DatabaseUtil.h"
+#import "SortViewController.h"
 
 @interface HomeViewController () <UITableViewDataSource, UITableViewDelegate> {
 
@@ -44,6 +45,12 @@
     [self setupUI];
     
     self.pageNumber = 0;
+    [self loadData];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
     [self loadData];
 }
 
@@ -260,6 +267,11 @@
 
 #pragma mark - action
 
+- (void)goSort:(UIButton *)button {
+    
+    [self presentViewController:[[UINavigationController alloc] initWithRootViewController:[[SortViewController alloc] init]] animated:YES completion:nil];
+}
+
 - (void)click:(UIButton *)button {
     
     self.isAttentive = (button.tag == 1);
@@ -311,34 +323,7 @@
 }
 
 - (void)setupNavigtion {
-    
-    UIView *customView = [[UIView alloc] init];
 
-    UILabel *locationLabel = [[UILabel alloc] init];
-    locationLabel.font = [UIFont systemFontOfSize:14.0f];
-    locationLabel.textColor = kNavigationTitleColor;
-    locationLabel.text = @"上海";
-    
-    UIImageView *locationImageView = [[UIImageView alloc] init];
-    locationImageView.contentMode = UIViewContentModeScaleToFill;
-    locationImageView.image = [UIImage imageNamed:@"location"];
-    
-    [customView addSubview:locationLabel];
-    [customView addSubview:locationImageView];
-    
-    [locationLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(customView);
-        make.centerY.mas_equalTo(customView);
-    }];
-    [locationImageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(locationLabel.mas_right).offset(0);
-        make.centerY.mas_equalTo(customView);
-        make.height.width.mas_equalTo(16);
-    }];
-    
-    // 导航栏左侧
-    UIBarButtonItem *leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:customView];
-    
     // 导航栏标题
     UILabel *titleLabel = [[UILabel alloc] init];
     titleLabel.font = [UIFont boldSystemFontOfSize:16.0f];
@@ -354,11 +339,11 @@
     [filterButton setTitle:@"筛选" forState:UIControlStateNormal];
     [filterButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [filterButton.titleLabel setFont:[UIFont systemFontOfSize:14.0f]];
+    [filterButton addTarget:self action:@selector(goSort:) forControlEvents:UIControlEventTouchUpInside];
     
     // 导航栏右侧
     UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:filterButton];
     
-    self.navigationItem.leftBarButtonItem = leftBarButtonItem;
     self.navigationItem.titleView = titleLabel;
     self.navigationItem.rightBarButtonItem = rightBarButtonItem;
 }
@@ -368,13 +353,23 @@
  */
 - (void)loadData {
     
+    UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    [self.view addSubview:activityIndicatorView];
+    [activityIndicatorView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.center.mas_equalTo(self.view);
+    }];
+    [activityIndicatorView startAnimating];
+    
+    // 筛选条件
+    NSString *sortSql = [self sortSql];
+    
     NSString *url;
     NSString *cacheUrl;
     NSString *interest;
     NSDictionary *parameterDict;
     NSString *userid = self.me.userid;
     
-    if (userid) {
+    if (userid && !sortSql) {
 
         interest = (self.isAttentive ? @"1" : @"0");
         url = [NSString stringWithFormat:@"%@%@", kDomain, @"userListPerPage.html"];
@@ -415,15 +410,16 @@
                      on \
                              c.userid = u.userid \
                          and c.category = '01' \
+                     %@ \
                      order by \
                          u.updatetime desc \
                      limit \
-                         %ld, 10;", self.pageNumber*10];
+                         %ld, 10;", sortSql, self.pageNumber*10];
         parameterDict = @{ @"sql": sql };
     }
     
     // 初次加载数据或者刷新
-    if (self.pageNumber == 0) {
+    if (self.pageNumber == 0 && !sortSql) {
         
         // 取缓存数据
         NSString *response = [DatabaseUtil response:cacheUrl effective:60];
@@ -447,7 +443,7 @@
 
         NSString *json = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
         NSArray *array;
-        if (userid) {
+        if (userid && !sortSql) {
 
             array = [NSArray mj_objectArrayWithKeyValuesArray:json];
         } else {
@@ -483,6 +479,8 @@
         [self.tableView.mj_header endRefreshing];
         [self.tableView.mj_footer endRefreshing];
         
+        [activityIndicatorView stopAnimating];
+        [activityIndicatorView removeFromSuperview];
     } failure:^(NSError *error) {
 
         NSLog(@"*** failure %@ ***", error.description);
@@ -492,10 +490,70 @@
         if (self.pageNumber > 0) {
             self.pageNumber--;
         }
+        
+        [activityIndicatorView stopAnimating];
+        [activityIndicatorView removeFromSuperview];
+
         [SVProgressHUD showImage:nil status:@"加载失败"];
         [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
         [SVProgressHUD dismissWithDelay:1.5];
     }];
+}
+
+// 获取筛选页数据
+- (NSString *)sortSql {
+    
+    NSString *sortSql;
+    BOOL first = YES;
+    
+    // 筛选页 用户ID
+    NSString *sortUserid = [[NSUserDefaults standardUserDefaults] objectForKey:kSortUserid];
+    
+    if (sortUserid) {
+        
+        sortSql = [NSString stringWithFormat:@" where u.userid = '%@' ", sortUserid];
+        
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:kSortUserid];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    } else {
+        
+        // 筛选页 其他
+        NSArray *sortArr = [[NSUserDefaults standardUserDefaults] objectForKey:kUserSort];
+        if (sortArr) {
+            for (int i=0; i<sortArr.count; i++) {
+                
+                NSDictionary *dict = sortArr[i];
+                NSString *value = dict[@"value"];
+                
+                if ([value isEqualToString:@"不限"]) {
+                    continue;
+                }
+                // 性别
+                if (i == 0) {
+                    if (first) {
+                        
+                        sortSql = [NSString stringWithFormat:@" where u.sex = '%@' ", value];
+                        first = NO;
+                    } else {
+
+                        sortSql = [NSString stringWithFormat:@" %@ and u.sex = '%@' ", sortSql, value];
+                    }
+                }
+//                // 年龄
+//                if (i == 1) {
+//                    if (first) {
+//                        
+//                        sortSql = [NSString stringWithFormat:@" where u.sex = '%@' ", value];
+//                    } else {
+//                        
+//                        sortSql = [NSString stringWithFormat:@" %@ and u.sex = '%@' ", sortSql, value];
+//                    }
+//                }
+            }
+        }
+    }
+    
+    return sortSql;
 }
 
 @end
