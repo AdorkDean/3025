@@ -51,7 +51,14 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-    [self loadData];
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:kSort]) {
+
+        self.pageNumber = 0;
+        [self loadData];
+        
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:kSort];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -361,97 +368,47 @@
     [activityIndicatorView startAnimating];
     
     // 筛选条件
-    NSString *sortSql = [self sortSql];
+    NSString *sql = [self sql];
     
     NSString *url;
     NSString *cacheUrl;
     NSString *interest;
     NSDictionary *parameterDict;
-    NSString *userid = self.me.userid;
     
-    if (userid && !sortSql) {
 
-        interest = (self.isAttentive ? @"1" : @"0");
-        url = [NSString stringWithFormat:@"%@%@", kDomain, @"userListPerPage.html"];
-        cacheUrl = [NSString stringWithFormat:@"%@?interest=%@", url, (self.isAttentive ? @"1" : @"0")];
-        parameterDict = @{
-                          @"pageNumber":[NSString stringWithFormat:@"%ld", self.pageNumber],
-                          @"interest":interest,
-                          @"userid":userid
-                        };
-    } else {
         url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/query.html"];
         cacheUrl = [NSString stringWithFormat:@"%@?page=%@", url, @"Home"];
-        NSString *sql = [NSString stringWithFormat:@"\
-                     select \
-                         u.birthday, \
-                         u.comment, \
-                         u.domicile, \
-                         u.education, \
-                         u.height, \
-                         u.house, \
-                         u.important, \
-                         u.marital_status maritalStatus, \
-                         u.nickname, \
-                         u.position, \
-                         u.poster, \
-                         u.residence, \
-                         u.salary, \
-                         u.sex, \
-                         u.signature, \
-                         u.unit_nature, \
-                         u.userid, \
-                         concat(c.ageFrom, '-', c.ageTo) conditionAge, \
-                         concat(c.domicileprovince, '-', c.domicilecity) conditionDomicile \
-                     from \
-                         user u \
-                     left join \
-                         conditions c \
-                     on \
-                             c.userid = u.userid \
-                         and c.category = '01' \
-                     %@ \
-                     order by \
-                         u.updatetime desc \
-                     limit \
-                         %ld, 10;", sortSql, self.pageNumber*10];
         parameterDict = @{ @"sql": sql };
-    }
     
     // 初次加载数据或者刷新
-    if (self.pageNumber == 0 && !sortSql) {
-        
-        // 取缓存数据
-        NSString *response = [DatabaseUtil response:cacheUrl effective:60];
-        if (response) {
-            if (userid) {
-                
-                self.userList = [NSArray mj_objectArrayWithKeyValuesArray:response];
-            } else {
-                
-                NSData *responseData = [response dataUsingEncoding:NSUTF8StringEncoding];
-                NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseData options:NSJSONReadingMutableContainers error:nil];
-                self.userList = responseDict[@"list"];
-            }
-
-            [self.tableView reloadData];
-        }
-    }
+//    if (self.pageNumber == 0 && !sortSql) {
+//        
+//        // 取缓存数据
+//        NSString *response = [DatabaseUtil response:cacheUrl effective:60];
+//        if (response) {
+//            if (userid) {
+//                
+//                self.userList = [NSArray mj_objectArrayWithKeyValuesArray:response];
+//            } else {
+//                
+//                NSData *responseData = [response dataUsingEncoding:NSUTF8StringEncoding];
+//                NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseData options:NSJSONReadingMutableContainers error:nil];
+//                self.userList = responseDict[@"list"];
+//            }
+//
+//            [self.tableView reloadData];
+//        }
+//    }
 
     //获取网络数据
     [HttpUtil query:url parameter:parameterDict success:^(id responseObject) {
 
         NSString *json = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
         NSArray *array;
-        if (userid && !sortSql) {
-
-            array = [NSArray mj_objectArrayWithKeyValuesArray:json];
-        } else {
-
-            NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
-            array = responseDict[@"list"];
-        }
         
+        NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        array = responseDict[@"list"];
+
         if (self.pageNumber == 0) {
             
             self.userList = array;
@@ -501,17 +458,16 @@
 }
 
 // 获取筛选页数据
-- (NSString *)sortSql {
+- (NSString *)sql {
     
     NSString *sortSql;
-    BOOL first = YES;
     
     // 筛选页 用户ID
     NSString *sortUserid = [[NSUserDefaults standardUserDefaults] objectForKey:kSortUserid];
     
     if (sortUserid) {
         
-        sortSql = [NSString stringWithFormat:@" where u.userid = '%@' ", sortUserid];
+        sortSql = [NSString stringWithFormat:@" and u.userid = '%@' ", sortUserid];
         
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:kSortUserid];
         [[NSUserDefaults standardUserDefaults] synchronize];
@@ -530,14 +486,8 @@
                 }
                 // 性别
                 if (i == 0) {
-                    if (first) {
-                        
-                        sortSql = [NSString stringWithFormat:@" where u.sex = '%@' ", value];
-                        first = NO;
-                    } else {
 
-                        sortSql = [NSString stringWithFormat:@" %@ and u.sex = '%@' ", sortSql, value];
-                    }
+                    sortSql = [NSString stringWithFormat:@" %@ and u.sex = '%@' ", sortSql, value];
                 }
 //                // 年龄
 //                if (i == 1) {
@@ -553,7 +503,49 @@
         }
     }
     
-    return sortSql;
+    NSString *sql = [NSString stringWithFormat:@"\
+                     select \
+                         u.birthday, \
+                         u.comment, \
+                         u.domicile, \
+                         u.education, \
+                         u.height, \
+                         u.house, \
+                         u.important, \
+                         u.marital_status maritalStatus, \
+                         u.nickname, \
+                         u.position, \
+                         u.poster, \
+                         u.residence, \
+                         u.salary, \
+                         u.sex, \
+                         u.signature, \
+                         u.unit_nature, \
+                         u.userid, \
+                         concat(c.ageFrom, '-', c.ageTo) conditionAge, \
+                         concat(c.domicileprovince, '-', c.domicilecity) conditionDomicile \
+                     from \
+                         user u \
+                         %@ \
+                     left join \
+                         conditions c \
+                     on \
+                             c.userid = u.userid \
+                         and c.category = '01' \
+                     where \
+                         u.userid >= 0 \
+                         %@ \
+                         %@ \
+                     order by \
+                         u.updatetime desc \
+                     limit \
+                     %ld, 10;",
+                     self.userid ? @" , user_target t " : @"",
+                     self.userid ? [NSString stringWithFormat:@" and t.userid = u.userid and t.target_userid = '%@' and type != '0' ", self.userid] : @"",
+                     sortSql,
+                     self.pageNumber * 10];
+    
+    return sql;
 }
 
 @end

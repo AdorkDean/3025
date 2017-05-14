@@ -15,6 +15,7 @@
 
 #define kWXAuthNotification @"wxAuthNotification"
 
+#define kSort @"sort"
 #define kSortUserid @"sortUserid"
 #define kUserSort @"userSort"
 #define kLoginUser @"loginUser"
