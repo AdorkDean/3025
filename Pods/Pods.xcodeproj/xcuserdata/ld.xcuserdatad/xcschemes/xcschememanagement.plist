@@ -14,6 +14,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>HappyDNS.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>MJExtension.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -34,6 +39,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>Qiniu.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>SDWebImage.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -47,17 +57,22 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>00838CDB98B89F3A992938163E30B2B3</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>0265968A05E6FA62AB8EF9B4E4AF011D</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
 		<key>04CF549EBEEE7BC87AEAE35397184D94</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>28CBF0EF103D8837217FA2E4DEA590FC</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>3C951482DACE800D3DDAB5004B04AF00</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>53B2B897D64E4516E75AC86348B86622</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -82,7 +97,12 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>FEDA724B9259E6A7E4BB260ABAF42F78</key>
+		<key>C8A37C9603AF2C8BE04F600EF890D5EB</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>CDA340050D6FCDE646C88A2097BCFAC9</key>
 		<dict>
 			<key>primary</key>
 			<true/>

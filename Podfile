@@ -9,4 +9,5 @@ target '3025' do
     pod 'FMDB', '~> 2.6.2'
     pod 'SVProgressHUD', '~> 2.1.2'
     pod 'WechatOpenSDK'
+    pod 'Qiniu', '~> 7.1.5'
 end
