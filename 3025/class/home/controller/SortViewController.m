@@ -37,10 +37,15 @@
     [self setupUI];
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+
+}
+
 #pragma mark - 设定UI
 
 - (void)setupNavigtion {
-    
+
     // 导航栏标题
     UILabel *titleLabel = [[UILabel alloc] init];
     titleLabel.font = [UIFont boldSystemFontOfSize:16.0f];
@@ -49,7 +54,21 @@
     titleLabel.text = @"筛选";
     titleLabel.frame = CGRectMake(0, 7, 50, 30);
     
+    // 导航栏右侧菜单
+    UIButton *backButton = [[UIButton alloc] init];
+    backButton.backgroundColor = kKeyColor;
+    backButton.layer.cornerRadius = 5;
+    backButton.frame = CGRectMake(0, 7, 50, 30);
+    [backButton setTitle:@"取消" forState:UIControlStateNormal];
+    [backButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [backButton.titleLabel setFont:[UIFont systemFontOfSize:14.0f]];
+    [backButton addTarget:self action:@selector(back:) forControlEvents:UIControlEventTouchUpInside];
+    
+    // 导航栏标题
     self.navigationItem.titleView = titleLabel;
+
+    // 导航栏右侧菜单
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:backButton];
 }
 
 - (void)setupUI {
@@ -352,7 +371,7 @@
             
             _titleList = @[
                            @{ @"title": @"性别", @"value": @"不限" },
-                           @{ @"title": @"年龄", @"value": @"不限", @"value2": @""},
+                           @{ @"title": @"年龄", @"value": @"不限", @"value2": @"不限"},
                            @{ @"title": @"身高", @"value": @"不限" },
                            @{ @"title": @"户籍", @"value": @"不限" },
                            @{ @"title": @"常住城市", @"value": @"不限" },
@@ -556,6 +575,11 @@
 
 #pragma mark - action
 
+- (void)back:(UIButton *)button {
+
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
 - (void)sort:(UIButton *)button {
     
     NSString *userid = [self.searchBar.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
@@ -566,6 +590,7 @@
     }
     
     [[NSUserDefaults standardUserDefaults] setObject:[NSArray arrayWithArray:self.titleList] forKey:kUserSort];
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kSort];
     [[NSUserDefaults standardUserDefaults] synchronize];
     
     [self dismissViewControllerAnimated:YES completion:nil];
