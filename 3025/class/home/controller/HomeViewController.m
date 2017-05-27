@@ -281,14 +281,14 @@
 
 - (void)click:(UIButton *)button {
     
-    self.isAttentive = (button.tag == 1);
-    if (self.isAttentive) {
+    if (button.tag == 1) {
         
         if ([self goLogin:nil message:@"查看关注需要先登录帐号"]) {
             return;
         }
     }
     
+    self.isAttentive = (button.tag == 1);
     self.pageNumber = 0;
     [self loadData];
     
@@ -372,7 +372,6 @@
     
     NSString *url;
     NSString *cacheUrl;
-    NSString *interest;
     NSDictionary *parameterDict;
     
 
@@ -460,7 +459,7 @@
 // 获取筛选页数据
 - (NSString *)sql {
     
-    NSString *sortSql;
+    NSString *sortSql = @"";
     
     // 筛选页 用户ID
     NSString *sortUserid = [[NSUserDefaults standardUserDefaults] objectForKey:kSortUserid];
@@ -480,25 +479,93 @@
                 
                 NSDictionary *dict = sortArr[i];
                 NSString *value = dict[@"value"];
-                
-                if ([value isEqualToString:@"不限"]) {
+                NSString *value2 = dict[@"value2"];
+
+                if ([value isEqualToString:@"不限"] && (!value2 || [value2 isEqualToString:@"不限"])) {
                     continue;
                 }
                 // 性别
                 if (i == 0) {
 
-                    sortSql = [NSString stringWithFormat:@" %@ and u.sex = '%@' ", sortSql, value];
+                    sortSql = [sortSql stringByAppendingString:[NSString stringWithFormat:@" and u.sex = '%@' ", value]];
                 }
-//                // 年龄
-//                if (i == 1) {
-//                    if (first) {
-//                        
-//                        sortSql = [NSString stringWithFormat:@" where u.sex = '%@' ", value];
-//                    } else {
-//                        
-//                        sortSql = [NSString stringWithFormat:@" %@ and u.sex = '%@' ", sortSql, value];
-//                    }
-//                }
+                // 年龄
+                if (i == 1) {
+                    
+                    if (![value isEqualToString:@"不限"]) {
+
+                        int age = [[value substringWithRange:NSMakeRange(0, 2)] intValue];
+                        int year = [[ConversionUtil stringFromDate:[NSDate date] dateFormat:@"yyyy"] intValue];
+                        NSString *monthDay = [ConversionUtil stringFromDate:[NSDate date] dateFormat:@"MM-dd"];
+                        
+                        sortSql = [sortSql stringByAppendingString:[NSString stringWithFormat:@" and u.birthday <= '%d-%@' ", (year - age), monthDay]];
+                    }
+                    if (![value2 isEqualToString:@"不限"]) {
+                        
+                        int age = [[value2 substringWithRange:NSMakeRange(0, 0)] intValue];
+                        int year = [[ConversionUtil stringFromDate:[NSDate date] dateFormat:@"yyyy"] intValue];
+                        NSString *monthDay = [ConversionUtil stringFromDate:[NSDate date] dateFormat:@"MM-dd"];
+                        
+                        sortSql = [sortSql stringByAppendingString:[NSString stringWithFormat:@" and u.birthday >= '%d-%@' ", (year - age), monthDay]];
+                    }
+                }
+                // 身高
+                if (i == 2) {
+                    
+                    sortSql = [sortSql stringByAppendingString:[NSString stringWithFormat:@" and u.height >= '%@' ", [value substringWithRange:NSMakeRange(0, 3)]]];
+                }
+                // 户籍
+                if (i == 3) {
+                    
+                    value = [value stringByReplacingOccurrencesOfString:@"省" withString:@""];
+                    value = [value stringByReplacingOccurrencesOfString:@"市" withString:@""];
+                    if (![value containsString:@"-"]) {
+                        value = [NSString stringWithFormat:@"%@-%@", value, value];
+                    }
+                    
+                    sortSql = [sortSql stringByAppendingString:[NSString stringWithFormat:@" and u.domicile = '%@' ", value]];
+                }
+                // 常住城市
+                if (i == 4) {
+                    
+                    value = [value stringByReplacingOccurrencesOfString:@"省" withString:@""];
+                    value = [value stringByReplacingOccurrencesOfString:@"市" withString:@""];
+                    if (![value containsString:@"-"]) {
+                        value = [NSString stringWithFormat:@"%@-%@", value, value];
+                    }
+                    
+                    sortSql = [sortSql stringByAppendingString:[NSString stringWithFormat:@" and u.residence = '%@' ", value]];
+                }
+                // 最高学历
+                if (i == 5) {
+                    
+                    value = [value stringByReplacingOccurrencesOfString:@"及以上" withString:@""];
+                    NSUInteger index = [kEducation indexOfObject:value];
+                    
+                    sortSql = [sortSql stringByAppendingString:[NSString stringWithFormat:@" and u.education >= '0%ld' ", index]];
+                }
+                // 月收入
+                if (i == 6) {
+                    
+                    value = [value stringByReplacingOccurrencesOfString:@"及以上" withString:@""];
+                    
+                    sortSql = [sortSql stringByAppendingString:[NSString stringWithFormat:@" and u.salary >= '%@' ", value]];
+                }
+                // 单位性质
+                if (i == 7) {
+                    
+                    sortSql = [sortSql stringByAppendingString:[NSString stringWithFormat:@" and u.unit_nature = '0%ld' ", [kUnitNature indexOfObject:value]]];
+                }
+                // 婚姻状态
+                if (i == 8) {
+                    
+                    sortSql = [sortSql stringByAppendingString:[NSString stringWithFormat:@" and u.marital_status = '0%ld' ", [kMaritalStatus indexOfObject:value]]];
+                }
+                // 婚房
+                if (i == 9) {
+                    
+                    sortSql = [sortSql stringByAppendingString:[NSString stringWithFormat:@" and u.house = '0%ld' ", [kHouseStatus indexOfObject:value]]];
+                }
             }
         }
     }
@@ -526,23 +593,24 @@
                          concat(c.domicileprovince, '-', c.domicilecity) conditionDomicile \
                      from \
                          user u \
-                         %@ \
                      left join \
                          conditions c \
                      on \
                              c.userid = u.userid \
                          and c.category = '01' \
                      where \
-                         u.userid >= 0 \
+                         u.userid != '%@' \
+                         %@ \
                          %@ \
                          %@ \
                      order by \
                          u.updatetime desc \
                      limit \
                      %ld, 10;",
-                     self.userid ? @" , user_target t " : @"",
-                     self.userid ? [NSString stringWithFormat:@" and t.userid = u.userid and t.target_userid = '%@' and type != '0' ", self.userid] : @"",
-                     sortSql,
+                     self.userid,
+                     self.userid ? [NSString stringWithFormat:@" AND u.userid NOT IN (SELECT userid FROM user_target WHERE target_userid = '%@' AND type = '0') ", self.userid] : @"", // 未被拉黑
+                     self.isAttentive ? [NSString stringWithFormat:@" AND u.userid IN (SELECT target_userid FROM user_target WHERE userid = '%@' AND type = '1') ", self.userid] : @"", // 我关注的
+                     sortSql, // 检索条件
                      self.pageNumber * 10];
     
     return sql;

@@ -28,9 +28,11 @@ PODS:
     - SDWebImage/Core (= 4.0.0)
   - SDWebImage/Core (4.0.0)
   - SVProgressHUD (2.1.2)
+  - WebViewJavascriptBridge (6.0.2)
   - WechatOpenSDK (1.7.7)
 
 DEPENDENCIES:
+  - AFNetworking (~> 3.1.0)
   - FMDB (~> 2.6.2)
   - Masonry (~> 1.0.2)
   - MJExtension (~> 3.0.13)
@@ -38,6 +40,7 @@ DEPENDENCIES:
   - Qiniu (~> 7.1.5)
   - SDWebImage (~> 4.0.0)
   - SVProgressHUD (~> 2.1.2)
+  - WebViewJavascriptBridge (~> 6.0.2)
   - WechatOpenSDK
 
 SPEC CHECKSUMS:
@@ -50,8 +53,9 @@ SPEC CHECKSUMS:
   Qiniu: 77a3dba411556a383d72d17e842345a9d4c83252
   SDWebImage: 76a6348bdc74eb5a55dd08a091ef298e56b55e41
   SVProgressHUD: c404a55d78acbeb7ebb78b76d3faf986475a6994
+  WebViewJavascriptBridge: 791ee0e26d1bf15efe5fb7fb9666a71a19b89d77
   WechatOpenSDK: cbd332148eb792d444ed4eec94f421d98f2046ee
 
-PODFILE CHECKSUM: 0ba835347a9312d65941b40e7a9605254dbce7fa
+PODFILE CHECKSUM: e3107bba5ded1f93d5304b2676b7684ab58c42e1
 
 COCOAPODS: 1.2.0

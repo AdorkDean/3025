@@ -14,7 +14,9 @@
 #import "ConversionUtil.h"
 
 @interface AppDelegate () <WXApiDelegate> {
+
 }
+
 @end
 
 @implementation AppDelegate
@@ -80,7 +82,6 @@
 - (void)onReq:(BaseReq *)req {
     NSLog(@"*** %@ ***", req);
 }
-
 
 - (void)onResp:(BaseResp *)resp {
     

@@ -58,18 +58,22 @@ static FMDatabaseQueue *dbQueue;
  */
 + (NSString *)response:(NSString *)url effective:(NSUInteger)duration {
     
+    __block NSString *sql = [NSString stringWithFormat:@"select * from responseCache where url = '%@'", url];
     __block NSString *response;
-    NSUInteger effectivetime = [[NSDate date] timeIntervalSince1970] - duration * 1000;
 
+    if (duration > 0) {
+        
+        NSUInteger effectivetime = [[NSDate date] timeIntervalSince1970] - duration * 1000;
+        sql = [sql stringByAppendingString:[NSString stringWithFormat:@" and createtime > %ld ", effectivetime]];
+    }
     [dbQueue inDatabase:^(FMDatabase *db) {
 
-//      FMResultSet *resultSet = [db executeQueryWithFormat:@"select * from responseCache where url = '%@' and createtime > %ld", url, effectivetime];
-        FMResultSet *resultSet = [db executeQueryWithFormat:@"select * from responseCache where url = '%@'", url];
+        FMResultSet *resultSet = [db executeQuery:sql];
         if ([resultSet next]) {
 
             response = [resultSet stringForColumn:@"response"];
-            NSLog(@"*** %ld, %ld, %@ ***", effectivetime, [resultSet longForColumn:@"createtime"], url);
         }
+        [resultSet close];
     }];
     
     return response;

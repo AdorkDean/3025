@@ -65,4 +65,19 @@
     return [dateFormatter dateFromString:str];
 }
 
++ (BOOL)isEmpty:(NSString *)str {
+    if (!str) {
+        return YES;
+    }
+    return ([str stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]].length == 0);
+}
+
+
++ (BOOL)isNotEmpty:(NSString *)str {
+    if (!str) {
+        return NO;
+    }
+    return ([str stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]].length > 0);
+}
+
 @end

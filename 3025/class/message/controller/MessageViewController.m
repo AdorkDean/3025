@@ -7,6 +7,7 @@
 //
 
 #import "MessageViewController.h"
+#import "MomentViewController.h"
 #import "MessageCell.h"
 
 @interface MessageViewController () <UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate> {
@@ -96,7 +97,11 @@
 #pragma mark - 事件处理
 
 - (void)goDiscover:(UIGestureRecognizer *)gestureRecognizer {
+    
+    MomentViewController *vc = [[MomentViewController alloc] init];
+    vc.category = 0;
 
+    [self.navigationController pushViewController:vc animated:YES];
     [self updateLasttime];
 }
 

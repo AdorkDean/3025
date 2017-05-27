@@ -15,6 +15,10 @@
 		6B4F16F41E8B53AE005972C5 /* UserListModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B4F16F31E8B53AE005972C5 /* UserListModel.m */; };
 		6B4F16F71E8BB88B005972C5 /* DatabaseUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B4F16F61E8BB88B005972C5 /* DatabaseUtil.m */; };
 		6B58D9C31EC03FCE0090DCE4 /* pcd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6B58D9C21EC03FCE0090DCE4 /* pcd.plist */; };
+		6B70B78F1ED52786003BE3D3 /* QiniuUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B70B78E1ED52786003BE3D3 /* QiniuUtil.m */; };
+		6B70B7981ED94203003BE3D3 /* MomentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B70B7971ED94203003BE3D3 /* MomentViewController.m */; };
+		6B70B79B1ED9421D003BE3D3 /* MomentCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B70B79A1ED9421D003BE3D3 /* MomentCell.m */; };
+		6B70B79E1ED94235003BE3D3 /* MomentModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B70B79D1ED94235003BE3D3 /* MomentModel.m */; };
 		6B8B79D91E8A2298006B5D11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6B8B79D81E8A2298006B5D11 /* Assets.xcassets */; };
 		6B8B7A061E8A235A006B5D11 /* ActivityViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8B79E71E8A235A006B5D11 /* ActivityViewController.m */; };
 		6B8B7A071E8A235A006B5D11 /* MKNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8B79EC1E8A235A006B5D11 /* MKNavigationController.m */; };
@@ -47,6 +51,14 @@
 		6B4F16F51E8BB88B005972C5 /* DatabaseUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatabaseUtil.h; sourceTree = "<group>"; };
 		6B4F16F61E8BB88B005972C5 /* DatabaseUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DatabaseUtil.m; sourceTree = "<group>"; };
 		6B58D9C21EC03FCE0090DCE4 /* pcd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = pcd.plist; sourceTree = "<group>"; };
+		6B70B78D1ED52786003BE3D3 /* QiniuUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QiniuUtil.h; sourceTree = "<group>"; };
+		6B70B78E1ED52786003BE3D3 /* QiniuUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QiniuUtil.m; sourceTree = "<group>"; };
+		6B70B7961ED94203003BE3D3 /* MomentViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MomentViewController.h; sourceTree = "<group>"; };
+		6B70B7971ED94203003BE3D3 /* MomentViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MomentViewController.m; sourceTree = "<group>"; };
+		6B70B7991ED9421D003BE3D3 /* MomentCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MomentCell.h; sourceTree = "<group>"; };
+		6B70B79A1ED9421D003BE3D3 /* MomentCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MomentCell.m; sourceTree = "<group>"; };
+		6B70B79C1ED94235003BE3D3 /* MomentModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MomentModel.h; sourceTree = "<group>"; };
+		6B70B79D1ED94235003BE3D3 /* MomentModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MomentModel.m; sourceTree = "<group>"; };
 		6B8B79C91E8A2298006B5D11 /* 3025.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = 3025.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B8B79D81E8A2298006B5D11 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6B8B79DD1E8A2298006B5D11 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -102,6 +114,8 @@
 			children = (
 				6B4B8FBB1EBAC01A009DD89B /* MessageModel.h */,
 				6B4B8FBC1EBAC01A009DD89B /* MessageModel.m */,
+				6B70B79C1ED94235003BE3D3 /* MomentModel.h */,
+				6B70B79D1ED94235003BE3D3 /* MomentModel.m */,
 			);
 			path = model;
 			sourceTree = "<group>";
@@ -111,6 +125,8 @@
 			children = (
 				6B4B8FB81EBABCBB009DD89B /* MessageCell.h */,
 				6B4B8FB91EBABCBB009DD89B /* MessageCell.m */,
+				6B70B7991ED9421D003BE3D3 /* MomentCell.h */,
+				6B70B79A1ED9421D003BE3D3 /* MomentCell.m */,
 			);
 			path = view;
 			sourceTree = "<group>";
@@ -272,6 +288,8 @@
 			children = (
 				6B8B79FC1E8A235A006B5D11 /* MessageViewController.h */,
 				6B8B79FD1E8A235A006B5D11 /* MessageViewController.m */,
+				6B70B7961ED94203003BE3D3 /* MomentViewController.h */,
+				6B70B7971ED94203003BE3D3 /* MomentViewController.m */,
 			);
 			path = controller;
 			sourceTree = "<group>";
@@ -311,6 +329,8 @@
 				6B4B8FBF1EBB21E3009DD89B /* HttpUtil.m */,
 				6B4B8FC11EBB2249009DD89B /* ConversionUtil.h */,
 				6B4B8FC21EBB2249009DD89B /* ConversionUtil.m */,
+				6B70B78D1ED52786003BE3D3 /* QiniuUtil.h */,
+				6B70B78E1ED52786003BE3D3 /* QiniuUtil.m */,
 			);
 			path = util;
 			sourceTree = "<group>";
@@ -476,9 +496,11 @@
 				6B8B7A091E8A235A006B5D11 /* MKViewController.m in Sources */,
 				6B8B7A0E1E8A235A006B5D11 /* ProfileViewController.m in Sources */,
 				6BD595A11EC45E14004998DB /* SortViewController.m in Sources */,
+				6B70B7981ED94203003BE3D3 /* MomentViewController.m in Sources */,
 				6B8B7A061E8A235A006B5D11 /* ActivityViewController.m in Sources */,
 				6B8B7A0B1E8A235A006B5D11 /* AppDelegate.m in Sources */,
 				6B4B8FBD1EBAC01A009DD89B /* MessageModel.m in Sources */,
+				6B70B79E1ED94235003BE3D3 /* MomentModel.m in Sources */,
 				6B8B7A071E8A235A006B5D11 /* MKNavigationController.m in Sources */,
 				6B8B7A0A1E8A235A006B5D11 /* HomeViewController.m in Sources */,
 				6B4B8FC01EBB21E3009DD89B /* HttpUtil.m in Sources */,
@@ -487,6 +509,7 @@
 				6B8B7A111E8A2E0D006B5D11 /* UserModel.m in Sources */,
 				6B8B7A0C1E8A235A006B5D11 /* main.m in Sources */,
 				6B4B8FC31EBB2249009DD89B /* ConversionUtil.m in Sources */,
+				6B70B78F1ED52786003BE3D3 /* QiniuUtil.m in Sources */,
 				6B4F16F71E8BB88B005972C5 /* DatabaseUtil.m in Sources */,
 				6B8B7A0D1E8A235A006B5D11 /* MessageViewController.m in Sources */,
 				6BE9338E1EAF231C00A827A7 /* ActivityModel.m in Sources */,
@@ -494,6 +517,7 @@
 				6B4B8FBA1EBABCBB009DD89B /* MessageCell.m in Sources */,
 				6BD45E081EA9F08D009887DD /* ActivityCell.m in Sources */,
 				6B8B7A081E8A235A006B5D11 /* MKTabBarController.m in Sources */,
+				6B70B79B1ED9421D003BE3D3 /* MomentCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

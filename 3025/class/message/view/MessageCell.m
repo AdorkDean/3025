@@ -58,7 +58,7 @@
     UILabel *contentLabel = [[UILabel alloc] init];
     contentLabel.font = [UIFont systemFontOfSize:12.0f];
     contentLabel.textColor = [UIColor grayColor];
-    nicknameLabel.numberOfLines = 1;
+    contentLabel.numberOfLines = 1;
     
     UILabel *badgeNumberLabel = [[UILabel alloc] init];
     badgeNumberLabel.backgroundColor = [UIColor redColor];
