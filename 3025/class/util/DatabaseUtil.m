@@ -21,7 +21,6 @@ static FMDatabaseQueue *dbQueue;
 + (void)createtable {
     
     [dbQueue inDatabase:^(FMDatabase *db) {
-        
         NSString *sql = @"create table if not exists responseCache(url varchar(255), response text, createtime integer)";
         [db executeUpdate:sql];
     }];
@@ -41,7 +40,7 @@ static FMDatabaseQueue *dbQueue;
     
     [dbQueue inDatabase:^(FMDatabase *db) {
 
-        result = [db executeUpdateWithFormat:@"delete from responseCache where url = '%@'", url];
+        result = [db executeUpdate:[NSString stringWithFormat:@"delete from responseCache where url = '%@'", url]];
         result = [db executeUpdateWithFormat:@"insert into responseCache(url, response, createtime) values(%@, %@, %@)", url, response, [NSDate date]];
     }];
     

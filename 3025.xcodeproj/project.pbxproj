@@ -31,6 +31,7 @@
 		6B8B7A0E1E8A235A006B5D11 /* ProfileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8B7A021E8A235A006B5D11 /* ProfileViewController.m */; };
 		6B8B7A111E8A2E0D006B5D11 /* UserModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8B7A101E8A2E0D006B5D11 /* UserModel.m */; };
 		6B8B7A151E8A34E8006B5D11 /* UserCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8B7A141E8A34E8006B5D11 /* UserCell.m */; };
+		6B93AB021EE16A85002E92EE /* ImageBrowser.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B93AB011EE16A85002E92EE /* ImageBrowser.m */; };
 		6BD45E081EA9F08D009887DD /* ActivityCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BD45E071EA9F08D009887DD /* ActivityCell.m */; };
 		6BD595A11EC45E14004998DB /* SortViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BD595A01EC45E14004998DB /* SortViewController.m */; };
 		6BD595A41EC45E36004998DB /* SortCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BD595A31EC45E36004998DB /* SortCell.m */; };
@@ -84,6 +85,8 @@
 		6B8B7A101E8A2E0D006B5D11 /* UserModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserModel.m; sourceTree = "<group>"; };
 		6B8B7A131E8A34E8006B5D11 /* UserCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserCell.h; sourceTree = "<group>"; };
 		6B8B7A141E8A34E8006B5D11 /* UserCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserCell.m; sourceTree = "<group>"; };
+		6B93AB001EE16A85002E92EE /* ImageBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageBrowser.h; sourceTree = "<group>"; };
+		6B93AB011EE16A85002E92EE /* ImageBrowser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageBrowser.m; sourceTree = "<group>"; };
 		6BD45E061EA9F08D009887DD /* ActivityCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActivityCell.h; sourceTree = "<group>"; };
 		6BD45E071EA9F08D009887DD /* ActivityCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ActivityCell.m; sourceTree = "<group>"; };
 		6BD5959F1EC45E14004998DB /* SortViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SortViewController.h; sourceTree = "<group>"; };
@@ -127,6 +130,8 @@
 				6B4B8FB91EBABCBB009DD89B /* MessageCell.m */,
 				6B70B7991ED9421D003BE3D3 /* MomentCell.h */,
 				6B70B79A1ED9421D003BE3D3 /* MomentCell.m */,
+				6B93AB001EE16A85002E92EE /* ImageBrowser.h */,
+				6B93AB011EE16A85002E92EE /* ImageBrowser.m */,
 			);
 			path = view;
 			sourceTree = "<group>";
@@ -517,6 +522,7 @@
 				6B4B8FBA1EBABCBB009DD89B /* MessageCell.m in Sources */,
 				6BD45E081EA9F08D009887DD /* ActivityCell.m in Sources */,
 				6B8B7A081E8A235A006B5D11 /* MKTabBarController.m in Sources */,
+				6B93AB021EE16A85002E92EE /* ImageBrowser.m in Sources */,
 				6B70B79B1ED9421D003BE3D3 /* MomentCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

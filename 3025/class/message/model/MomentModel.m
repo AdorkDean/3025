@@ -15,7 +15,7 @@
 - (void)setCreatetime:(NSString *)createtime {
     _createtime = createtime;
     if (_createtime) {
-        double second = 1000;
+        double second = 1;
         double minite = (60 * second);
         double hour = (60 * minite);
         double day = (24 * hour);
@@ -33,7 +33,7 @@
         } else if (timeInterval <= month) {
             _displaytime = [NSString stringWithFormat:@"%d天前", (int)(timeInterval / day)];
         } else {
-            _displaytime = _createtime;
+            _displaytime = [ConversionUtil stringFromDate:momentDate dateFormat:@"yyyy/M/d"];
         }
     }
 }

@@ -56,8 +56,8 @@
     nicknameLabel.numberOfLines = 1;
     
     UILabel *contentLabel = [[UILabel alloc] init];
-    contentLabel.font = [UIFont systemFontOfSize:12.0f];
-    contentLabel.textColor = [UIColor grayColor];
+    contentLabel.font = [UIFont systemFontOfSize:14.0f];
+    contentLabel.textColor = [UIColor blackColor];
     contentLabel.numberOfLines = 0;
     contentLabel.preferredMaxLayoutWidth = (kScreenWidth - 70);
     
@@ -65,18 +65,31 @@
     [extendButton setTitle:@"全文" forState:UIControlStateNormal];
     [extendButton setTitleColor:kKeyColor forState:UIControlStateNormal];
     [extendButton.titleLabel setFont:[UIFont systemFontOfSize:12.0f]];
+    [extendButton addTarget:self action:@selector(showContent:event:) forControlEvents:UIControlEventTouchUpInside];
     
     UIImageView *imageView1 = [[UIImageView alloc] init];
-    imageView1.contentMode = UIViewContentModeScaleToFill;
+    imageView1.contentMode = UIViewContentModeScaleAspectFill;
+    imageView1.clipsToBounds = YES;
     imageView1.backgroundColor = [UIColor lightGrayColor];
+    imageView1.tag = 0;
+    imageView1.userInteractionEnabled = YES;
+    [imageView1 addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showImages:)]];
     
     UIImageView *imageView2 = [[UIImageView alloc] init];
-    imageView2.contentMode = UIViewContentModeScaleToFill;
+    imageView2.contentMode = UIViewContentModeScaleAspectFill;
+    imageView2.clipsToBounds = YES;
     imageView2.backgroundColor = [UIColor lightGrayColor];
+    imageView2.tag = 1;
+    imageView2.userInteractionEnabled = YES;
+    [imageView2 addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showImages:)]];
     
     UIImageView *imageView3 = [[UIImageView alloc] init];
-    imageView3.contentMode = UIViewContentModeScaleToFill;
+    imageView3.contentMode = UIViewContentModeScaleAspectFill;
+    imageView3.clipsToBounds = YES;
     imageView3.backgroundColor = [UIColor lightGrayColor];
+    imageView3.tag = 2;
+    imageView3.userInteractionEnabled = YES;
+    [imageView3 addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showImages:)]];
     
     UILabel *timeLabel = [[UILabel alloc] init];
     timeLabel.font = [UIFont systemFontOfSize:12.0f];
@@ -87,6 +100,7 @@
     [deleteButton setTitle:@"删除" forState:UIControlStateNormal];
     [deleteButton setTitleColor:kKeyColor forState:UIControlStateNormal];
     [deleteButton.titleLabel setFont:[UIFont systemFontOfSize:12.0f]];
+    [deleteButton addTarget:self action:@selector(deleteMoment:event:) forControlEvents:UIControlEventTouchUpInside];
     
     [self.contentView addSubview:posterImageView];
     [self.contentView addSubview:nicknameLabel];
@@ -162,6 +176,7 @@
         }
     }
     
+    BOOL singleRow = NO;
     BOOL needExtend = NO;
     BOOL hasContent = [ConversionUtil isNotEmpty:momentModel.content];
     BOOL hasImage = (category > 0);
@@ -183,12 +198,11 @@
         self.contentLabel.attributedText = [[NSAttributedString alloc] initWithString:@"内容" attributes:@{NSParagraphStyleAttributeName : paragraphStyle}];
         float rowHeight = [self.contentLabel sizeThatFits:CGSizeMake(self.contentLabel.preferredMaxLayoutWidth, MAXFLOAT)].height;
         
-        momentModel.content = [NSString stringWithFormat:@"%@%@%@%@%@%@%@%@%@%@%@%@%@%@%@%@%@%@%@%@%@%@%@%@%@%@%@%@%@%@%@%@", momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content, momentModel.content];
-        
         self.contentLabel.attributedText = [[NSAttributedString alloc] initWithString:momentModel.content attributes:@{NSParagraphStyleAttributeName : paragraphStyle}];
         
         float totalHeight = [self.contentLabel sizeThatFits:CGSizeMake(self.contentLabel.preferredMaxLayoutWidth, MAXFLOAT)].height;
         
+        singleRow = (totalHeight == rowHeight);
         needExtend = (totalHeight > (3 * rowHeight - 5));
     }
     self.contentLabel.hidden = !hasContent;
@@ -198,6 +212,10 @@
     
     float imageWidth = 0;
     float imageHeight = 0;
+    
+    self.imageView1.hidden = YES;
+    self.imageView2.hidden = YES;
+    self.imageView3.hidden = YES;
     
     // 图片
     if (hasImage) {
@@ -226,7 +244,7 @@
             default:
                 break;
         }
-        imageWidth = (self.contentLabel.preferredMaxLayoutWidth - (category - 1) * 10) / category;
+        imageWidth = (self.contentLabel.preferredMaxLayoutWidth - (category - 1) * 5) / category;
         imageHeight = imageWidth * 9 / 16;
     }
     
@@ -249,8 +267,10 @@
     if (hasContent) {
         if (self.isExtend) {
             self.contentLabel.numberOfLines = 0;
+            [self.extendButton setTitle:@"收起" forState:UIControlStateNormal];
         } else {
             self.contentLabel.numberOfLines = 3;
+            [self.extendButton setTitle:@"全文" forState:UIControlStateNormal];
         }
         [self.contentLabel mas_remakeConstraints:^(MASConstraintMaker *make) {
             make.left.mas_equalTo(self.nicknameLabel);
@@ -260,7 +280,7 @@
         if (needExtend) {
             [self.extendButton mas_remakeConstraints:^(MASConstraintMaker *make) {
                 make.left.mas_equalTo(self.nicknameLabel);
-                make.top.mas_equalTo(self.contentLabel.mas_bottom).mas_offset(10);
+                make.top.mas_equalTo(self.contentLabel.mas_bottom).mas_offset(0);
             }];
         }
     }
@@ -271,23 +291,23 @@
                 if (self.contentLabel.hidden) {
                     make.top.mas_equalTo(self.nicknameLabel.mas_bottom).mas_offset(10);
                 } else {
-                    make.top.mas_equalTo(self.contentLabel.mas_bottom).mas_offset(10);
+                    make.top.mas_equalTo(self.contentLabel.mas_bottom).mas_offset(singleRow ? 5 : 10);
                 }
             } else {
-                make.top.mas_equalTo(self.extendButton.mas_bottom).mas_offset(10);
+                make.top.mas_equalTo(self.extendButton.mas_bottom).mas_offset(0);
             }
-            make.width.mas_equalTo(imageWidth);
-            make.height.mas_equalTo(imageHeight);
+            make.width.mas_lessThanOrEqualTo(imageWidth);
+            make.height.mas_lessThanOrEqualTo(imageHeight);
         }];
         if (!self.imageView2.hidden) {
             [self.imageView2 mas_remakeConstraints:^(MASConstraintMaker *make) {
-                make.left.mas_equalTo(self.imageView1.mas_right).mas_offset(10);
+                make.left.mas_equalTo(self.imageView1.mas_right).mas_offset(5);
                 make.top.width.height.mas_equalTo(self.imageView1);
             }];
         }
         if (!self.imageView3.hidden) {
             [self.imageView3 mas_remakeConstraints:^(MASConstraintMaker *make) {
-                make.left.mas_equalTo(self.imageView2.mas_right).mas_offset(10);
+                make.left.mas_equalTo(self.imageView2.mas_right).mas_offset(5);
                 make.top.width.height.mas_equalTo(self.imageView1);
             }];
         }
@@ -301,10 +321,10 @@
                 if (self.contentLabel.hidden) {
                     make.top.mas_equalTo(self.nicknameLabel.mas_bottom).mas_offset(10);
                 } else {
-                    make.top.mas_equalTo(self.contentLabel.mas_bottom).mas_offset(10);
+                    make.top.mas_equalTo(self.contentLabel.mas_bottom).mas_offset(singleRow ? 5 : 10);
                 }
             } else {
-                make.top.mas_equalTo(self.extendButton.mas_bottom).mas_offset(10);
+                make.top.mas_equalTo(self.extendButton.mas_bottom).mas_offset(0);
             }
         }
         make.bottom.mas_equalTo(self.contentView).mas_offset(-10);
@@ -313,6 +333,24 @@
         make.right.mas_equalTo(self.contentView).mas_offset(-10);
         make.centerY.mas_equalTo(self.timeLabel);
     }];
+}
+
+- (void)showContent:(UIButton *)button event:(UIEvent *)event {
+    if ([self.delegate respondsToSelector:@selector(showContent:)]) {
+        [self.delegate showContent:event];
+    }
+}
+
+- (void)showImages:(UITapGestureRecognizer *)recognizer {
+    if ([self.delegate respondsToSelector:@selector(showImages:gestureRecognizer:)]) {
+        [self.delegate showImages:recognizer.view.tag gestureRecognizer:recognizer];
+    }
+}
+
+- (void)deleteMoment:(UIButton *)button event:(UIEvent *)event {
+    if ([self.delegate respondsToSelector:@selector(deleteMoment:)]) {
+        [self.delegate deleteMoment:event];
+    }
 }
 
 @end

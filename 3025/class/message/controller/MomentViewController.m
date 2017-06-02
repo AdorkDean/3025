@@ -9,8 +9,9 @@
 #import "MomentViewController.h"
 #import "MomentCell.h"
 #import "MomentModel.h"
+#import "ImageBrowser.h"
 
-@interface MomentViewController () <UITableViewDataSource, UITableViewDelegate>
+@interface MomentViewController () <UITableViewDataSource, UITableViewDelegate, MomentCellDelegate>
 
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, strong) MJRefreshNormalHeader *refreshHeader;
@@ -18,6 +19,7 @@
 
 @property (nonatomic, assign) NSUInteger pageNumber;
 @property (nonatomic, copy) NSArray *momentList;
+@property (nonatomic, strong) NSMutableDictionary *contentStateDict;
 
 @end
 
@@ -166,6 +168,13 @@
     return _momentList;
 }
 
+- (NSMutableDictionary *)contentStateDict {
+    if (!_contentStateDict) {
+        _contentStateDict = [NSMutableDictionary dictionary];
+    }
+    return _contentStateDict;
+}
+
 #pragma mark - UITableViewDataSource
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -181,9 +190,10 @@
     }
     
     MomentModel *momentModel = [MomentModel mj_objectWithKeyValues:[self.momentList objectAtIndex:indexPath.row]];
+    cell.delegate = self;
+    cell.isMine = (self.category == 1);
+    cell.isExtend = [[self.contentStateDict objectForKey:indexPath] isEqualToString:@"1"];
     [cell setupData:momentModel];
-    cell.isMine = !(self.category == 1);
-    cell.isExtend = YES;
     
     return cell;
 }
@@ -201,6 +211,8 @@
     });
     
     MomentModel *momentModel = [MomentModel mj_objectWithKeyValues:[self.momentList objectAtIndex:indexPath.row]];
+    cell.isMine = (self.category == 1);
+    cell.isExtend = [[self.contentStateDict objectForKey:indexPath] isEqualToString:@"1"];
     [cell setupData:momentModel];
     
     return [cell.contentView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize].height + 1;
@@ -212,6 +224,54 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
     return 0.01;
+}
+
+#pragma mark - MomentCellDelegate
+
+- (void)showContent:(UIEvent *)event {
+
+    NSSet *touches = [event allTouches];
+    UITouch *touch = [touches anyObject];
+    CGPoint currentTouchPosition = [touch locationInView:self.tableView];
+    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:currentTouchPosition];
+    
+    NSString *isExtend = [self.contentStateDict objectForKey:indexPath];
+    isExtend = [isExtend isEqualToString:@"1"] ? @"0" : @"1";
+    
+    [self.contentStateDict setObject:isExtend forKey:indexPath];
+    
+    [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+}
+
+- (void)showImages:(NSUInteger)currentIndex gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer {
+
+    CGPoint point = [gestureRecognizer locationInView:self.tableView];
+    NSIndexPath *indexPath =[self.tableView indexPathForRowAtPoint:point];
+    
+    MomentModel *momentModel = [MomentModel mj_objectWithKeyValues:[self.momentList objectAtIndex:indexPath.row]];
+    
+    NSMutableArray *mArr = [NSMutableArray array];
+    if ([ConversionUtil isNotEmpty:momentModel.image1]) {
+        [mArr addObject:momentModel.image1];
+    }
+    if ([ConversionUtil isNotEmpty:momentModel.image2]) {
+        [mArr addObject:momentModel.image2];
+    }
+    if ([ConversionUtil isNotEmpty:momentModel.image3]) {
+        [mArr addObject:momentModel.image3];
+    }
+    
+    [ImageBrowser show:[NSArray arrayWithArray:mArr] currentIndex:gestureRecognizer.view.tag];
+}
+
+- (void)deleteMoment:(UIEvent *)event {
+
+    NSSet *touches = [event allTouches];
+    UITouch *touch = [touches anyObject];
+    CGPoint currentTouchPosition = [touch locationInView:self.tableView];
+    NSIndexPath *indexPath =[self.tableView indexPathForRowAtPoint:currentTouchPosition];
+    
+    [self removeMoment:indexPath];
 }
 
 #pragma mark - 加载数据
@@ -305,6 +365,54 @@
     }];
 }
 
+- (void)removeMoment:(NSIndexPath *)indexPath {
+    
+    UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    [self.view addSubview:activityIndicatorView];
+    [activityIndicatorView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.center.mas_equalTo(self.view);
+    }];
+    [activityIndicatorView startAnimating];
+    
+    NSString *url;
+    NSDictionary *parameterDict;
+    MomentModel *momentModel = [MomentModel mj_objectWithKeyValues:[self.momentList objectAtIndex:indexPath.row]];
+    
+    // 筛选条件
+    NSString *sql = [NSString stringWithFormat:@"DELETE FROM moment WHERE momentid = %@", momentModel.momentid];
+    
+    url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/query.html"];
+    parameterDict = @{ @"sql": sql };
+
+    //获取网络数据
+    [HttpUtil query:url parameter:parameterDict success:^(id responseObject) {
+        
+        NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        NSLog(@"*** success %@ ***", responseDict);
+        
+        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+        
+        NSMutableArray *mArr = [NSMutableArray arrayWithArray:self.momentList];
+        [mArr removeObjectAtIndex:indexPath.row];
+        self.momentList = [NSArray arrayWithArray:mArr];
+        
+        [self.contentStateDict removeObjectForKey:indexPath];
+        
+        [activityIndicatorView stopAnimating];
+        [activityIndicatorView removeFromSuperview];
+    } failure:^(NSError *error) {
+        
+        NSLog(@"*** failure %@ ***", error.description);
+
+        [activityIndicatorView stopAnimating];
+        [activityIndicatorView removeFromSuperview];
+        
+        [SVProgressHUD showImage:nil status:@"删除失败"];
+        [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
+        [SVProgressHUD dismissWithDelay:1.5];
+    }];
+}
+
 - (NSString *)sql {
 
     NSString *sql = [NSString stringWithFormat:@"SELECT \
@@ -324,6 +432,8 @@
                                                      u.userid = m.userid \
                                                      %@ \
                                                      AND m.userid NOT IN (SELECT userid FROM user_target WHERE target_userid = '%@' AND type = '0') \
+                                                 ORDER BY \
+                                                     m.createtime DESC \
                                                  LIMIT %ld, %ld"
                      , @"%Y/%m/%d %H:%i:%s"
                      , (self.category == 0) ? [NSString stringWithFormat:@" AND u.userid != '%@' ", self.userid] : [NSString stringWithFormat:@" AND u.userid = '%@' ", self.userid]
