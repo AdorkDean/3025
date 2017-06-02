@@ -10,6 +10,7 @@
 #import "MomentCell.h"
 #import "MomentModel.h"
 #import "ImageBrowser.h"
+#import "PublishViewController.h"
 
 @interface MomentViewController () <UITableViewDataSource, UITableViewDelegate, MomentCellDelegate>
 
@@ -87,9 +88,31 @@
         make.left.width.mas_equalTo(self.view);
         make.bottom.mas_equalTo(self.mas_bottomLayoutGuide);
     }];
+    
+    UIImageView *imageView = [[UIImageView alloc] init];
+    imageView.contentMode = UIViewContentModeCenter;
+    imageView.image = [UIImage imageNamed:@"camera"];
+    imageView.backgroundColor = kKeyColor;
+    imageView.layer.cornerRadius = 20;
+    imageView.clipsToBounds = YES;
+    imageView.userInteractionEnabled = YES;
+    [imageView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toPublishMoment:)]];
+    
+    [self.view addSubview:imageView];
+    [imageView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.mas_equalTo(self.view).mas_offset(-20);
+        make.height.width.mas_equalTo(40);
+        make.bottom.mas_equalTo(self.mas_bottomLayoutGuide).mas_offset(-20);
+    }];
 }
 
 #pragma mark - 事件处理
+
+- (void)toPublishMoment:(UITapGestureRecognizer *)tapGestureRecognizer {
+
+    PublishViewController *vc = [[PublishViewController alloc] init];
+    [self.navigationController pushViewController:vc animated:YES];
+}
 
 - (void)back:(UIButton *)button {
     [self.navigationController popViewControllerAnimated:YES];
@@ -390,13 +413,13 @@
         NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
         NSLog(@"*** success %@ ***", responseDict);
         
-        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-        
         NSMutableArray *mArr = [NSMutableArray arrayWithArray:self.momentList];
         [mArr removeObjectAtIndex:indexPath.row];
         self.momentList = [NSArray arrayWithArray:mArr];
-        
+
         [self.contentStateDict removeObjectForKey:indexPath];
+
+        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
         
         [activityIndicatorView stopAnimating];
         [activityIndicatorView removeFromSuperview];

@@ -32,6 +32,7 @@
 		6B8B7A111E8A2E0D006B5D11 /* UserModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8B7A101E8A2E0D006B5D11 /* UserModel.m */; };
 		6B8B7A151E8A34E8006B5D11 /* UserCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B8B7A141E8A34E8006B5D11 /* UserCell.m */; };
 		6B93AB021EE16A85002E92EE /* ImageBrowser.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B93AB011EE16A85002E92EE /* ImageBrowser.m */; };
+		6B93AB051EE18848002E92EE /* PublishViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B93AB041EE18848002E92EE /* PublishViewController.m */; };
 		6BD45E081EA9F08D009887DD /* ActivityCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BD45E071EA9F08D009887DD /* ActivityCell.m */; };
 		6BD595A11EC45E14004998DB /* SortViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BD595A01EC45E14004998DB /* SortViewController.m */; };
 		6BD595A41EC45E36004998DB /* SortCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BD595A31EC45E36004998DB /* SortCell.m */; };
@@ -87,6 +88,8 @@
 		6B8B7A141E8A34E8006B5D11 /* UserCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserCell.m; sourceTree = "<group>"; };
 		6B93AB001EE16A85002E92EE /* ImageBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageBrowser.h; sourceTree = "<group>"; };
 		6B93AB011EE16A85002E92EE /* ImageBrowser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageBrowser.m; sourceTree = "<group>"; };
+		6B93AB031EE18848002E92EE /* PublishViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PublishViewController.h; sourceTree = "<group>"; };
+		6B93AB041EE18848002E92EE /* PublishViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PublishViewController.m; sourceTree = "<group>"; };
 		6BD45E061EA9F08D009887DD /* ActivityCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActivityCell.h; sourceTree = "<group>"; };
 		6BD45E071EA9F08D009887DD /* ActivityCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ActivityCell.m; sourceTree = "<group>"; };
 		6BD5959F1EC45E14004998DB /* SortViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SortViewController.h; sourceTree = "<group>"; };
@@ -295,6 +298,8 @@
 				6B8B79FD1E8A235A006B5D11 /* MessageViewController.m */,
 				6B70B7961ED94203003BE3D3 /* MomentViewController.h */,
 				6B70B7971ED94203003BE3D3 /* MomentViewController.m */,
+				6B93AB031EE18848002E92EE /* PublishViewController.h */,
+				6B93AB041EE18848002E92EE /* PublishViewController.m */,
 			);
 			path = controller;
 			sourceTree = "<group>";
@@ -506,6 +511,7 @@
 				6B8B7A0B1E8A235A006B5D11 /* AppDelegate.m in Sources */,
 				6B4B8FBD1EBAC01A009DD89B /* MessageModel.m in Sources */,
 				6B70B79E1ED94235003BE3D3 /* MomentModel.m in Sources */,
+				6B93AB051EE18848002E92EE /* PublishViewController.m in Sources */,
 				6B8B7A071E8A235A006B5D11 /* MKNavigationController.m in Sources */,
 				6B8B7A0A1E8A235A006B5D11 /* HomeViewController.m in Sources */,
 				6B4B8FC01EBB21E3009DD89B /* HttpUtil.m in Sources */,
