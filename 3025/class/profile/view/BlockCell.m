@@ -1,18 +1,18 @@
 //
-//  UserCell.m
+//  BlockCell.m
 //  3025
 //
-//  Created by ld on 2017/3/28.
+//  Created by WangErdong on 2017/6/4.
 //
 //
 
-#import "UserCell.h"
+#import "BlockCell.h"
 #import "Masonry.h"
 #import "UIImageView+WebCache.h"
 #import "Constant.h"
 
-@interface UserCell () {
-
+@interface BlockCell () {
+    
 }
 
 @property (nonatomic, strong) UIImageView *posterImageView;
@@ -27,7 +27,7 @@
 
 @end
 
-@implementation UserCell
+@implementation BlockCell
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
     if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
@@ -70,9 +70,13 @@
     self.lineView.backgroundColor = [UIColor colorWithRed:204.0f/255.0f green:204.0f/255.0f blue:204.0f/255.0f alpha:1.0f];
     
     self.expectionLable = [[UILabel alloc] init];
+    self.expectionLable.textAlignment = NSTextAlignmentCenter;
     self.expectionLable.textColor = [UIColor blackColor];
     self.expectionLable.font = [UIFont systemFontOfSize:12.0f];
     self.expectionLable.numberOfLines = 1;
+    self.expectionLable.layer.borderColor = kLineColor.CGColor;
+    self.expectionLable.layer.borderWidth = 1.0;
+    self.expectionLable.layer.cornerRadius = 5.0;
     
     self.detailLable = [[UILabel alloc] init];
     self.detailLable.textColor = [UIColor grayColor];
@@ -127,9 +131,11 @@
         make.height.mas_equalTo(0.5);
     }];
     [self.expectionLable mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(self.lineView.mas_bottom).offset(10);
+        make.top.mas_equalTo(self.lineView.mas_bottom).offset(5);
         make.left.mas_equalTo(self.posterImageView);
-        make.bottom.mas_equalTo(self.contentView).offset(-10);
+        make.bottom.mas_equalTo(self.contentView).offset(-5);
+        make.width.mas_equalTo(70);
+        make.height.mas_equalTo(25);
     }];
     [self.detailLable mas_makeConstraints:^(MASConstraintMaker *make) {
         make.right.mas_equalTo(self.arrowImageView.mas_left).offset(0);
@@ -142,7 +148,7 @@
     }];
 }
 
-- (void)setupData:(UserModel *)model {
+- (void)setupData:(BlockModel *)model {
     
     // 用户头像
     [self.posterImageView sd_setImageWithURL:[NSURL URLWithString:model.poster] placeholderImage:[UIImage imageNamed:@"poster"] completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
@@ -160,7 +166,7 @@
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:intro attributes:@{NSParagraphStyleAttributeName : paragraphStyle}];
     [self.introLable setAttributedText:attributedString];
     // 择偶标准
-    [self.expectionLable setText:(model.condition ? [NSString stringWithFormat:@"期望: %@, 户籍%@", model.conditionAge, model.conditionDomicile] : @"期望: 未填写")];
+    [self.expectionLable setText:@"移除黑名单"];
     // 查看详情
     [self.detailLable setText:@"查看详情"];
 }

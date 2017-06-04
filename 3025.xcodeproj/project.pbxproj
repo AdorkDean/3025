@@ -39,6 +39,13 @@
 		6BE9338E1EAF231C00A827A7 /* ActivityModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BE9338D1EAF231C00A827A7 /* ActivityModel.m */; };
 		9A58BCDB1EE281A700AF84E2 /* ChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A58BCDA1EE281A700AF84E2 /* ChatViewController.m */; };
 		9A58BCDE1EE2E90800AF84E2 /* ChatCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A58BCDD1EE2E90800AF84E2 /* ChatCell.m */; };
+		9A58BCE11EE3B48D00AF84E2 /* BlockViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A58BCE01EE3B48D00AF84E2 /* BlockViewController.m */; };
+		9A58BCE61EE3B52300AF84E2 /* BlockCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A58BCE51EE3B52300AF84E2 /* BlockCell.m */; };
+		9A58BCE91EE3B53900AF84E2 /* BlockModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A58BCE81EE3B53900AF84E2 /* BlockModel.m */; };
+		9A58BCEC1EE3C63700AF84E2 /* MatchViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A58BCEB1EE3C63700AF84E2 /* MatchViewController.m */; };
+		9A58BCEF1EE43AE700AF84E2 /* TruthViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A58BCEE1EE43AE700AF84E2 /* TruthViewController.m */; };
+		9A58BCF21EE43BF900AF84E2 /* MateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A58BCF11EE43BF900AF84E2 /* MateViewController.m */; };
+		9A58BCF51EE43E0900AF84E2 /* BaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A58BCF41EE43E0900AF84E2 /* BaseViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -106,6 +113,20 @@
 		9A58BCDA1EE281A700AF84E2 /* ChatViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatViewController.m; sourceTree = "<group>"; };
 		9A58BCDC1EE2E90800AF84E2 /* ChatCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatCell.h; sourceTree = "<group>"; };
 		9A58BCDD1EE2E90800AF84E2 /* ChatCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatCell.m; sourceTree = "<group>"; };
+		9A58BCDF1EE3B48D00AF84E2 /* BlockViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockViewController.h; sourceTree = "<group>"; };
+		9A58BCE01EE3B48D00AF84E2 /* BlockViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlockViewController.m; sourceTree = "<group>"; };
+		9A58BCE41EE3B52300AF84E2 /* BlockCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockCell.h; sourceTree = "<group>"; };
+		9A58BCE51EE3B52300AF84E2 /* BlockCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlockCell.m; sourceTree = "<group>"; };
+		9A58BCE71EE3B53900AF84E2 /* BlockModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockModel.h; sourceTree = "<group>"; };
+		9A58BCE81EE3B53900AF84E2 /* BlockModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlockModel.m; sourceTree = "<group>"; };
+		9A58BCEA1EE3C63700AF84E2 /* MatchViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatchViewController.h; sourceTree = "<group>"; };
+		9A58BCEB1EE3C63700AF84E2 /* MatchViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MatchViewController.m; sourceTree = "<group>"; };
+		9A58BCED1EE43AE700AF84E2 /* TruthViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TruthViewController.h; sourceTree = "<group>"; };
+		9A58BCEE1EE43AE700AF84E2 /* TruthViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TruthViewController.m; sourceTree = "<group>"; };
+		9A58BCF01EE43BF900AF84E2 /* MateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MateViewController.h; sourceTree = "<group>"; };
+		9A58BCF11EE43BF900AF84E2 /* MateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MateViewController.m; sourceTree = "<group>"; };
+		9A58BCF31EE43E0900AF84E2 /* BaseViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseViewController.h; sourceTree = "<group>"; };
+		9A58BCF41EE43E0900AF84E2 /* BaseViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseViewController.m; sourceTree = "<group>"; };
 		BE253F74D16EACEF8C30066C /* libPods-3025.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-3025.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -317,8 +338,9 @@
 		6B8B79FF1E8A235A006B5D11 /* profile */ = {
 			isa = PBXGroup;
 			children = (
+				9A58BCE21EE3B50700AF84E2 /* model */,
+				9A58BCE31EE3B50700AF84E2 /* view */,
 				6B8B7A001E8A235A006B5D11 /* controller */,
-				6B8B7A031E8A235A006B5D11 /* model */,
 			);
 			path = profile;
 			sourceTree = "<group>";
@@ -328,15 +350,18 @@
 			children = (
 				6B8B7A011E8A235A006B5D11 /* ProfileViewController.h */,
 				6B8B7A021E8A235A006B5D11 /* ProfileViewController.m */,
+				9A58BCDF1EE3B48D00AF84E2 /* BlockViewController.h */,
+				9A58BCE01EE3B48D00AF84E2 /* BlockViewController.m */,
+				9A58BCEA1EE3C63700AF84E2 /* MatchViewController.h */,
+				9A58BCEB1EE3C63700AF84E2 /* MatchViewController.m */,
+				9A58BCED1EE43AE700AF84E2 /* TruthViewController.h */,
+				9A58BCEE1EE43AE700AF84E2 /* TruthViewController.m */,
+				9A58BCF01EE43BF900AF84E2 /* MateViewController.h */,
+				9A58BCF11EE43BF900AF84E2 /* MateViewController.m */,
+				9A58BCF31EE43E0900AF84E2 /* BaseViewController.h */,
+				9A58BCF41EE43E0900AF84E2 /* BaseViewController.m */,
 			);
 			path = controller;
-			sourceTree = "<group>";
-		};
-		6B8B7A031E8A235A006B5D11 /* model */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = model;
 			sourceTree = "<group>";
 		};
 		6B8B7A041E8A235A006B5D11 /* util */ = {
@@ -382,6 +407,24 @@
 				6CCD74F8E3D47A97882344F6 /* Pods-3025.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		9A58BCE21EE3B50700AF84E2 /* model */ = {
+			isa = PBXGroup;
+			children = (
+				9A58BCE71EE3B53900AF84E2 /* BlockModel.h */,
+				9A58BCE81EE3B53900AF84E2 /* BlockModel.m */,
+			);
+			path = model;
+			sourceTree = "<group>";
+		};
+		9A58BCE31EE3B50700AF84E2 /* view */ = {
+			isa = PBXGroup;
+			children = (
+				9A58BCE41EE3B52300AF84E2 /* BlockCell.h */,
+				9A58BCE51EE3B52300AF84E2 /* BlockCell.m */,
+			);
+			path = view;
 			sourceTree = "<group>";
 		};
 		EE00206AE63351ACF6AF7A72 /* Frameworks */ = {
@@ -514,16 +557,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				6B8B7A091E8A235A006B5D11 /* MKViewController.m in Sources */,
+				9A58BCF51EE43E0900AF84E2 /* BaseViewController.m in Sources */,
 				6B8B7A0E1E8A235A006B5D11 /* ProfileViewController.m in Sources */,
+				9A58BCEC1EE3C63700AF84E2 /* MatchViewController.m in Sources */,
 				6BD595A11EC45E14004998DB /* SortViewController.m in Sources */,
+				9A58BCE91EE3B53900AF84E2 /* BlockModel.m in Sources */,
 				6B70B7981ED94203003BE3D3 /* MomentViewController.m in Sources */,
 				6B8B7A061E8A235A006B5D11 /* ActivityViewController.m in Sources */,
 				6B8B7A0B1E8A235A006B5D11 /* AppDelegate.m in Sources */,
 				6B4B8FBD1EBAC01A009DD89B /* MessageModel.m in Sources */,
 				6B70B79E1ED94235003BE3D3 /* MomentModel.m in Sources */,
+				9A58BCE61EE3B52300AF84E2 /* BlockCell.m in Sources */,
 				9A58BCDB1EE281A700AF84E2 /* ChatViewController.m in Sources */,
 				6B93AB051EE18848002E92EE /* PublishViewController.m in Sources */,
 				6B8B7A071E8A235A006B5D11 /* MKNavigationController.m in Sources */,
+				9A58BCEF1EE43AE700AF84E2 /* TruthViewController.m in Sources */,
 				6B8B7A0A1E8A235A006B5D11 /* HomeViewController.m in Sources */,
 				6B4B8FC01EBB21E3009DD89B /* HttpUtil.m in Sources */,
 				6B4F16F41E8B53AE005972C5 /* UserListModel.m in Sources */,
@@ -531,8 +579,10 @@
 				6B8B7A111E8A2E0D006B5D11 /* UserModel.m in Sources */,
 				6B8B7A0C1E8A235A006B5D11 /* main.m in Sources */,
 				9A58BCDE1EE2E90800AF84E2 /* ChatCell.m in Sources */,
+				9A58BCE11EE3B48D00AF84E2 /* BlockViewController.m in Sources */,
 				6B4B8FC31EBB2249009DD89B /* ConversionUtil.m in Sources */,
 				6B70B78F1ED52786003BE3D3 /* QiniuUtil.m in Sources */,
+				9A58BCF21EE43BF900AF84E2 /* MateViewController.m in Sources */,
 				6B4F16F71E8BB88B005972C5 /* DatabaseUtil.m in Sources */,
 				6B8B7A0D1E8A235A006B5D11 /* MessageViewController.m in Sources */,
 				6BE9338E1EAF231C00A827A7 /* ActivityModel.m in Sources */,

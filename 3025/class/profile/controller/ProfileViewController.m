@@ -8,6 +8,11 @@
 
 #import "ProfileViewController.h"
 #import "WXApi.h"
+#import "BaseViewController.h"
+#import "MateViewController.h"
+#import "TruthViewController.h"
+#import "MatchViewController.h"
+#import "BlockViewController.h"
 
 @interface ProfileViewController () <UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate> {
 
@@ -87,7 +92,27 @@
     if (!self.me.userid) {
         [self login:nil];
     } else {
-        
+        if (indexPath.row == 4) {
+            
+            BlockViewController *vc = [[BlockViewController alloc] init];
+            [self.navigationController pushViewController:vc animated:YES];
+        } else if (indexPath.row == 3) {
+            
+            MatchViewController *vc = [[MatchViewController alloc] init];
+            [self.navigationController pushViewController:vc animated:YES];
+        } else if (indexPath.row == 2) {
+            
+            TruthViewController *vc = [[TruthViewController alloc] init];
+            [self.navigationController pushViewController:vc animated:YES];
+        } else if (indexPath.row == 1) {
+            
+            MateViewController *vc = [[MateViewController alloc] init];
+            [self.navigationController pushViewController:vc animated:YES];
+        } else if (indexPath.row == 0) {
+            
+            BaseViewController *vc = [[BaseViewController alloc] init];
+            [self.navigationController pushViewController:vc animated:YES];
+        }
     }
 }
 
@@ -225,7 +250,7 @@
         
         _menuArray = @[
                        @"我的基本资料",
-                       @"我的择偶标准",
+                       @"我的择偶条件",
                        @"我的真实性验证",
                        @"关于门当户对",
                        @"黑名单管理"

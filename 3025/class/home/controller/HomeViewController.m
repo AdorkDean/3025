@@ -116,7 +116,7 @@
         
         cellHeight = [cell.contentView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize].height + 1.0;
         
-        [self.cellHeightDict setObject:[NSString stringWithFormat:@"%f", cellHeight] forKey:key];
+//        [self.cellHeightDict setObject:[NSString stringWithFormat:@"%f", cellHeight] forKey:key];
     }
 
     return cellHeight;
@@ -290,6 +290,7 @@
     
     self.isAttentive = (button.tag == 1);
     self.pageNumber = 0;
+    self.cellHeightDict = [NSMutableDictionary dictionary];
     [self loadData];
     
     for (UIView *subview in self.headView.subviews) {
@@ -374,30 +375,24 @@
     NSString *cacheUrl;
     NSDictionary *parameterDict;
     
-
-        url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/query.html"];
-        cacheUrl = [NSString stringWithFormat:@"%@?page=%@", url, @"Home"];
-        parameterDict = @{ @"sql": sql };
+    url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/query.html"];
+    cacheUrl = [NSString stringWithFormat:@"%@?page=%@", url, @"Home"];
+    parameterDict = @{ @"sql": sql };
     
     // 初次加载数据或者刷新
-//    if (self.pageNumber == 0 && !sortSql) {
-//        
-//        // 取缓存数据
-//        NSString *response = [DatabaseUtil response:cacheUrl effective:60];
-//        if (response) {
-//            if (userid) {
-//                
-//                self.userList = [NSArray mj_objectArrayWithKeyValuesArray:response];
-//            } else {
-//                
-//                NSData *responseData = [response dataUsingEncoding:NSUTF8StringEncoding];
-//                NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseData options:NSJSONReadingMutableContainers error:nil];
-//                self.userList = responseDict[@"list"];
-//            }
-//
-//            [self.tableView reloadData];
-//        }
-//    }
+    if (self.pageNumber == 0) {
+        
+        // 取缓存数据
+        NSString *response = [DatabaseUtil response:cacheUrl effective:0];
+        if (response) {
+            
+            NSData *responseData = [response dataUsingEncoding:NSUTF8StringEncoding];
+            NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseData options:NSJSONReadingMutableContainers error:nil];
+            self.userList = responseDict[@"list"];
+            
+            [self.tableView reloadData];
+        }
+    }
 
     //获取网络数据
     [HttpUtil query:url parameter:parameterDict success:^(id responseObject) {

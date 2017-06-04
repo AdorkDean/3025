@@ -423,7 +423,7 @@
                                                     AND other.userid    = m1.withUserid \
                                                     ORDER BY \
                                                         m1.status 		ASC, \
-                                                        m1.updatetime 	DESC;", self.me.userid];
+                                                        m1.createtime 	DESC;", self.me.userid];
     
     NSDictionary *paramDict = @{
                                 @"sql": sql
