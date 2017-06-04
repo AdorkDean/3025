@@ -872,14 +872,6 @@
         _headView = [[UIView alloc] init];
         _headView.backgroundColor = [UIColor whiteColor];
         
-        UIImageView *notificationImageView = [[UIImageView alloc] init];
-        notificationImageView.image = [UIImage imageNamed:@"notification"];
-        
-        UIView *redDotView = [[UIView alloc] init];
-        redDotView.backgroundColor = [UIColor redColor];
-        redDotView.layer.cornerRadius = 4;
-        redDotView.layer.masksToBounds = YES;
-        
         UISearchBar *searchBar = [[UISearchBar alloc] init];
         searchBar.backgroundImage = [[UIImage alloc] init];
         searchBar.placeholder = @"搜索活动名称/活动ID";
@@ -923,8 +915,6 @@
         UIView *bottomLineView = [[UIView alloc] init];
         bottomLineView.backgroundColor = [UIColor lightGrayColor];
         
-        [_headView addSubview:notificationImageView];
-        [_headView addSubview:redDotView];
         [_headView addSubview:searchBar];
         [_headView addSubview:middleLineView];
         [_headView addSubview:filterButton];
@@ -932,18 +922,9 @@
         [_headView addSubview:joinButton];
         [_headView addSubview:bottomLineView];
         
-        [notificationImageView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.mas_equalTo(_headView).mas_offset(10);
-            make.centerY.mas_equalTo(searchBar);
-            make.height.width.mas_equalTo(20);
-        }];
-        [redDotView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.right.top.mas_equalTo(notificationImageView);
-            make.height.width.mas_equalTo(8);
-        }];
         [searchBar mas_makeConstraints:^(MASConstraintMaker *make) {
             make.top.mas_equalTo(_headView);
-            make.left.mas_equalTo(notificationImageView.mas_right).mas_offset(10);
+            make.left.mas_equalTo(_headView).mas_offset(10);
             make.right.mas_equalTo(_headView).mas_offset(-10);
         }];
         [middleLineView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -952,7 +933,7 @@
             make.height.mas_equalTo(0.5);
         }];
         [filterButton mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.mas_equalTo(notificationImageView);
+            make.left.mas_equalTo(searchBar);
             make.top.mas_equalTo(middleLineView.mas_bottom).mas_offset(10);
             make.right.mas_equalTo(_headView.mas_centerX).mas_offset(-10);
         }];

@@ -8,6 +8,7 @@
 
 #import "MessageViewController.h"
 #import "MomentViewController.h"
+#import "ChatViewController.h"
 #import "MessageCell.h"
 
 @interface MessageViewController () <UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate> {
@@ -152,6 +153,14 @@
         
         [self updateMessage:messageModel status:@"1"];
     }
+    
+    ChatViewController *vc = [[ChatViewController alloc] init];
+    vc.withUserid = messageModel.withUserid;
+    vc.me_poster = messageModel.me_poster;
+    vc.withUsername = messageModel.other_nickname;
+    vc.other_poster = messageModel.other_poster;
+    
+    [self.navigationController pushViewController:vc animated:YES];
 }
 
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath {

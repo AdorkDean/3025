@@ -19,6 +19,7 @@
 #import "HttpUtil.h"
 #import "DatabaseUtil.h"
 #import "ConversionUtil.h"
+#import "QiniuUtil.h"
 
 @interface MKViewController : UIViewController
 

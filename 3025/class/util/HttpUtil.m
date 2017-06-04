@@ -27,6 +27,7 @@
     httpSessionManager.responseSerializer = [AFHTTPResponseSerializer serializer];
     
     [httpSessionManager POST:url parameters:parameterDict progress:^(NSProgress * _Nonnull uploadProgress) {
+        NSLog(@" *** uploadProgress %@ *** ", uploadProgress);
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (success) {
             dispatch_async(dispatch_get_main_queue(), ^{

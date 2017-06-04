@@ -245,6 +245,9 @@
                 break;
         }
         imageWidth = (self.contentLabel.preferredMaxLayoutWidth - (category - 1) * 5) / category;
+        if (category == 1) {
+            imageWidth = imageWidth * 0.75;
+        }
         imageHeight = imageWidth * 9 / 16;
     }
     

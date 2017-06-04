@@ -34,6 +34,18 @@
     [self loadData];
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    self.tabBarController.tabBar.hidden = YES;
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
+    self.tabBarController.tabBar.hidden = NO;
+}
+
 #pragma mark - UI
 
 - (void)setupNavigtion {
@@ -111,7 +123,7 @@
 - (void)toPublishMoment:(UITapGestureRecognizer *)tapGestureRecognizer {
 
     PublishViewController *vc = [[PublishViewController alloc] init];
-    [self.navigationController pushViewController:vc animated:YES];
+    [self presentViewController:[[UINavigationController alloc] initWithRootViewController:vc] animated:YES completion:nil];
 }
 
 - (void)back:(UIButton *)button {
@@ -263,7 +275,7 @@
     
     [self.contentStateDict setObject:isExtend forKey:indexPath];
     
-    [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+    [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
 }
 
 - (void)showImages:(NSUInteger)currentIndex gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer {

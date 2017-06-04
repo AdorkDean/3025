@@ -11,4 +11,5 @@ target '3025' do
     pod 'WechatOpenSDK'
     pod 'WebViewJavascriptBridge', '~> 6.0.2'
     pod 'Qiniu', '~> 7.1.5'
+    pod 'SocketRocket', '~> 0.5.1'
 end

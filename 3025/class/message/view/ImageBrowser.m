@@ -44,6 +44,7 @@
     scrollView.pagingEnabled = YES;
     scrollView.contentSize = CGSizeMake(kScreenWidth * imageList.count, kScreenHeight);
     scrollView.delegate = [ImageBrowser sharedImageBrowser];
+    scrollView.showsHorizontalScrollIndicator = NO;
     
     // 图片视图
     UIImageView *tmpImageView;

@@ -27,6 +27,7 @@ PODS:
   - SDWebImage (4.0.0):
     - SDWebImage/Core (= 4.0.0)
   - SDWebImage/Core (4.0.0)
+  - SocketRocket (0.5.1)
   - SVProgressHUD (2.1.2)
   - WebViewJavascriptBridge (6.0.2)
   - WechatOpenSDK (1.7.7)
@@ -39,6 +40,7 @@ DEPENDENCIES:
   - MJRefresh (~> 3.1.12)
   - Qiniu (~> 7.1.5)
   - SDWebImage (~> 4.0.0)
+  - SocketRocket (~> 0.5.1)
   - SVProgressHUD (~> 2.1.2)
   - WebViewJavascriptBridge (~> 6.0.2)
   - WechatOpenSDK
@@ -52,10 +54,11 @@ SPEC CHECKSUMS:
   MJRefresh: b96cdb21c4aa75a7b07654311ab2f315c497e806
   Qiniu: 77a3dba411556a383d72d17e842345a9d4c83252
   SDWebImage: 76a6348bdc74eb5a55dd08a091ef298e56b55e41
+  SocketRocket: d57c7159b83c3c6655745cd15302aa24b6bae531
   SVProgressHUD: c404a55d78acbeb7ebb78b76d3faf986475a6994
   WebViewJavascriptBridge: 791ee0e26d1bf15efe5fb7fb9666a71a19b89d77
   WechatOpenSDK: cbd332148eb792d444ed4eec94f421d98f2046ee
 
-PODFILE CHECKSUM: e3107bba5ded1f93d5304b2676b7684ab58c42e1
+PODFILE CHECKSUM: 9378f28a93ec260cd4123e0eba95fa3ef741eb0d
 
-COCOAPODS: 1.2.0
+COCOAPODS: 1.2.1

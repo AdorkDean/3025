@@ -37,6 +37,8 @@
 		6BD595A11EC45E14004998DB /* SortViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BD595A01EC45E14004998DB /* SortViewController.m */; };
 		6BD595A41EC45E36004998DB /* SortCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BD595A31EC45E36004998DB /* SortCell.m */; };
 		6BE9338E1EAF231C00A827A7 /* ActivityModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6BE9338D1EAF231C00A827A7 /* ActivityModel.m */; };
+		9A58BCDB1EE281A700AF84E2 /* ChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A58BCDA1EE281A700AF84E2 /* ChatViewController.m */; };
+		9A58BCDE1EE2E90800AF84E2 /* ChatCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A58BCDD1EE2E90800AF84E2 /* ChatCell.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -100,6 +102,10 @@
 		6BE9338D1EAF231C00A827A7 /* ActivityModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ActivityModel.m; sourceTree = "<group>"; };
 		6CCD74F8E3D47A97882344F6 /* Pods-3025.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-3025.release.xcconfig"; path = "Pods/Target Support Files/Pods-3025/Pods-3025.release.xcconfig"; sourceTree = "<group>"; };
 		8B3F3B6FF85BB7B07B6100E6 /* Pods-3025.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-3025.debug.xcconfig"; path = "Pods/Target Support Files/Pods-3025/Pods-3025.debug.xcconfig"; sourceTree = "<group>"; };
+		9A58BCD91EE281A700AF84E2 /* ChatViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatViewController.h; sourceTree = "<group>"; };
+		9A58BCDA1EE281A700AF84E2 /* ChatViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatViewController.m; sourceTree = "<group>"; };
+		9A58BCDC1EE2E90800AF84E2 /* ChatCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatCell.h; sourceTree = "<group>"; };
+		9A58BCDD1EE2E90800AF84E2 /* ChatCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatCell.m; sourceTree = "<group>"; };
 		BE253F74D16EACEF8C30066C /* libPods-3025.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-3025.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -135,6 +141,8 @@
 				6B70B79A1ED9421D003BE3D3 /* MomentCell.m */,
 				6B93AB001EE16A85002E92EE /* ImageBrowser.h */,
 				6B93AB011EE16A85002E92EE /* ImageBrowser.m */,
+				9A58BCDC1EE2E90800AF84E2 /* ChatCell.h */,
+				9A58BCDD1EE2E90800AF84E2 /* ChatCell.m */,
 			);
 			path = view;
 			sourceTree = "<group>";
@@ -300,6 +308,8 @@
 				6B70B7971ED94203003BE3D3 /* MomentViewController.m */,
 				6B93AB031EE18848002E92EE /* PublishViewController.h */,
 				6B93AB041EE18848002E92EE /* PublishViewController.m */,
+				9A58BCD91EE281A700AF84E2 /* ChatViewController.h */,
+				9A58BCDA1EE281A700AF84E2 /* ChatViewController.m */,
 			);
 			path = controller;
 			sourceTree = "<group>";
@@ -478,7 +488,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		80E9FB8D6DA3F037F569FC50 /* [CP] Embed Pods Frameworks */ = {
@@ -511,6 +521,7 @@
 				6B8B7A0B1E8A235A006B5D11 /* AppDelegate.m in Sources */,
 				6B4B8FBD1EBAC01A009DD89B /* MessageModel.m in Sources */,
 				6B70B79E1ED94235003BE3D3 /* MomentModel.m in Sources */,
+				9A58BCDB1EE281A700AF84E2 /* ChatViewController.m in Sources */,
 				6B93AB051EE18848002E92EE /* PublishViewController.m in Sources */,
 				6B8B7A071E8A235A006B5D11 /* MKNavigationController.m in Sources */,
 				6B8B7A0A1E8A235A006B5D11 /* HomeViewController.m in Sources */,
@@ -519,6 +530,7 @@
 				6BD595A41EC45E36004998DB /* SortCell.m in Sources */,
 				6B8B7A111E8A2E0D006B5D11 /* UserModel.m in Sources */,
 				6B8B7A0C1E8A235A006B5D11 /* main.m in Sources */,
+				9A58BCDE1EE2E90800AF84E2 /* ChatCell.m in Sources */,
 				6B4B8FC31EBB2249009DD89B /* ConversionUtil.m in Sources */,
 				6B70B78F1ED52786003BE3D3 /* QiniuUtil.m in Sources */,
 				6B4F16F71E8BB88B005972C5 /* DatabaseUtil.m in Sources */,
