@@ -22,6 +22,8 @@
 @property (nonatomic, assign) NSInteger imageIndex;
 @property (nonatomic, strong) NSMutableDictionary *imageDataDict;
 
+@property (nonatomic, strong) NSMutableArray *optionValueList;
+
 @end
 
 @implementation TruthViewController
@@ -76,17 +78,62 @@
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:backButton];
 }
 
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    
+    float imageHeight = (kScreenWidth - 50) / 3 * 9 / 16;
+    
+    UIScrollView *scrollView = self.view.subviews.firstObject;
+    scrollView.contentSize = CGSizeMake(kScreenWidth, imageHeight + 1050);
+}
+
 - (void)setupUI {
     
     [self setAutomaticallyAdjustsScrollViewInsets:NO];
     [self.view setBackgroundColor:kBackgroundColor];
     [self.view addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(endEdit:)]];
     
+    UIScrollView *scrollView = [[UIScrollView alloc] init];
+    scrollView.backgroundColor = kBackgroundColor;
+    scrollView.showsVerticalScrollIndicator = NO;
+    scrollView.showsHorizontalScrollIndicator = NO;
+    scrollView.bounds = self.view.bounds;
+    
+    [self.view addSubview:scrollView];
+    [scrollView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(self.mas_topLayoutGuide);
+        make.left.width.mas_equalTo(self.view);
+        make.bottom.mas_equalTo(self.mas_bottomLayoutGuide);
+    }];
+    
+    UIView *importView = [self option:@[@"三观匹配", @"门当户对", @"三观、门户都重要"] title:@"请最少选择1项择偶条件" category:0];
+    UIView *fatherView = [self option:@[@"退休", @"在职", @"其他"] title:@"我的父亲" category:1];
+    
+    // 说明
+    UILabel *titleLabel2 = [[UILabel alloc] init];
+    titleLabel2.font = [UIFont systemFontOfSize:16.0f];
+    titleLabel2.textColor = [UIColor blackColor];
+    titleLabel2.text = @"说明";
+    
+    // 内容输入框
+    UITextView *textView2 = [[UITextView alloc] init];
+    textView2.font = [UIFont systemFontOfSize:16.0f];
+    textView2.textColor = [UIColor blackColor];
+    textView2.layer.borderColor = kLineColor.CGColor;
+    textView2.layer.borderWidth = 1.0;
+    
+    UIView *matherView = [self option:@[@"退休", @"在职", @"其他"] title:@"我的母亲" category:2];
+    
+    self.optionValueList = [NSMutableArray array];
+    [self.optionValueList addObject:@"三观匹配"];
+    [self.optionValueList addObject:@"退休"];
+    [self.optionValueList addObject:@"退休"];
+    
     // 添加标题
     UILabel *titleLabel = [[UILabel alloc] init];
     titleLabel.font = [UIFont systemFontOfSize:16.0f];
     titleLabel.textColor = [UIColor blackColor];
-    titleLabel.text = @"添加标题：";
+    titleLabel.text = @"说明";
     
     // 内容输入框
     UITextView *textView = [[UITextView alloc] init];
@@ -94,6 +141,8 @@
     textView.textColor = [UIColor blackColor];
     textView.layer.borderColor = kLineColor.CGColor;
     textView.layer.borderWidth = 1.0;
+    
+    UIView *homeEditView = [self homeEditView];
     
     // 图片上传区域
     UIView *middleView = [[UIView alloc] init];
@@ -103,7 +152,7 @@
     UILabel *subTitleLabel = [[UILabel alloc] init];
     subTitleLabel.font = [UIFont systemFontOfSize:16.0f];
     subTitleLabel.textColor = [UIColor blackColor];
-    subTitleLabel.text = @"上传照片（最多三张，可选填）：";
+    subTitleLabel.text = @"房屋照片（最多三张）";
     
     UIImageView *imageView1 = [[UIImageView alloc] init];
     imageView1.contentMode = UIViewContentModeCenter;
@@ -165,7 +214,7 @@
     [middleView addSubview:delImageView3];
     
     [subTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(middleView).mas_offset(20);
+        make.left.mas_equalTo(middleView).mas_offset(15);
         make.top.mas_equalTo(middleView).mas_offset(10);
     }];
     [imageView1 mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -210,25 +259,57 @@
     [button setTitle:@"提交" forState:UIControlStateNormal];
     [button addTarget:self action:@selector(publish:) forControlEvents:UIControlEventTouchUpInside];
     
-    [self.view addSubview:titleLabel];
-    [self.view addSubview:textView];
-    [self.view addSubview:middleView];
+    [scrollView addSubview:importView];
+    [scrollView addSubview:fatherView];
+    [scrollView addSubview:titleLabel2];
+    [scrollView addSubview:textView2];
+    [scrollView addSubview:matherView];
+    [scrollView addSubview:titleLabel];
+    [scrollView addSubview:textView];
+    [scrollView addSubview:homeEditView];
+    [scrollView addSubview:middleView];
     [self.view addSubview:bottomView];
     [self.view addSubview:button];
     
+    [importView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.width.mas_equalTo(scrollView);
+        make.top.mas_equalTo(scrollView);
+    }];
+    [fatherView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.width.mas_equalTo(scrollView);
+        make.top.mas_equalTo(importView.mas_bottom);
+    }];
+    [titleLabel2 mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(fatherView.mas_bottom).mas_offset(10);
+        make.left.mas_equalTo(scrollView).mas_offset(15);
+    }];
+    [textView2 mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(titleLabel2);
+        make.top.mas_equalTo(titleLabel2.mas_bottom).mas_offset(10);
+        make.width.mas_equalTo(kScreenWidth-30);
+        make.height.mas_equalTo(120);
+    }];
+    [matherView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.width.mas_equalTo(scrollView);
+        make.top.mas_equalTo(textView2.mas_bottom).mas_offset(0);
+    }];
     [titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(self.view).mas_offset(20);
-        make.top.mas_equalTo(self.mas_topLayoutGuide).mas_offset(10);
+        make.left.mas_equalTo(scrollView).mas_offset(15);
+        make.top.mas_equalTo(matherView.mas_bottom).mas_offset(10);
     }];
     [textView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(titleLabel);
         make.top.mas_equalTo(titleLabel.mas_bottom).mas_offset(10);
-        make.right.mas_equalTo(self.view).mas_offset(-20);
+        make.width.mas_equalTo(kScreenWidth-30);
         make.height.mas_equalTo(120);
     }];
+    [homeEditView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.width.mas_equalTo(scrollView);
+        make.top.mas_equalTo(textView.mas_bottom).mas_offset(0);
+    }];
     [middleView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.width.mas_equalTo(self.view);
-        make.top.mas_equalTo(textView.mas_bottom).mas_offset(20);
+        make.left.width.mas_equalTo(scrollView);
+        make.top.mas_equalTo(homeEditView.mas_bottom).mas_offset(10);
     }];
     [bottomView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(self.view).mas_offset(-0.5);
@@ -250,6 +331,221 @@
     self.delImageView1 = delImageView1;
     self.delImageView2 = delImageView2;
     self.delImageView3 = delImageView3;
+}
+
+- (UIView *)option:(NSArray *)optionList title:(NSString *)title category:(NSUInteger)category {
+
+    UIView *optionView = [[UIView alloc] init];
+    
+    UIView *titleView = [[UIView alloc] init];
+    titleView.backgroundColor = kBackgroundColor;
+    
+    UILabel *titleLabel = [[UILabel alloc] init];
+    titleLabel.font = [UIFont systemFontOfSize:16.0f];
+    titleLabel.textColor = [UIColor blackColor];
+    titleLabel.text = title;
+    
+    UIView *itemView = [[UIView alloc] init];
+    itemView.backgroundColor = [UIColor whiteColor];
+    
+    [optionView addSubview:titleView];
+    [optionView addSubview:titleLabel];
+    [optionView addSubview:itemView];
+    
+    [titleView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.top.width.mas_equalTo(optionView);
+        make.height.mas_equalTo(40);
+    }];
+    [titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(optionView).mas_offset(15);
+        make.center.mas_equalTo(titleView);
+    }];
+    [itemView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(titleView.mas_bottom);
+        make.left.width.mas_equalTo(optionView);
+        make.height.mas_equalTo(40*optionList.count);
+        make.bottom.mas_equalTo(optionView);
+    }];
+    
+    for (NSString *option in optionList) {
+        
+        NSUInteger index = [optionList indexOfObject:option];
+        
+        UILabel *itemLabel = [[UILabel alloc] init];
+        itemLabel.font = [UIFont systemFontOfSize:14.0f];
+        itemLabel.textColor = [UIColor blackColor];
+        itemLabel.text = option;
+        itemLabel.userInteractionEnabled = YES;
+        [itemLabel addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(optionSelect:)]];
+        
+        UIView *lineView = [[UIView alloc] init];
+        lineView.backgroundColor = kLineColor;
+        
+        [optionView addSubview:itemLabel];
+        [optionView addSubview:lineView];
+        
+        [itemLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.mas_equalTo(itemView).mas_offset(40*index);
+            make.left.mas_equalTo(titleLabel);
+            make.right.mas_equalTo(optionView);
+            make.height.mas_equalTo(40);
+        }];
+        [lineView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.bottom.mas_equalTo(itemLabel);
+            make.left.mas_equalTo(itemLabel);
+            make.right.mas_equalTo(optionView);
+            make.height.mas_equalTo(0.5);
+        }];
+    }
+    
+    UIImageView *imageView = [[UIImageView alloc] init];
+    imageView.contentMode = UIViewContentModeCenter;
+    imageView.image = [UIImage imageNamed:@"checked"];
+    imageView.tag = category;
+
+    [optionView addSubview:imageView];
+    [imageView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(itemView);
+        make.right.mas_equalTo(optionView).mas_offset(-15);
+        make.width.height.mas_equalTo(40);
+    }];
+    
+    return optionView;
+}
+
+- (UIView *)homeEditView {
+    
+    UIView *homeView = [[UIView alloc] init];
+    
+    UIView *titleView = [[UIView alloc] init];
+    titleView.backgroundColor = kBackgroundColor;
+    
+    UILabel *titleLabel = [[UILabel alloc] init];
+    titleLabel.font = [UIFont systemFontOfSize:16.0f];
+    titleLabel.textColor = [UIColor blackColor];
+    titleLabel.text = @"这是我家:(其他用户可见，注意保护隐私)";
+    
+    UIView *itemView = [[UIView alloc] init];
+    itemView.backgroundColor = [UIColor whiteColor];
+    
+    [homeView addSubview:titleView];
+    [homeView addSubview:titleLabel];
+    [homeView addSubview:itemView];
+    
+    [titleView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.top.width.mas_equalTo(homeView);
+        make.height.mas_equalTo(40);
+    }];
+    [titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(homeView).mas_offset(15);
+        make.center.mas_equalTo(titleView);
+    }];
+    [itemView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(titleView.mas_bottom);
+        make.left.width.mas_equalTo(homeView);
+        make.height.mas_equalTo(80);
+        make.bottom.mas_equalTo(homeView);
+    }];
+    
+    // 添加标题
+    UILabel *item1Label = [[UILabel alloc] init];
+    item1Label.font = [UIFont systemFontOfSize:14.0f];
+    item1Label.textColor = [UIColor blackColor];
+    item1Label.text = @"城市/区县";
+    
+    UIView *vLineView = [[UIView alloc] init];
+    vLineView.backgroundColor = kLineColor;
+    
+    // 内容输入框
+    UITextField *textView = [[UITextField alloc] init];
+    textView.layer.borderColor = kLineColor.CGColor;
+    textView.layer.borderWidth = 1.0;
+    textView.layer.cornerRadius = 5;
+    textView.font = [UIFont systemFontOfSize:14.0f];
+    textView.textColor = [UIColor blackColor];
+    
+    UIView *hLineView = [[UIView alloc] init];
+    hLineView.backgroundColor = kLineColor;
+    
+    // 添加标题
+    UILabel *item2Label = [[UILabel alloc] init];
+    item2Label.font = [UIFont systemFontOfSize:14.0f];
+    item2Label.textColor = [UIColor blackColor];
+    item2Label.text = @"靠近什么路?";
+    
+    UIView *vLineView2 = [[UIView alloc] init];
+    vLineView2.backgroundColor = kLineColor;
+    
+    // 内容输入框
+    UITextField *textView2 = [[UITextField alloc] init];
+    textView2.layer.borderColor = kLineColor.CGColor;
+    textView2.layer.borderWidth = 1.0;
+    textView2.layer.cornerRadius = 5;
+    textView2.font = [UIFont systemFontOfSize:14.0f];
+    textView2.textColor = [UIColor blackColor];
+    
+    UIView *hLine2View = [[UIView alloc] init];
+    hLine2View.backgroundColor = kLineColor;
+    
+    [homeView addSubview:item1Label];
+    [homeView addSubview:vLineView];
+    [homeView addSubview:textView];
+    [homeView addSubview:hLineView];
+    [homeView addSubview:item2Label];
+    [homeView addSubview:vLineView2];
+    [homeView addSubview:textView2];
+    [homeView addSubview:hLine2View];
+
+    [item1Label mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(titleView.mas_bottom);
+        make.left.mas_equalTo(titleLabel);
+        make.width.mas_equalTo(item2Label);
+        make.height.mas_equalTo(40);
+    }];
+    [vLineView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerY.mas_equalTo(item1Label);
+        make.left.mas_equalTo(item1Label.mas_right).mas_offset(10);
+        make.width.mas_equalTo(1);
+        make.height.mas_equalTo(15);
+    }];
+    [textView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerY.mas_equalTo(item1Label);
+        make.left.mas_equalTo(vLineView.mas_right).mas_offset(10);
+        make.right.mas_equalTo(homeView).mas_offset(-15);
+        make.height.mas_equalTo(25);
+    }];
+    [hLineView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.bottom.mas_equalTo(item1Label);
+        make.left.mas_equalTo(item1Label);
+        make.right.mas_equalTo(homeView);
+        make.height.mas_equalTo(0);
+    }];
+    [item2Label mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(item1Label.mas_bottom);
+        make.left.mas_equalTo(item1Label);
+        make.height.mas_equalTo(40);
+        make.width.mas_equalTo(80);
+    }];
+    [vLineView2 mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerY.mas_equalTo(item2Label);
+        make.left.mas_equalTo(item2Label.mas_right).mas_offset(10);
+        make.width.mas_equalTo(1);
+        make.height.mas_equalTo(15);
+    }];
+    [textView2 mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerY.mas_equalTo(item2Label);
+        make.left.mas_equalTo(vLineView2.mas_right).mas_offset(10);
+        make.right.mas_equalTo(homeView).mas_offset(-15);
+        make.height.mas_equalTo(25);
+    }];
+    [hLine2View mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.bottom.mas_equalTo(item2Label);
+        make.left.mas_equalTo(item2Label);
+        make.right.mas_equalTo(homeView);
+        make.height.mas_equalTo(0);
+    }];
+    
+    return homeView;
 }
 
 #pragma mark - getter
@@ -325,6 +621,28 @@
 - (void)endEdit:(UITapGestureRecognizer *)tapGestureRecognizer {
     
     [self.view endEditing:YES];
+}
+
+- (void)optionSelect:(UITapGestureRecognizer *)tapGestureRecognizer {
+    
+    [self.view endEditing:YES];
+    
+    UILabel *itemLabel = (UILabel *)tapGestureRecognizer.view;
+    NSArray *subviews = tapGestureRecognizer.view.superview.subviews;
+
+    for (UIView *subview in subviews) {
+        if ([subview isKindOfClass:[UIImageView class]]) {
+
+            [subview mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.right.mas_equalTo(itemLabel).mas_offset(-15);
+                make.centerY.mas_equalTo(itemLabel);
+                make.width.height.mas_equalTo(40);
+            }];
+            
+            NSInteger tag2 = subview.tag;
+            [self.optionValueList replaceObjectAtIndex:tag2 withObject:itemLabel.text];
+        }
+    }
 }
 
 - (void)imageViewTapped:(UITapGestureRecognizer *)tapGestureRecognizer {

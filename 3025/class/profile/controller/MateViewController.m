@@ -9,7 +9,7 @@
 #import "MateViewController.h"
 #import "SortCell.h"
 
-@interface MateViewController () <UITableViewDataSource, UITableViewDelegate, UIPickerViewDataSource, UIPickerViewDelegate, SortCellDelegate>
+@interface MateViewController () <UITableViewDataSource, UITableViewDelegate, UIPickerViewDataSource, UIPickerViewDelegate, SortCellDelegate, UITextViewDelegate>
 
 @property (nonatomic, copy) NSArray *titleList;
 @property (nonatomic, copy) NSArray *pickerList;
@@ -18,6 +18,8 @@
 @property (nonatomic, assign) NSUInteger currentRow;
 
 @property (nonatomic, strong) UITableView *tableView;
+@property (nonatomic, strong) UIView *footerView;
+@property (nonatomic, strong) UITextView *textView;
 @property (nonatomic, strong) UIView *shadeView;
 @property (nonatomic, strong) UIView *inputView;
 @property (nonatomic, strong) UILabel *inputTitleLabel;
@@ -37,11 +39,19 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillChangeFrameNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+    
     self.tabBarController.tabBar.hidden = YES;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillChangeFrameNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
     
     self.tabBarController.tabBar.hidden = NO;
 }
@@ -81,12 +91,14 @@
     
     [self setAutomaticallyAdjustsScrollViewInsets:NO];
     [self.view setBackgroundColor:kBackgroundColor];
+    [self.view addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(endEdit:)]];
     
     UITableView *tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleGrouped];
     tableView.backgroundColor = kBackgroundColor;
     tableView.separatorInset = UIEdgeInsetsMake(0, 10, 0, 0);
     tableView.dataSource = self;
     tableView.delegate = self;
+    tableView.tableFooterView = self.footerView;
     
     UIView *bottomView = [[UIView alloc] init];
     bottomView.backgroundColor = [UIColor whiteColor];
@@ -106,7 +118,7 @@
     [tableView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.mas_equalTo(self.mas_topLayoutGuide);
         make.left.width.mas_equalTo(self.view);
-        make.bottom.mas_equalTo(bottomView.mas_top);
+        make.bottom.mas_equalTo(self.mas_bottomLayoutGuide);
     }];
     [bottomView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(self.view).mas_offset(-0.5);
@@ -237,6 +249,18 @@
             [pickerView selectRow:0 inComponent:1 animated:NO];
         }
     }
+}
+
+#pragma mark - UITextViewDelegate
+
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView {
+    
+    return YES;
+}
+
+- (BOOL)textViewShouldEndEditing:(UITextView *)textView {
+    
+    return YES;
 }
 
 #pragma mark - SortCellDelegate
@@ -439,6 +463,48 @@
     self.pickerList = [NSArray arrayWithArray:mArr];
 }
 
+- (UIView *)footerView {
+
+    if (!_footerView) {
+        
+        _footerView = [[UIView alloc] init];
+        _footerView.backgroundColor = kBackgroundColor;
+        _footerView.frame = CGRectMake(0, 0, kScreenWidth, 239);
+        
+        // 添加标题
+        UILabel *titleLabel = [[UILabel alloc] init];
+        titleLabel.font = [UIFont systemFontOfSize:16.0f];
+        titleLabel.textColor = [UIColor blackColor];
+        titleLabel.text = @"补充说明：";
+        
+        // 内容输入框
+        UITextView *textView = [[UITextView alloc] init];
+        textView.font = [UIFont systemFontOfSize:16.0f];
+        textView.textColor = [UIColor blackColor];
+        textView.layer.borderColor = kLineColor.CGColor;
+        textView.layer.borderWidth = 1.0;
+        textView.delegate = self;
+        
+        [_footerView addSubview:titleLabel];
+        [_footerView addSubview:textView];
+        
+        [titleLabel mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(_footerView).mas_offset(15);
+            make.top.mas_equalTo(_footerView);
+            make.height.mas_equalTo(40);
+            make.width.mas_equalTo(kScreenWidth-15);
+        }];
+        [textView mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(titleLabel);
+            make.top.mas_equalTo(titleLabel.mas_bottom).mas_equalTo(0);
+            make.width.mas_equalTo(kScreenWidth-30);
+            make.height.mas_equalTo(120);
+        }];
+    }
+
+    return _footerView;
+}
+
 - (UIView *)shadeView {
     
     if (!_shadeView) {
@@ -539,6 +605,11 @@
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+- (void)endEdit:(UITapGestureRecognizer *)tapGestureRecognizer {
+    
+    [self.view endEditing:YES];
+}
+
 - (void)sort:(UIButton *)button {
     
     [self.navigationController popViewControllerAnimated:YES];
@@ -561,6 +632,42 @@
     } completion:^(BOOL finished) {
         
         [self.view sendSubviewToBack:self.shadeView];
+    }];
+}
+
+- (void)keyboardWillShow:(NSNotification *)notification {
+    
+    float duration = [[notification.userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
+    NSValue *aValue = [notification.userInfo objectForKey:UIKeyboardFrameEndUserInfoKey];
+    CGRect frame = [aValue CGRectValue];
+    
+    [self.tableView mas_remakeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(self.mas_topLayoutGuide).mas_offset(-frame.size.height);
+        make.left.width.mas_equalTo(self.view);
+        make.bottom.mas_equalTo(self.mas_bottomLayoutGuide).mas_offset(-frame.size.height);
+    }];
+    
+    [UIView animateWithDuration:duration animations:^{
+        
+        [self.view setNeedsLayout];
+        [self.view layoutIfNeeded];
+    }];
+}
+
+- (void)keyboardWillHide:(NSNotification *)notification {
+    
+    float duration = [[notification.userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
+    
+    [self.tableView mas_remakeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(self.mas_topLayoutGuide);
+        make.left.width.mas_equalTo(self.view);
+        make.bottom.mas_equalTo(self.mas_bottomLayoutGuide);
+    }];
+    
+    [UIView animateWithDuration:duration animations:^{
+        
+        [self.view setNeedsLayout];
+        [self.view layoutIfNeeded];
     }];
 }
 
