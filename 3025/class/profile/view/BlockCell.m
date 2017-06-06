@@ -77,11 +77,15 @@
     self.expectionLable.layer.borderColor = kLineColor.CGColor;
     self.expectionLable.layer.borderWidth = 1.0;
     self.expectionLable.layer.cornerRadius = 5.0;
+    self.expectionLable.userInteractionEnabled = YES;
+    [self.expectionLable addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(remove:)]];
     
     self.detailLable = [[UILabel alloc] init];
     self.detailLable.textColor = [UIColor grayColor];
     self.detailLable.font = [UIFont systemFontOfSize:12.0f];
     self.detailLable.numberOfLines = 1;
+    self.detailLable.userInteractionEnabled = YES;
+    [self.detailLable addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(detail:)]];
     
     self.arrowImageView = [[UIImageView alloc] init];
     self.arrowImageView.contentMode = UIViewContentModeScaleToFill;
@@ -169,6 +173,18 @@
     [self.expectionLable setText:@"移除黑名单"];
     // 查看详情
     [self.detailLable setText:@"查看详情"];
+}
+
+- (void)remove:(UITapGestureRecognizer *)tapGestureRecognizer {
+    if ([self.delegate respondsToSelector:@selector(remove:)]) {
+        [self.delegate remove:tapGestureRecognizer];
+    }
+}
+
+- (void)detail:(UITapGestureRecognizer *)tapGestureRecognizer {
+    if ([self.delegate respondsToSelector:@selector(detail:)]) {
+        [self.delegate detail:tapGestureRecognizer];
+    }
 }
 
 @end

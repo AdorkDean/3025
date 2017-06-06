@@ -12,7 +12,7 @@
 #import "DatabaseUtil.h"
 #import "SortViewController.h"
 
-@interface BlockViewController () <UITableViewDataSource, UITableViewDelegate> {
+@interface BlockViewController () <UITableViewDataSource, UITableViewDelegate, BlockCellDelegate> {
     
 }
 
@@ -82,6 +82,7 @@
     BlockCell *cell = [tableView dequeueReusableCellWithIdentifier:cellID];
     if (!cell) {
         cell = [[BlockCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellID];
+        cell.delegate = self;
     }
     
     BlockModel *userModel = [BlockModel mj_objectWithKeyValues:[self.userList objectAtIndex:indexPath.section]];
@@ -144,6 +145,49 @@
 
 - (nullable UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
     return nil;
+}
+
+#pragma mark - BlockCellDelegate
+
+- (void)remove:(UITapGestureRecognizer *)tapGestureRecognizer {
+    
+    CGPoint location = [tapGestureRecognizer locationInView:self.tableView];
+    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:location];
+    BlockModel *userModel = [BlockModel mj_objectWithKeyValues:[self.userList objectAtIndex:indexPath.section]];
+    
+    NSString *url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/query.html"];
+    NSString *sql = [NSString stringWithFormat:@"\
+                     DELETE \
+                     FROM \
+                        user_target \
+                     WHERE \
+                            userid = '%@' \
+                        AND target_userid = %@ \
+                        AND user_target.type = '0'",
+                     self.userid,
+                     userModel.userid];
+    
+    NSDictionary *paramDict = @{ @"sql": sql };
+    
+    [HttpUtil query:url parameter:paramDict success:^(id responseObject) {
+        
+        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        NSLog(@"*** %@ ***", dict);
+        
+        [self loadData];
+        
+    } failure:^(NSError *error) {
+        NSLog(@"*** %@ ***", error);
+    }];
+}
+
+- (void)detail:(UITapGestureRecognizer *)tapGestureRecognizer {
+    
+    CGPoint location = [tapGestureRecognizer locationInView:self.tableView];
+    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:location];
+    BlockModel *userModel = [BlockModel mj_objectWithKeyValues:[self.userList objectAtIndex:indexPath.section]];
+    
+    NSLog(@" *** %@ %@ *** ", NSStringFromSelector(_cmd), userModel.userid);
 }
 
 #pragma mark - setter & getter

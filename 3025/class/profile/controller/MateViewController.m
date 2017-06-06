@@ -16,6 +16,7 @@
 @property (nonatomic, copy) NSArray *provinceList;
 @property (nonatomic, copy) NSArray *cityList;
 @property (nonatomic, assign) NSUInteger currentRow;
+@property (nonatomic, copy) NSString *conditionid;
 
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, strong) UIView *footerView;
@@ -34,6 +35,7 @@
     
     [self setupNavigtion];
     [self setupUI];
+    [self loadData];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -108,8 +110,8 @@
     UIButton *button = [[UIButton alloc] init];
     button.backgroundColor = kButtonColor;
     button.layer.cornerRadius = 5;
-    [button setTitle:@"查询" forState:UIControlStateNormal];
-    [button addTarget:self action:@selector(sort:) forControlEvents:UIControlEventTouchUpInside];
+    [button setTitle:@"提交" forState:UIControlStateNormal];
+    [button addTarget:self action:@selector(submit:) forControlEvents:UIControlEventTouchUpInside];
     
     [self.view addSubview:tableView];
     [self.view addSubview:bottomView];
@@ -346,25 +348,18 @@
     
     if (!_titleList) {
         
-        NSArray *arr = [[NSUserDefaults standardUserDefaults] objectForKey:kUserSort];
-        if (arr && [arr isKindOfClass:[NSArray class]]) {
-            
-            _titleList = arr;
-        } else {
-            
-            _titleList = @[
-                           @{ @"title": @"性别", @"value": @"不限" },
-                           @{ @"title": @"年龄", @"value": @"不限", @"value2": @"不限"},
-                           @{ @"title": @"身高", @"value": @"不限" },
-                           @{ @"title": @"户籍", @"value": @"不限" },
-                           @{ @"title": @"常住城市", @"value": @"不限" },
-                           @{ @"title": @"最高学历", @"value": @"不限" },
-                           @{ @"title": @"月收入", @"value": @"不限" },
-                           @{ @"title": @"单位性质", @"value": @"不限" },
-                           @{ @"title": @"婚姻状态", @"value": @"不限" },
-                           @{ @"title": @"婚房", @"value": @"不限" }
-                           ];
-        }
+        _titleList = @[
+                       @{ @"title": @"性别", @"value": @"不限" },
+                       @{ @"title": @"年龄", @"value": @"不限", @"value2": @"不限"},
+                       @{ @"title": @"身高", @"value": @"不限" },
+                       @{ @"title": @"户籍", @"value": @"不限" },
+                       @{ @"title": @"常住城市", @"value": @"不限" },
+                       @{ @"title": @"最高学历", @"value": @"不限" },
+                       @{ @"title": @"月收入", @"value": @"不限" },
+                       @{ @"title": @"单位性质", @"value": @"不限" },
+                       @{ @"title": @"婚姻状态", @"value": @"不限" },
+                       @{ @"title": @"婚房", @"value": @"不限" }
+                     ];
     }
     
     return _titleList;
@@ -469,7 +464,7 @@
         
         _footerView = [[UIView alloc] init];
         _footerView.backgroundColor = kBackgroundColor;
-        _footerView.frame = CGRectMake(0, 0, kScreenWidth, 239);
+        _footerView.frame = CGRectMake(0, 0, kScreenWidth, 219);
         
         // 添加标题
         UILabel *titleLabel = [[UILabel alloc] init];
@@ -500,6 +495,8 @@
             make.width.mas_equalTo(kScreenWidth-30);
             make.height.mas_equalTo(120);
         }];
+        
+        self.textView = textView;
     }
 
     return _footerView;
@@ -610,9 +607,43 @@
     [self.view endEditing:YES];
 }
 
-- (void)sort:(UIButton *)button {
+- (void)submit:(UIButton *)button {
     
-    [self.navigationController popViewControllerAnimated:YES];
+    UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    [self.view addSubview:activityIndicatorView];
+    [activityIndicatorView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.center.mas_equalTo(self.view);
+    }];
+    [activityIndicatorView startAnimating];
+    
+    // 筛选条件
+    NSString *url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/save.html"];
+    NSDictionary *parameterDict = [self saveParameters];
+    
+    //获取网络数据
+    [HttpUtil query:url parameter:parameterDict success:^(id responseObject) {
+        
+        NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        
+        NSLog(@"*** success %@ ***", responseDict);
+        
+        [activityIndicatorView stopAnimating];
+        [activityIndicatorView removeFromSuperview];
+        
+        [SVProgressHUD showImage:nil status:@"提交成功"];
+        [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
+        [SVProgressHUD dismissWithDelay:1.5];
+    } failure:^(NSError *error) {
+        
+        NSLog(@"*** failure %@ ***", error.description);
+        
+        [activityIndicatorView stopAnimating];
+        [activityIndicatorView removeFromSuperview];
+        
+        [SVProgressHUD showImage:nil status:@"提交失败"];
+        [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
+        [SVProgressHUD dismissWithDelay:1.5];
+    }];
 }
 
 - (void)cancelInput:(UITapGestureRecognizer *)gestureRecognizer {
@@ -708,6 +739,359 @@
     [self.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]] withRowAnimation:UITableViewRowAnimationAutomatic];
     
     [self cancelInput:self.shadeView.gestureRecognizers.firstObject];
+}
+
+#pragma mark - 数据处理
+
+/**
+ *  加载数据
+ */
+- (void)loadData {
+    
+    UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    [self.view addSubview:activityIndicatorView];
+    [activityIndicatorView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.center.mas_equalTo(self.view);
+    }];
+    [activityIndicatorView startAnimating];
+    
+    // 筛选条件
+    NSString *url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/query.html"];
+    NSDictionary *parameterDict = @{ @"sql": [self sql] };
+    
+    //获取网络数据
+    [HttpUtil query:url parameter:parameterDict success:^(id responseObject) {
+        
+        NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        NSArray *array = responseDict[@"list"];
+        
+        if (array.count == 1) {
+                
+            NSDictionary *dict = [array firstObject];
+            
+            NSMutableArray *mArr = [NSMutableArray arrayWithArray:self.titleList];
+            NSMutableDictionary *mDict;
+            
+            NSString *sex = dict[@"sex"];
+            if (![sex isEqualToString:@"0"]) {
+                
+                mDict = [NSMutableDictionary dictionaryWithDictionary:mArr[0]];
+                [mDict setObject:sex forKey:@"value"];
+                
+                [mArr replaceObjectAtIndex:0 withObject:[NSDictionary dictionaryWithDictionary:mDict]];
+            }
+            
+            NSString *ageFrom = dict[@"ageFrom"];
+            if (![ageFrom isEqualToString:@"0"]) {
+                
+                NSString *nowYear = [ConversionUtil stringFromDate:[NSDate date] dateFormat:@"yyyy"];
+                NSUInteger diff = nowYear.integerValue - ageFrom.integerValue;
+                
+                mDict = [NSMutableDictionary dictionaryWithDictionary:mArr[1]];;
+                [mDict setObject:[NSString stringWithFormat:@"%ld岁及以下", diff] forKey:@"value2"];
+                
+                [mArr replaceObjectAtIndex:1 withObject:[NSDictionary dictionaryWithDictionary:mDict]];
+            }
+            
+            NSString *ageTo = dict[@"ageTo"];
+            if (![ageTo isEqualToString:@"0"]) {
+                
+                NSString *nowYear = [ConversionUtil stringFromDate:[NSDate date] dateFormat:@"yyyy"];
+                NSUInteger diff = nowYear.integerValue - ageTo.integerValue;
+                
+                mDict = [NSMutableDictionary dictionaryWithDictionary:mArr[1]];;
+                [mDict setObject:[NSString stringWithFormat:@"%ld岁及以上", diff] forKey:@"value"];
+                
+                [mArr replaceObjectAtIndex:1 withObject:[NSDictionary dictionaryWithDictionary:mDict]];
+            }
+            
+            NSString *heightFrom = dict[@"heightFrom"];
+            if (![heightFrom isEqualToString:@"0"]) {
+                
+                mDict = [NSMutableDictionary dictionaryWithDictionary:mArr[2]];;
+                [mDict setObject:[NSString stringWithFormat:@"%@cm及以上", heightFrom] forKey:@"value"];
+                
+                [mArr replaceObjectAtIndex:2 withObject:[NSDictionary dictionaryWithDictionary:mDict]];
+            }
+            
+            NSString *domicileprovince = dict[@"domicileprovince"];
+            if (![domicileprovince isEqualToString:@"不限"]) {
+                
+                NSString *domicilecity = dict[@"domicilecity"];
+                
+                if ([domicilecity isEqualToString:domicileprovince]) {
+                    
+                    mDict = [NSMutableDictionary dictionaryWithDictionary:mArr[3]];;
+                    [mDict setObject:[NSString stringWithFormat:@"%@市", domicileprovince] forKey:@"value"];
+                } else {
+                    
+                    mDict = [NSMutableDictionary dictionaryWithDictionary:mArr[3]];;
+                    [mDict setObject:[NSString stringWithFormat:@"%@省-%@市", domicileprovince, domicilecity] forKey:@"value"];
+                }
+                
+                [mArr replaceObjectAtIndex:3 withObject:[NSDictionary dictionaryWithDictionary:mDict]];
+            }
+            
+            NSString *residenceprovince = dict[@"residenceprovince"];
+            if (![residenceprovince isEqualToString:@"不限"]) {
+                
+                NSString *residencecity = dict[@"residencecity"];
+                
+                if ([residencecity isEqualToString:residenceprovince]) {
+                    
+                    mDict = [NSMutableDictionary dictionaryWithDictionary:mArr[4]];;
+                    [mDict setObject:[NSString stringWithFormat:@"%@市", residenceprovince] forKey:@"value"];
+                } else {
+                    
+                    mDict = [NSMutableDictionary dictionaryWithDictionary:mArr[4]];;
+                    [mDict setObject:[NSString stringWithFormat:@"%@省-%@市", residenceprovince, residencecity] forKey:@"value"];
+                }
+                
+                [mArr replaceObjectAtIndex:4 withObject:[NSDictionary dictionaryWithDictionary:mDict]];
+            }
+            
+            NSString *educationFrom = dict[@"educationFrom"];
+            if (![educationFrom isEqualToString:@"0"]) {
+                
+                mDict = [NSMutableDictionary dictionaryWithDictionary:mArr[5]];;
+                [mDict setObject:[NSString stringWithFormat:@"%@及以上", [kEducation objectAtIndex:(educationFrom.integerValue - 1)]] forKey:@"value"];
+                
+                [mArr replaceObjectAtIndex:5 withObject:[NSDictionary dictionaryWithDictionary:mDict]];
+            }
+            
+            NSString *salaryFrom = dict[@"salaryFrom"];
+            if (![salaryFrom isEqualToString:@"0"]) {
+                
+                mDict = [NSMutableDictionary dictionaryWithDictionary:mArr[6]];;
+                [mDict setObject:[NSString stringWithFormat:@"%@及以上", salaryFrom] forKey:@"value"];
+                
+                [mArr replaceObjectAtIndex:6 withObject:[NSDictionary dictionaryWithDictionary:mDict]];
+            }
+            
+            NSString *unitnature = dict[@"unitnature"];
+            if (![unitnature isEqualToString:@"0"] && [ConversionUtil isNotEmpty:unitnature]) {
+                
+                mDict = [NSMutableDictionary dictionaryWithDictionary:mArr[7]];;
+                [mDict setObject:[NSString stringWithFormat:@"%@", [kUnitNature objectAtIndex:(unitnature.integerValue - 1)]] forKey:@"value"];
+                
+                [mArr replaceObjectAtIndex:7 withObject:[NSDictionary dictionaryWithDictionary:mDict]];
+            }
+            
+            NSString *maritalstatus = dict[@"maritalstatus"];
+            if (![maritalstatus isEqualToString:@"0"]) {
+                
+                mDict = [NSMutableDictionary dictionaryWithDictionary:mArr[8]];;
+                [mDict setObject:[NSString stringWithFormat:@"%@", [kMaritalStatus objectAtIndex:(maritalstatus.integerValue - 1)]] forKey:@"value"];
+                
+                [mArr replaceObjectAtIndex:8 withObject:[NSDictionary dictionaryWithDictionary:mDict]];
+            }
+            
+            NSString *house = dict[@"house"];
+            if (![house isEqualToString:@"0"]) {
+                
+                mDict = [NSMutableDictionary dictionaryWithDictionary:mArr[9]];;
+                [mDict setObject:[NSString stringWithFormat:@"%@", [kHouseStatus objectAtIndex:(house.integerValue - 1)]] forKey:@"value"];
+                
+                [mArr replaceObjectAtIndex:9 withObject:[NSDictionary dictionaryWithDictionary:mDict]];
+            }
+            
+            _titleList = [NSArray arrayWithArray:mArr];
+            self.conditionid = [dict[@"conditionid"] description];
+            
+            self.textView.text = dict[@"addition"];
+        }
+        
+        [self.tableView reloadData];
+        
+        [activityIndicatorView stopAnimating];
+        [activityIndicatorView removeFromSuperview];
+    } failure:^(NSError *error) {
+        
+        NSLog(@"*** failure %@ ***", error.description);
+        
+        [activityIndicatorView stopAnimating];
+        [activityIndicatorView removeFromSuperview];
+    }];
+}
+
+// 获取数据
+- (NSString *)sql {
+    
+    NSString *sql = [NSString stringWithFormat:@"\
+                     select \
+                         conditionid, \
+                         sex, \
+                         ageFrom, \
+                         ageTo, \
+                         heightFrom, \
+                         domicileprovince, \
+                         domicilecity, \
+                         residenceprovince, \
+                         residencecity, \
+                         educationFrom, \
+                         salaryFrom, \
+                         unitnature, \
+                         maritalstatus, \
+                         house, \
+                         addition \
+                     FROM \
+                         conditions \
+                     WHERE \
+                             userid = %@ \
+                         AND category = '01'", self.userid];
+    
+    return sql;
+}
+
+// 保存数据
+- (NSDictionary *)saveParameters {
+    
+    NSString *sex = @"0";
+    NSString *ageFrom = @"0";
+    NSString *ageTo = @"0";
+    NSString *heightFrom = @"0";
+    NSString *domicileprovince = @"不限";
+    NSString *domicilecity = @"";
+    NSString *residenceprovince = @"不限";
+    NSString *residencecity = @"";
+    NSString *educationFrom = @"0";
+    NSString *salaryFrom = @"0";
+    NSString *unitnature = @"0";
+    NSString *maritalstatus = @"0";
+    NSString *house = @"0";
+    NSString *addition = @"";
+    
+    // 数据
+    NSArray *arr = self.titleList;
+    for (int i = 0; i < arr.count; i++) {
+        
+        NSDictionary *dict = arr[i];
+        NSString *value = dict[@"value"];
+        NSString *value2 = dict[@"value2"];
+        
+        if ([value isEqualToString:@"不限"] && (!value2 || [value2 isEqualToString:@"不限"])) {
+            continue;
+        }
+        // 性别
+        if (i == 0) {
+            
+            sex = value;
+        }
+        // 年龄
+        if (i == 1) {
+            
+            if (![value isEqualToString:@"不限"]) {
+                
+                int age = [[value substringWithRange:NSMakeRange(0, 2)] intValue];
+                int year = [[ConversionUtil stringFromDate:[NSDate date] dateFormat:@"yyyy"] intValue];
+                
+                ageTo = [NSString stringWithFormat:@"%d", (year - age)];
+            }
+            if (![value2 isEqualToString:@"不限"]) {
+                
+                int age = [[value2 substringWithRange:NSMakeRange(0, 2)] intValue];
+                int year = [[ConversionUtil stringFromDate:[NSDate date] dateFormat:@"yyyy"] intValue];
+                
+                ageFrom = [NSString stringWithFormat:@"%d", (year - age)];
+            }
+        }
+        // 身高
+        if (i == 2) {
+            
+            heightFrom = [value substringWithRange:NSMakeRange(0, 3)];
+        }
+        // 户籍
+        if (i == 3) {
+            
+            value = [value stringByReplacingOccurrencesOfString:@"省" withString:@""];
+            value = [value stringByReplacingOccurrencesOfString:@"市" withString:@""];
+            if (![value containsString:@"-"]) {
+                
+                domicileprovince = value;
+                domicilecity = value;
+            } else {
+                
+                domicileprovince = [value componentsSeparatedByString:@"-"][0];
+                domicilecity = [value componentsSeparatedByString:@"-"][1];
+            }
+        }
+        // 常住城市
+        if (i == 4) {
+            
+            value = [value stringByReplacingOccurrencesOfString:@"省" withString:@""];
+            value = [value stringByReplacingOccurrencesOfString:@"市" withString:@""];
+            if (![value containsString:@"-"]) {
+                
+                residenceprovince = value;
+                residencecity = value;
+            } else {
+                
+                residenceprovince = [value componentsSeparatedByString:@"-"][0];
+                residencecity = [value componentsSeparatedByString:@"-"][1];
+            }
+        }
+        // 最高学历
+        if (i == 5) {
+            
+            value = [value stringByReplacingOccurrencesOfString:@"及以上" withString:@""];
+            NSUInteger index = [kEducation indexOfObject:value];
+            
+            educationFrom = [NSString stringWithFormat:@"0%ld", (index + 1)];
+        }
+        // 月收入
+        if (i == 6) {
+            
+            value = [value stringByReplacingOccurrencesOfString:@"及以上" withString:@""];
+            
+            salaryFrom = value;
+        }
+        // 单位性质
+        if (i == 7) {
+            
+            unitnature = [NSString stringWithFormat:@"0%ld", ([kUnitNature indexOfObject:value] + 1)];
+        }
+        // 婚姻状态
+        if (i == 8) {
+            
+            maritalstatus = [NSString stringWithFormat:@"0%ld", ([kMaritalStatus indexOfObject:value] + 1 )];
+        }
+        // 婚房
+        if (i == 9) {
+            
+            house = [NSString stringWithFormat:@"0%ld", ([kHouseStatus indexOfObject:value] + 1)];
+        }
+    }
+    
+    addition = self.textView.text;
+    
+    NSDictionary *parametersDict = [NSMutableDictionary dictionary];
+    [parametersDict setValue:@"conditions" forKey:@"table"];
+    
+    [parametersDict setValue:sex forKey:@"sex"];
+    [parametersDict setValue:ageFrom forKey:@"ageFrom"];
+    [parametersDict setValue:ageTo forKey:@"ageTo"];
+    [parametersDict setValue:heightFrom forKey:@"heightFrom"];
+    [parametersDict setValue:domicileprovince forKey:@"domicileprovince"];
+    [parametersDict setValue:domicilecity forKey:@"domicilecity"];
+    [parametersDict setValue:residenceprovince forKey:@"residenceprovince"];
+    [parametersDict setValue:residencecity forKey:@"residencecity"];
+    [parametersDict setValue:educationFrom forKey:@"educationFrom"];
+    [parametersDict setValue:salaryFrom forKey:@"salaryFrom"];
+    [parametersDict setValue:unitnature forKey:@"unitnature"];
+    [parametersDict setValue:maritalstatus forKey:@"maritalstatus"];
+    [parametersDict setValue:house forKey:@"house"];
+    [parametersDict setValue:addition forKey:@"addition"];
+    
+    if ([ConversionUtil isNotEmpty:self.conditionid]) {
+        
+        [parametersDict setValue:[NSString stringWithFormat:@"id is null and conditionid = '%@' ", self.conditionid] forKey:@"id"];
+    } else {
+        
+        [parametersDict setValue:self.userid forKey:@"userid"];
+        [parametersDict setValue:@"01" forKey:@"category"];
+    }
+    
+    return [NSDictionary dictionaryWithDictionary:parametersDict];
 }
 
 @end
