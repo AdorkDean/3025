@@ -8,9 +8,13 @@
 
 #import "MatchViewController.h"
 
-@interface MatchViewController () <UINavigationControllerDelegate, UIImagePickerControllerDelegate>
+@interface MatchViewController () <UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIScrollViewDelegate, UITextFieldDelegate, UIPickerViewDataSource, UIPickerViewDelegate>
 
-@property (nonatomic, strong) UITextView *textView;
+@property (nonatomic, strong) UIScrollView *scrollView;
+@property (nonatomic, strong) UITextView *dadTextView;
+@property (nonatomic, strong) UITextView *mumTextView;
+@property (nonatomic, strong) UITextField *cityTextField;
+@property (nonatomic, strong) UITextField *streetTextField;
 @property (nonatomic, strong) UIImageView *imageView1;
 @property (nonatomic, strong) UIImageView *delImageView1;
 @property (nonatomic, strong) UIImageView *imageView2;
@@ -18,9 +22,15 @@
 @property (nonatomic, strong) UIImageView *imageView3;
 @property (nonatomic, strong) UIImageView *delImageView3;
 @property (nonatomic, strong) UIImagePickerController *imagePickerController;
+@property (nonatomic, strong) UIView *shadeView;
+@property (nonatomic, strong) UIView *inputView;
+@property (nonatomic, strong) UIPickerView *pickerView;
 
 @property (nonatomic, assign) NSInteger imageIndex;
 @property (nonatomic, strong) NSMutableDictionary *imageDataDict;
+@property (nonatomic, copy) NSArray *provinceList;
+@property (nonatomic, copy) NSArray *cityList;
+@property (nonatomic, copy) NSArray *districtList;
 
 @property (nonatomic, strong) NSMutableArray *optionValueList;
 
@@ -33,16 +43,29 @@
     
     [self setupNavigtion];
     [self setupUI];
+    [self loadData];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardDidShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillChangeFrameNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardDidHideNotification object:nil];
     
     self.tabBarController.tabBar.hidden = YES;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillChangeFrameNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
     
     self.tabBarController.tabBar.hidden = NO;
 }
@@ -56,7 +79,7 @@
     titleLabel.font = [UIFont boldSystemFontOfSize:16.0f];
     titleLabel.textColor = kNavigationTitleColor;
     titleLabel.textAlignment = NSTextAlignmentCenter;
-    titleLabel.text = @"真实性验证";
+    titleLabel.text = @"关于门当户对";
     titleLabel.frame = CGRectMake(0, 7, 50, 30);
     
     // 导航栏右侧菜单
@@ -82,9 +105,7 @@
     [super viewDidLayoutSubviews];
     
     float imageHeight = (kScreenWidth - 50) / 3 * 9 / 16;
-    
-    UIScrollView *scrollView = self.view.subviews.firstObject;
-    scrollView.contentSize = CGSizeMake(kScreenWidth, imageHeight + 1050);
+    self.scrollView.contentSize = CGSizeMake(kScreenWidth, imageHeight + 970 + 64);
 }
 
 - (void)setupUI {
@@ -98,6 +119,7 @@
     scrollView.showsVerticalScrollIndicator = NO;
     scrollView.showsHorizontalScrollIndicator = NO;
     scrollView.bounds = self.view.bounds;
+    scrollView.delegate = self;
     
     [self.view addSubview:scrollView];
     [scrollView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -324,13 +346,18 @@
         make.height.mas_equalTo(35);
     }];
     
-    self.textView = textView;
+    self.scrollView = scrollView;
+    self.dadTextView = textView2;
+    self.mumTextView = textView;
     self.imageView1 = imageView1;
     self.imageView2 = imageView2;
     self.imageView3 = imageView3;
     self.delImageView1 = delImageView1;
     self.delImageView2 = delImageView2;
     self.delImageView3 = delImageView3;
+    
+    self.shadeView.hidden = NO;
+    self.inputView.hidden = NO;
 }
 
 - (UIView *)option:(NSArray *)optionList title:(NSString *)title category:(NSUInteger)category {
@@ -424,6 +451,7 @@
     titleLabel.font = [UIFont systemFontOfSize:16.0f];
     titleLabel.textColor = [UIColor blackColor];
     titleLabel.text = @"这是我家:(其他用户可见，注意保护隐私)";
+    titleLabel.numberOfLines = 0;
     
     UIView *itemView = [[UIView alloc] init];
     itemView.backgroundColor = [UIColor whiteColor];
@@ -463,6 +491,7 @@
     textView.layer.cornerRadius = 5;
     textView.font = [UIFont systemFontOfSize:14.0f];
     textView.textColor = [UIColor blackColor];
+    textView.delegate = self;
     
     UIView *hLineView = [[UIView alloc] init];
     hLineView.backgroundColor = kLineColor;
@@ -483,6 +512,7 @@
     textView2.layer.cornerRadius = 5;
     textView2.font = [UIFont systemFontOfSize:14.0f];
     textView2.textColor = [UIColor blackColor];
+    textView2.delegate = self;
     
     UIView *hLine2View = [[UIView alloc] init];
     hLine2View.backgroundColor = kLineColor;
@@ -545,10 +575,61 @@
         make.height.mas_equalTo(0);
     }];
     
+    self.cityTextField = textView;
+    self.streetTextField = textView2;
+    
     return homeView;
 }
 
 #pragma mark - getter
+
+- (NSArray *)provinceList {
+    
+    if (!_provinceList) {
+        
+        NSString *path = [[NSBundle mainBundle] pathForResource:@"pcd" ofType:@"plist"];
+        NSDictionary *pcdDict = [[NSDictionary alloc] initWithContentsOfFile:path];
+        
+        NSMutableArray *mArr = [NSMutableArray arrayWithArray:[pcdDict objectForKey:@"province"]];
+        [mArr removeObjectAtIndex:0];
+        
+        _provinceList = [NSArray arrayWithArray:mArr];
+    }
+    
+    return _provinceList;
+}
+
+- (NSArray *)cityList {
+    
+    if (!_cityList) {
+        
+        NSString *path = [[NSBundle mainBundle] pathForResource:@"pcd" ofType:@"plist"];
+        NSDictionary *pcdDict = [[NSDictionary alloc] initWithContentsOfFile:path];
+        
+        NSMutableArray *mArr = [NSMutableArray arrayWithArray:[pcdDict objectForKey:@"city"]];
+        [mArr removeObjectAtIndex:0];
+        
+        _cityList = [NSArray arrayWithArray:mArr];
+    }
+    
+    return _cityList;
+}
+
+- (NSArray *)districtList {
+    
+    if (!_districtList) {
+        
+        NSString *path = [[NSBundle mainBundle] pathForResource:@"pcd" ofType:@"plist"];
+        NSDictionary *pcdDict = [[NSDictionary alloc] initWithContentsOfFile:path];
+        
+        NSMutableArray *mArr = [NSMutableArray arrayWithArray:[pcdDict objectForKey:@"district"]];
+        [mArr removeObjectAtIndex:0];
+        
+        _districtList = [NSArray arrayWithArray:mArr];
+    }
+    
+    return _districtList;
+}
 
 - (UIImagePickerController *)imagePickerController {
     if (!_imagePickerController) {
@@ -564,6 +645,201 @@
         _imageDataDict = [NSMutableDictionary dictionary];
     }
     return _imageDataDict;
+}
+
+
+- (UIView *)shadeView {
+    
+    if (!_shadeView) {
+        
+        _shadeView = [[UIView alloc] init];
+        _shadeView.backgroundColor = [UIColor clearColor];
+        [_shadeView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(cancelInput:)]];
+        
+        [self.view addSubview:_shadeView];
+        [self.view sendSubviewToBack:_shadeView];
+        
+        [_shadeView mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.edges.mas_equalTo(UIEdgeInsetsZero);
+        }];
+    }
+    
+    return _shadeView;
+}
+
+- (UIView *)inputView {
+    
+    if (!_inputView) {
+        
+        _inputView = [[UIView alloc] init];
+        _inputView.backgroundColor = kButtonColor;
+        
+        UIButton *cancelButton = [[UIButton alloc] init];
+        [cancelButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        [cancelButton.titleLabel setFont:[UIFont systemFontOfSize:14.0f]];
+        [cancelButton setTitle:@"取消" forState:UIControlStateNormal];
+        [cancelButton addTarget:self action:@selector(cancelInput:) forControlEvents:UIControlEventTouchUpInside];
+        
+        UILabel *titleLabel = [[UILabel alloc] init];
+        titleLabel.font = [UIFont systemFontOfSize:16.0f];
+        titleLabel.text = @"城市／县区";
+        
+        UIButton *okButton = [[UIButton alloc] init];
+        [okButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        [okButton.titleLabel setFont:[UIFont systemFontOfSize:14.0f]];
+        [okButton setTitle:@"确定" forState:UIControlStateNormal];
+        [okButton addTarget:self action:@selector(submitInput:) forControlEvents:UIControlEventTouchUpInside];
+        
+        [_inputView addSubview:cancelButton];
+        [_inputView addSubview:titleLabel];
+        [_inputView addSubview:okButton];
+        [_inputView addSubview:self.pickerView];
+        
+        [cancelButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.mas_equalTo(_inputView);
+            make.left.mas_equalTo(_inputView);
+            make.width.mas_equalTo(57);
+            make.height.mas_equalTo(30);
+        }];
+        [titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.height.mas_equalTo(cancelButton);
+            make.centerX.mas_equalTo(_inputView);
+        }];
+        [okButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.height.width.mas_equalTo(cancelButton);
+            make.right.mas_equalTo(_inputView);
+        }];
+        [self.pickerView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.bottom.left.width.mas_equalTo(_inputView);
+            make.height.mas_equalTo(216);
+        }];
+        
+        [self.view addSubview:_inputView];
+        [_inputView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.mas_equalTo(self.view.mas_bottom).mas_offset(0);
+            make.left.width.mas_equalTo(self.view);
+            make.height.mas_equalTo(246);
+        }];
+    }
+    
+    return _inputView;
+}
+
+- (UIPickerView *)pickerView {
+    
+    if (!_pickerView) {
+        
+        _pickerView = [[UIPickerView alloc] init];
+        _pickerView.backgroundColor = kBackgroundColor;
+        _pickerView.showsSelectionIndicator = YES;
+        _pickerView.dataSource = self;
+        _pickerView.delegate = self;
+    }
+    
+    return _pickerView;
+}
+
+#pragma mark - UIScrollViewDelegate
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    NSLog(@" *** %@ %@ *** ", NSStringFromCGPoint(scrollView.contentOffset), NSStringFromCGSize(scrollView.contentSize));
+}
+
+
+#pragma mark - UIPickerViewDataSource
+
+- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView {
+    
+    return 3;
+}
+
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
+    
+    if (component == 0) {
+        
+        return self.provinceList.count;
+    } else if (component == 1) {
+        
+        NSInteger selectedRow = [pickerView selectedRowInComponent:0];
+        return [self.cityList[selectedRow] count];
+    } else if (component == 2) {
+        
+        NSInteger selectedRow = [pickerView selectedRowInComponent:0];
+        NSInteger selectedRow2 = [pickerView selectedRowInComponent:1];
+        return [self.districtList[selectedRow][selectedRow2] count];
+    }
+    
+    return 0;
+}
+
+#pragma mark - UIPickerViewDelegate
+
+- (nullable NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
+    
+    if (component == 0) {
+        
+        return self.provinceList[row];
+    } else if (component == 1) {
+        
+        NSInteger selectedRow = [pickerView selectedRowInComponent:0];
+        return self.cityList[selectedRow][row];
+    } else if (component == 2) {
+        
+        NSInteger selectedRow = [pickerView selectedRowInComponent:0];
+        NSInteger selectedRow2 = [pickerView selectedRowInComponent:1];
+        return self.districtList[selectedRow][selectedRow2][row];
+    }
+    
+    return @"";
+}
+
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
+    
+    if (component == 0) {
+        
+        [pickerView reloadComponent:1];
+        [pickerView selectRow:0 inComponent:1 animated:NO];
+        
+        [pickerView reloadComponent:2];
+        [pickerView selectRow:0 inComponent:2 animated:NO];
+    } else if (component == 1) {
+        
+        [pickerView reloadComponent:2];
+        [pickerView selectRow:0 inComponent:2 animated:NO];
+    }
+}
+
+#pragma mark - UITextFieldDelegate
+
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField {
+    
+    if (textField == self.cityTextField) {
+        
+        self.shadeView.backgroundColor = [UIColor blackColor];
+        [self.view bringSubviewToFront:self.shadeView];
+        [self.shadeView mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.edges.mas_equalTo(UIEdgeInsetsZero);
+        }];
+        [self.view setNeedsLayout];
+        [self.view layoutIfNeeded];
+        
+        [self.view bringSubviewToFront:self.inputView];
+        [self.inputView mas_updateConstraints:^(MASConstraintMaker *make) {
+            make.top.mas_equalTo(self.view.mas_bottom).mas_offset(-246);
+        }];
+        
+        [UIView animateWithDuration:0.25 animations:^{
+            
+            self.shadeView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.3];
+            
+            [self.view setNeedsLayout];
+            [self.view layoutIfNeeded];
+        }];
+        
+        return NO;
+    }
+
+    return YES;
 }
 
 #pragma mark - UINavigationControllerDelegate
@@ -609,11 +885,7 @@
 
 - (void)back:(UIButton *)button {
     
-    if ([self.textView isFirstResponder]) {
-        
-        [self.view endEditing:YES];
-        return;
-    }
+    [self.view endEditing:YES];
     
     [self.navigationController popViewControllerAnimated:YES];
 }
@@ -647,11 +919,7 @@
 
 - (void)imageViewTapped:(UITapGestureRecognizer *)tapGestureRecognizer {
     
-    if ([self.textView isFirstResponder]) {
-        
-        [self.view endEditing:YES];
-        return;
-    }
+    [self.view endEditing:YES];
     
     self.imageIndex = tapGestureRecognizer.view.tag;
     if (self.imageIndex < 10) {
@@ -682,9 +950,269 @@
     }
 }
 
+- (void)cancelInput:(UITapGestureRecognizer *)gestureRecognizer {
+    
+    [self.view endEditing:YES];
+    
+    [self.inputView mas_updateConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(self.view.mas_bottom).mas_offset(0);
+    }];
+    
+    [UIView animateWithDuration:0.25 animations:^{
+        
+        self.shadeView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.0];
+        
+        [self.view setNeedsLayout];
+        [self.view layoutIfNeeded];
+    } completion:^(BOOL finished) {
+        
+        [self.view sendSubviewToBack:self.shadeView];
+    }];
+}
+
+- (void)keyboardWillShow:(NSNotification *)notification {
+    
+    float duration = [[notification.userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
+    CGPoint contentOffset = self.scrollView.contentOffset;
+    
+    if (self.dadTextView.isFirstResponder) {
+        
+        CGRect frame = self.dadTextView.frame;
+        contentOffset = CGPointMake(0, frame.origin.y - 40);
+    } else if (self.mumTextView.isFirstResponder) {
+        
+        CGRect frame = self.mumTextView.frame;
+        contentOffset = CGPointMake(0, frame.origin.y - 40);
+    } else if (self.streetTextField.isFirstResponder) {
+        
+        CGRect frame = self.streetTextField.superview.frame;
+        contentOffset = CGPointMake(0, frame.origin.y);
+    }
+
+    [UIView animateWithDuration:duration animations:^{
+        
+        self.scrollView.contentOffset = contentOffset;
+    } completion:^(BOOL finished) {
+        if (finished) {
+            self.scrollView.scrollEnabled = NO;
+        }
+    }];
+}
+
+- (void)keyboardWillHide:(NSNotification *)notification {
+    
+    CGPoint contentOffset = self.scrollView.contentOffset;
+    CGSize contentSize = self.scrollView.contentSize;
+    if (contentOffset.y > (contentSize.height - self.scrollView.frame.size.height)) {
+        
+        float duration = [[notification.userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
+        contentOffset.y = (contentSize.height - self.scrollView.frame.size.height);
+        
+        [UIView animateWithDuration:duration animations:^{
+            
+            self.scrollView.contentOffset = contentOffset;
+        } completion:^(BOOL finished) {
+            if (finished) {
+                self.scrollView.scrollEnabled = NO;
+            }
+        }];
+    } else {
+        
+        self.scrollView.scrollEnabled = YES;
+    }
+}
+
+- (void)submitInput:(UIButton *)button {
+    
+    NSString *selectedTitle = @"";
+
+    NSInteger selectedRow = [self.pickerView selectedRowInComponent:0];
+    NSInteger selectedRow2 = [self.pickerView selectedRowInComponent:1];
+    NSInteger selectedRow3 = [self.pickerView selectedRowInComponent:2];
+    
+    NSString *province = self.provinceList[selectedRow];
+    NSString *city = self.cityList[selectedRow][selectedRow2];
+    NSString *district = self.districtList[selectedRow][selectedRow2][selectedRow3];
+    
+    province = [province stringByReplacingOccurrencesOfString:@"省" withString:@""];
+    province = [province stringByReplacingOccurrencesOfString:@"市" withString:@""];
+    city = [city stringByReplacingOccurrencesOfString:@"市" withString:@""];
+    
+    selectedTitle = [NSString stringWithFormat:@"%@-%@-%@", province, city, district];
+    self.cityTextField.text = selectedTitle;
+    
+    [self cancelInput:self.shadeView.gestureRecognizers.firstObject];
+}
+
+#pragma mark - 数据处理
+
+/**
+ *  加载数据
+ */
+- (void)loadData {
+    
+    UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    [self.view addSubview:activityIndicatorView];
+    [activityIndicatorView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.center.mas_equalTo(self.view);
+    }];
+    [activityIndicatorView startAnimating];
+    
+    NSString *sql = [NSString stringWithFormat:@"\
+                     select \
+                        important, \
+                        father_job, \
+                        father_comment, \
+                        mother_job, \
+                        mother_comment, \
+                        address, \
+                        address_comment, \
+                        images_address \
+                     FROM \
+                        user \
+                     where \
+                        userid = %@", self.userid];
+    
+    // 筛选条件
+    NSString *url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/query.html"];
+    NSDictionary *parameterDict = @{ @"sql": sql };
+    
+    //获取网络数据
+    [HttpUtil query:url parameter:parameterDict success:^(id responseObject) {
+        
+        NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        NSArray *array = responseDict[@"list"];
+        
+        if (array.count == 1) {
+            
+            NSDictionary *dict = array[0];
+            
+            if ([ConversionUtil isNotEmpty:dict[@"important"]]) {
+                
+                UIView *optionView = self.scrollView.subviews.firstObject;
+                
+                for (UIView *subview in optionView.subviews) {
+                    
+                    if ([subview isKindOfClass:[UILabel class]]) {
+                        
+                        UILabel *itemLabel = (UILabel *)subview;
+                        if ([itemLabel.text isEqualToString:dict[@"important"]]) {
+                            
+                            [self optionSelect:itemLabel.gestureRecognizers.firstObject];
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if ([ConversionUtil isNotEmpty:dict[@"father_job"]]) {
+                
+                UIView *optionView = self.scrollView.subviews[1];
+                
+                for (UIView *subview in optionView.subviews) {
+                    
+                    if ([subview isKindOfClass:[UILabel class]]) {
+                        
+                        UILabel *itemLabel = (UILabel *)subview;
+                        if ([itemLabel.text isEqualToString:dict[@"father_job"]]) {
+                            
+                            [self optionSelect:itemLabel.gestureRecognizers.firstObject];
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if ([ConversionUtil isNotEmpty:dict[@"father_comment"]]) {
+
+                self.dadTextView.text = dict[@"father_comment"];
+            }
+            
+            if ([ConversionUtil isNotEmpty:dict[@"mother_job"]]) {
+                
+                UIView *optionView = self.scrollView.subviews[4];
+                
+                for (UIView *subview in optionView.subviews) {
+                    
+                    if ([subview isKindOfClass:[UILabel class]]) {
+                        
+                        UILabel *itemLabel = (UILabel *)subview;
+                        if ([itemLabel.text isEqualToString:dict[@"father_job"]]) {
+                            
+                            [self optionSelect:itemLabel.gestureRecognizers.firstObject];
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if ([ConversionUtil isNotEmpty:dict[@"mother_comment"]]) {
+                
+                self.mumTextView.text = dict[@"mother_comment"];
+            }
+            
+            if ([ConversionUtil isNotEmpty:dict[@"address"]]) {
+                
+                self.cityTextField.text = dict[@"address"];
+            }
+            
+            if ([ConversionUtil isNotEmpty:dict[@"address_comment"]]) {
+                
+                self.streetTextField.text = dict[@"address_comment"];
+            }
+            
+            if ([ConversionUtil isNotEmpty:dict[@"images_address"]]) {
+                
+                NSArray *imageList = [dict[@"images_address"] componentsSeparatedByString:@","];
+                if (imageList.count == 3) {
+                    if ([ConversionUtil isNotEmpty:imageList[0]]) {
+                        
+                        [self.imageView1 sd_setImageWithURL:[NSURL URLWithString:imageList[0]] completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+                            if (image && !error) {
+                                self.imageView1.contentMode = UIViewContentModeScaleAspectFill;
+                                self.imageView1.layer.masksToBounds = YES;
+                                self.delImageView1.hidden = NO;
+                            }
+                        }];
+                    }
+                    if ([ConversionUtil isNotEmpty:imageList[1]]) {
+                        
+                        [self.imageView2 sd_setImageWithURL:[NSURL URLWithString:imageList[1]] completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+                            if (image && !error) {
+                                self.imageView2.contentMode = UIViewContentModeScaleAspectFill;
+                                self.imageView2.layer.masksToBounds = YES;
+                                self.delImageView2.hidden = NO;
+                            }
+                        }];
+                    }
+                    if ([ConversionUtil isNotEmpty:imageList[2]]) {
+                        
+                        [self.imageView3 sd_setImageWithURL:[NSURL URLWithString:imageList[2]] completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+                            if (image && !error) {
+                                self.imageView3.contentMode = UIViewContentModeScaleAspectFill;
+                                self.imageView3.layer.masksToBounds = YES;
+                                self.delImageView3.hidden = NO;
+                            }
+                        }];
+                    }
+                }
+            }
+        }
+        
+        [activityIndicatorView stopAnimating];
+        [activityIndicatorView removeFromSuperview];
+    } failure:^(NSError *error) {
+        
+        NSLog(@"*** failure %@ ***", error.description);
+        
+        [activityIndicatorView stopAnimating];
+        [activityIndicatorView removeFromSuperview];
+    }];
+}
+
 - (void)publish:(UIButton *)button {
     
-    NSString *content = [self.textView.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    NSString *content = [self.dadTextView.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     
     if ([ConversionUtil isEmpty:content] && [self.imageDataDict.allValues count] == 0) {
         return;
@@ -758,22 +1286,6 @@
             
             [activityIndicatorView stopAnimating];
             [activityIndicatorView removeFromSuperview];
-            
-            _imageDataDict = nil;
-            
-            self.textView.text = @"";
-            
-            self.imageView1.contentMode = UIViewContentModeCenter;
-            self.imageView1.image = [UIImage imageNamed:@"add"];
-            self.delImageView1.hidden = YES;
-            
-            self.imageView2.contentMode = UIViewContentModeCenter;
-            self.imageView2.image = [UIImage imageNamed:@"add"];
-            self.delImageView2.hidden = YES;
-            
-            self.imageView3.contentMode = UIViewContentModeCenter;
-            self.imageView3.image = [UIImage imageNamed:@"add"];
-            self.delImageView3.hidden = YES;
         } else {
             
             [activityIndicatorView stopAnimating];

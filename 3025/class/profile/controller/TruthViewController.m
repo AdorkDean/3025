@@ -7,22 +7,23 @@
 //
 
 #import "TruthViewController.h"
+#import "ImageBrowser.h"
 
 @interface TruthViewController () <UINavigationControllerDelegate, UIImagePickerControllerDelegate>
 
-@property (nonatomic, strong) UITextView *textView;
 @property (nonatomic, strong) UIImageView *imageView1;
 @property (nonatomic, strong) UIImageView *delImageView1;
 @property (nonatomic, strong) UIImageView *imageView2;
 @property (nonatomic, strong) UIImageView *delImageView2;
 @property (nonatomic, strong) UIImageView *imageView3;
 @property (nonatomic, strong) UIImageView *delImageView3;
+@property (nonatomic, strong) UIButton *submitButton;
 @property (nonatomic, strong) UIImagePickerController *imagePickerController;
 
 @property (nonatomic, assign) NSInteger imageIndex;
 @property (nonatomic, strong) NSMutableDictionary *imageDataDict;
-
-@property (nonatomic, strong) NSMutableArray *optionValueList;
+@property (nonatomic, strong) NSArray *titleList;
+@property (nonatomic, strong) NSArray *noticeList;
 
 @end
 
@@ -33,6 +34,7 @@
     
     [self setupNavigtion];
     [self setupUI];
+    [self loadData];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -81,10 +83,23 @@
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
     
-    float imageHeight = (kScreenWidth - 50) / 3 * 9 / 16;
-    
+    float height = 0;
+
     UIScrollView *scrollView = self.view.subviews.firstObject;
-    scrollView.contentSize = CGSizeMake(kScreenWidth, imageHeight + 1050);
+    UIView *add1View = scrollView.subviews[0];
+    UIView *add2View = scrollView.subviews[1];
+    UIView *add3View = scrollView.subviews[2];
+    
+    CGSize size = [add1View sizeThatFits:CGSizeMake(kScreenWidth, MAXFLOAT)];
+    height += size.height;
+    
+    size = [add2View sizeThatFits:CGSizeMake(kScreenWidth, MAXFLOAT)];
+    height += size.height;
+
+    size = [add3View sizeThatFits:CGSizeMake(kScreenWidth, MAXFLOAT)];
+    height += size.height;
+    
+    scrollView.contentSize = CGSizeMake(kScreenWidth, height + 64);
 }
 
 - (void)setupUI {
@@ -99,155 +114,6 @@
     scrollView.showsHorizontalScrollIndicator = NO;
     scrollView.bounds = self.view.bounds;
     
-    [self.view addSubview:scrollView];
-    [scrollView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(self.mas_topLayoutGuide);
-        make.left.width.mas_equalTo(self.view);
-        make.bottom.mas_equalTo(self.mas_bottomLayoutGuide);
-    }];
-    
-    UIView *importView = [self option:@[@"三观匹配", @"门当户对", @"三观、门户都重要"] title:@"请最少选择1项择偶条件" category:0];
-    UIView *fatherView = [self option:@[@"退休", @"在职", @"其他"] title:@"我的父亲" category:1];
-    
-    // 说明
-    UILabel *titleLabel2 = [[UILabel alloc] init];
-    titleLabel2.font = [UIFont systemFontOfSize:16.0f];
-    titleLabel2.textColor = [UIColor blackColor];
-    titleLabel2.text = @"说明";
-    
-    // 内容输入框
-    UITextView *textView2 = [[UITextView alloc] init];
-    textView2.font = [UIFont systemFontOfSize:16.0f];
-    textView2.textColor = [UIColor blackColor];
-    textView2.layer.borderColor = kLineColor.CGColor;
-    textView2.layer.borderWidth = 1.0;
-    
-    UIView *matherView = [self option:@[@"退休", @"在职", @"其他"] title:@"我的母亲" category:2];
-    
-    self.optionValueList = [NSMutableArray array];
-    [self.optionValueList addObject:@"三观匹配"];
-    [self.optionValueList addObject:@"退休"];
-    [self.optionValueList addObject:@"退休"];
-    
-    // 添加标题
-    UILabel *titleLabel = [[UILabel alloc] init];
-    titleLabel.font = [UIFont systemFontOfSize:16.0f];
-    titleLabel.textColor = [UIColor blackColor];
-    titleLabel.text = @"说明";
-    
-    // 内容输入框
-    UITextView *textView = [[UITextView alloc] init];
-    textView.font = [UIFont systemFontOfSize:16.0f];
-    textView.textColor = [UIColor blackColor];
-    textView.layer.borderColor = kLineColor.CGColor;
-    textView.layer.borderWidth = 1.0;
-    
-    UIView *homeEditView = [self homeEditView];
-    
-    // 图片上传区域
-    UIView *middleView = [[UIView alloc] init];
-    middleView.backgroundColor = [UIColor whiteColor];
-    
-    // 上传照片（最多三张，可选填）
-    UILabel *subTitleLabel = [[UILabel alloc] init];
-    subTitleLabel.font = [UIFont systemFontOfSize:16.0f];
-    subTitleLabel.textColor = [UIColor blackColor];
-    subTitleLabel.text = @"房屋照片（最多三张）";
-    
-    UIImageView *imageView1 = [[UIImageView alloc] init];
-    imageView1.contentMode = UIViewContentModeCenter;
-    imageView1.layer.borderColor = kLineColor.CGColor;
-    imageView1.layer.borderWidth = 1.0;
-    imageView1.image = [UIImage imageNamed:@"add"];
-    imageView1.tag = 1;
-    imageView1.userInteractionEnabled = YES;
-    [imageView1 addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(imageViewTapped:)]];
-    
-    UIImageView *delImageView1 = [[UIImageView alloc] init];
-    delImageView1.contentMode = UIViewContentModeScaleToFill;
-    delImageView1.image = [UIImage imageNamed:@"delete"];
-    delImageView1.hidden = YES;
-    delImageView1.tag = 11;
-    delImageView1.userInteractionEnabled = YES;
-    [delImageView1 addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(imageViewTapped:)]];
-    
-    UIImageView *imageView2 = [[UIImageView alloc] init];
-    imageView2.contentMode = UIViewContentModeCenter;
-    imageView2.layer.borderColor = kLineColor.CGColor;
-    imageView2.layer.borderWidth = 1.0;
-    imageView2.image = [UIImage imageNamed:@"add"];
-    imageView2.tag = 2;
-    imageView2.userInteractionEnabled = YES;
-    [imageView2 addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(imageViewTapped:)]];
-    
-    UIImageView *delImageView2 = [[UIImageView alloc] init];
-    delImageView2.contentMode = UIViewContentModeScaleToFill;
-    delImageView2.image = [UIImage imageNamed:@"delete"];
-    delImageView2.hidden = YES;
-    delImageView2.tag = 22;
-    delImageView2.userInteractionEnabled = YES;
-    [delImageView2 addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(imageViewTapped:)]];
-    
-    UIImageView *imageView3 = [[UIImageView alloc] init];
-    imageView3.contentMode = UIViewContentModeCenter;
-    imageView3.layer.borderColor = kLineColor.CGColor;
-    imageView3.layer.borderWidth = 1.0;
-    imageView3.image = [UIImage imageNamed:@"add"];
-    imageView3.tag = 3;
-    imageView3.userInteractionEnabled = YES;
-    [imageView3 addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(imageViewTapped:)]];
-    
-    UIImageView *delImageView3 = [[UIImageView alloc] init];
-    delImageView3.contentMode = UIViewContentModeScaleToFill;
-    delImageView3.image = [UIImage imageNamed:@"delete"];
-    delImageView3.hidden = YES;
-    delImageView3.tag = 33;
-    delImageView3.userInteractionEnabled = YES;
-    [delImageView3 addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(imageViewTapped:)]];
-    
-    [middleView addSubview:subTitleLabel];
-    [middleView addSubview:imageView1];
-    [middleView addSubview:delImageView1];
-    [middleView addSubview:imageView2];
-    [middleView addSubview:delImageView2];
-    [middleView addSubview:imageView3];
-    [middleView addSubview:delImageView3];
-    
-    [subTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(middleView).mas_offset(15);
-        make.top.mas_equalTo(middleView).mas_offset(10);
-    }];
-    [imageView1 mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(subTitleLabel);
-        make.top.mas_equalTo(subTitleLabel.mas_bottom).mas_offset(10);
-        make.bottom.mas_equalTo(middleView).mas_offset(-10);
-        make.height.mas_equalTo(imageView1.mas_width).multipliedBy((float)9/16);
-    }];
-    [delImageView1 mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.mas_equalTo(imageView1.mas_right).mas_offset(-2.5);
-        make.centerY.mas_equalTo(imageView1.mas_top).mas_offset(2.5);
-        make.width.height.mas_equalTo(15);
-    }];
-    [imageView2 mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(imageView1.mas_right).mas_offset(10);
-        make.top.width.height.mas_equalTo(imageView1);
-    }];
-    [delImageView2 mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.mas_equalTo(imageView2.mas_right).mas_offset(-2.5);
-        make.centerY.mas_equalTo(imageView2.mas_top).mas_offset(2.5);
-        make.width.height.mas_equalTo(15);
-    }];
-    [imageView3 mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(imageView2.mas_right).mas_offset(10);
-        make.top.width.height.mas_equalTo(imageView1);
-        make.right.mas_equalTo(middleView).mas_offset(-20);
-    }];
-    [delImageView3 mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.mas_equalTo(imageView3.mas_right).mas_offset(-2.5);
-        make.centerY.mas_equalTo(imageView3.mas_top).mas_offset(2.5);
-        make.width.height.mas_equalTo(15);
-    }];
-    
     UIView *bottomView = [[UIView alloc] init];
     bottomView.backgroundColor = [UIColor whiteColor];
     bottomView.layer.borderColor = kLineColor.CGColor;
@@ -259,57 +125,14 @@
     [button setTitle:@"提交" forState:UIControlStateNormal];
     [button addTarget:self action:@selector(publish:) forControlEvents:UIControlEventTouchUpInside];
     
-    [scrollView addSubview:importView];
-    [scrollView addSubview:fatherView];
-    [scrollView addSubview:titleLabel2];
-    [scrollView addSubview:textView2];
-    [scrollView addSubview:matherView];
-    [scrollView addSubview:titleLabel];
-    [scrollView addSubview:textView];
-    [scrollView addSubview:homeEditView];
-    [scrollView addSubview:middleView];
+    [self.view addSubview:scrollView];
     [self.view addSubview:bottomView];
     [self.view addSubview:button];
-    
-    [importView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.width.mas_equalTo(scrollView);
-        make.top.mas_equalTo(scrollView);
-    }];
-    [fatherView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.width.mas_equalTo(scrollView);
-        make.top.mas_equalTo(importView.mas_bottom);
-    }];
-    [titleLabel2 mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(fatherView.mas_bottom).mas_offset(10);
-        make.left.mas_equalTo(scrollView).mas_offset(15);
-    }];
-    [textView2 mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(titleLabel2);
-        make.top.mas_equalTo(titleLabel2.mas_bottom).mas_offset(10);
-        make.width.mas_equalTo(kScreenWidth-30);
-        make.height.mas_equalTo(120);
-    }];
-    [matherView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.width.mas_equalTo(scrollView);
-        make.top.mas_equalTo(textView2.mas_bottom).mas_offset(0);
-    }];
-    [titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(scrollView).mas_offset(15);
-        make.top.mas_equalTo(matherView.mas_bottom).mas_offset(10);
-    }];
-    [textView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(titleLabel);
-        make.top.mas_equalTo(titleLabel.mas_bottom).mas_offset(10);
-        make.width.mas_equalTo(kScreenWidth-30);
-        make.height.mas_equalTo(120);
-    }];
-    [homeEditView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.width.mas_equalTo(scrollView);
-        make.top.mas_equalTo(textView.mas_bottom).mas_offset(0);
-    }];
-    [middleView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.width.mas_equalTo(scrollView);
-        make.top.mas_equalTo(homeEditView.mas_bottom).mas_offset(10);
+
+    [scrollView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(self.mas_topLayoutGuide);
+        make.left.width.mas_equalTo(self.view);
+        make.bottom.mas_equalTo(self.mas_bottomLayoutGuide);
     }];
     [bottomView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(self.view).mas_offset(-0.5);
@@ -324,228 +147,141 @@
         make.height.mas_equalTo(35);
     }];
     
-    self.textView = textView;
-    self.imageView1 = imageView1;
-    self.imageView2 = imageView2;
-    self.imageView3 = imageView3;
-    self.delImageView1 = delImageView1;
-    self.delImageView2 = delImageView2;
-    self.delImageView3 = delImageView3;
+    UIView *add1View = [self imageAddView:0];
+    UIView *add2View = [self imageAddView:1];
+    UIView *add3View = [self imageAddView:2];
+    
+    [scrollView addSubview:add1View];
+    [scrollView addSubview:add2View];
+    [scrollView addSubview:add3View];
+    
+    [add1View mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.top.width.mas_equalTo(scrollView);
+    }];
+    [add2View mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.width.mas_equalTo(scrollView);
+        make.top.mas_equalTo(add1View.mas_bottom).mas_offset(10);
+    }];
+    [add3View mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.width.mas_equalTo(scrollView);
+        make.top.mas_equalTo(add2View.mas_bottom).mas_offset(10);
+    }];
+    
+    self.submitButton = button;
 }
 
-- (UIView *)option:(NSArray *)optionList title:(NSString *)title category:(NSUInteger)category {
-
-    UIView *optionView = [[UIView alloc] init];
+- (UIView *)imageAddView:(NSUInteger)index {
     
-    UIView *titleView = [[UIView alloc] init];
-    titleView.backgroundColor = kBackgroundColor;
+    UIView *addView = [[UIView alloc] init];
+    addView.backgroundColor = [UIColor whiteColor];
     
     UILabel *titleLabel = [[UILabel alloc] init];
-    titleLabel.font = [UIFont systemFontOfSize:16.0f];
+    titleLabel.font = [UIFont systemFontOfSize:14.0f];
     titleLabel.textColor = [UIColor blackColor];
-    titleLabel.text = title;
+    titleLabel.text = self.titleList[index];
+    titleLabel.numberOfLines = 0;
     
-    UIView *itemView = [[UIView alloc] init];
-    itemView.backgroundColor = [UIColor whiteColor];
+    UIView *lineView = [[UIView alloc] init];
+    lineView.backgroundColor = kLineColor;
     
-    [optionView addSubview:titleView];
-    [optionView addSubview:titleLabel];
-    [optionView addSubview:itemView];
+    UILabel *noticeLabel = [[UILabel alloc] init];
+    noticeLabel.font = [UIFont systemFontOfSize:12.0f];
+    noticeLabel.textColor = [UIColor grayColor];
+    noticeLabel.text = self.noticeList[index];
+    noticeLabel.numberOfLines = 0;
     
-    [titleView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.top.width.mas_equalTo(optionView);
-        make.height.mas_equalTo(40);
-    }];
-    [titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(optionView).mas_offset(15);
-        make.center.mas_equalTo(titleView);
-    }];
-    [itemView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(titleView.mas_bottom);
-        make.left.width.mas_equalTo(optionView);
-        make.height.mas_equalTo(40*optionList.count);
-        make.bottom.mas_equalTo(optionView);
-    }];
+    UIButton *sampleButton = [[UIButton alloc] init];
+    [sampleButton setTitle:@"点击查看示例图片>" forState:UIControlStateNormal];
+    [sampleButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+    [sampleButton.titleLabel setFont:[UIFont systemFontOfSize:12.0f]];
+    sampleButton.tag = (index + 1);
+    [sampleButton addTarget:self action:@selector(showSampleImage:) forControlEvents:UIControlEventTouchUpInside];
     
-    for (NSString *option in optionList) {
-        
-        NSUInteger index = [optionList indexOfObject:option];
-        
-        UILabel *itemLabel = [[UILabel alloc] init];
-        itemLabel.font = [UIFont systemFontOfSize:14.0f];
-        itemLabel.textColor = [UIColor blackColor];
-        itemLabel.text = option;
-        itemLabel.userInteractionEnabled = YES;
-        [itemLabel addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(optionSelect:)]];
-        
-        UIView *lineView = [[UIView alloc] init];
-        lineView.backgroundColor = kLineColor;
-        
-        [optionView addSubview:itemLabel];
-        [optionView addSubview:lineView];
-        
-        [itemLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.top.mas_equalTo(itemView).mas_offset(40*index);
-            make.left.mas_equalTo(titleLabel);
-            make.right.mas_equalTo(optionView);
-            make.height.mas_equalTo(40);
-        }];
-        [lineView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.bottom.mas_equalTo(itemLabel);
-            make.left.mas_equalTo(itemLabel);
-            make.right.mas_equalTo(optionView);
-            make.height.mas_equalTo(0.5);
-        }];
-    }
+    UILabel *attentionLabel = [[UILabel alloc] init];
+    attentionLabel.font = [UIFont systemFontOfSize:12.0f];
+    attentionLabel.textColor = [UIColor redColor];
+    attentionLabel.text = @"注意: 照片上传后，其他用户可见。本照片允许修改1次。";
+    attentionLabel.numberOfLines = 0;
     
     UIImageView *imageView = [[UIImageView alloc] init];
     imageView.contentMode = UIViewContentModeCenter;
-    imageView.image = [UIImage imageNamed:@"checked"];
-    imageView.tag = category;
-
-    [optionView addSubview:imageView];
-    [imageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(itemView);
-        make.right.mas_equalTo(optionView).mas_offset(-15);
-        make.width.height.mas_equalTo(40);
-    }];
+    imageView.layer.borderColor = kLineColor.CGColor;
+    imageView.layer.borderWidth = 1.0;
+    imageView.image = [UIImage imageNamed:@"add"];
+    imageView.tag = (index + 1);
+    imageView.userInteractionEnabled = YES;
+    [imageView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(imageViewTapped:)]];
     
-    return optionView;
-}
-
-- (UIView *)homeEditView {
+    UIImageView *delImageView = [[UIImageView alloc] init];
+    delImageView.contentMode = UIViewContentModeScaleToFill;
+    delImageView.image = [UIImage imageNamed:@"delete"];
+    delImageView.hidden = YES;
+    delImageView.tag = (11 * (index + 1));
+    delImageView.userInteractionEnabled = YES;
+    [delImageView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(imageViewTapped:)]];
     
-    UIView *homeView = [[UIView alloc] init];
+    [addView addSubview:titleLabel];
+    [addView addSubview:lineView];
+    [addView addSubview:noticeLabel];
+    [addView addSubview:sampleButton];
+    [addView addSubview:attentionLabel];
+    [addView addSubview:imageView];
+    [addView addSubview:delImageView];
     
-    UIView *titleView = [[UIView alloc] init];
-    titleView.backgroundColor = kBackgroundColor;
-    
-    UILabel *titleLabel = [[UILabel alloc] init];
-    titleLabel.font = [UIFont systemFontOfSize:16.0f];
-    titleLabel.textColor = [UIColor blackColor];
-    titleLabel.text = @"这是我家:(其他用户可见，注意保护隐私)";
-    
-    UIView *itemView = [[UIView alloc] init];
-    itemView.backgroundColor = [UIColor whiteColor];
-    
-    [homeView addSubview:titleView];
-    [homeView addSubview:titleLabel];
-    [homeView addSubview:itemView];
-    
-    [titleView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.top.width.mas_equalTo(homeView);
-        make.height.mas_equalTo(40);
-    }];
     [titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(homeView).mas_offset(15);
-        make.center.mas_equalTo(titleView);
+        make.left.mas_equalTo(addView).mas_offset(15);
+        make.top.mas_equalTo(addView).mas_offset(5);
+        make.height.mas_greaterThanOrEqualTo(20);
+        make.right.mas_equalTo(addView).mas_offset(-15);
     }];
-    [itemView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(titleView.mas_bottom);
-        make.left.width.mas_equalTo(homeView);
-        make.height.mas_equalTo(80);
-        make.bottom.mas_equalTo(homeView);
-    }];
-    
-    // 添加标题
-    UILabel *item1Label = [[UILabel alloc] init];
-    item1Label.font = [UIFont systemFontOfSize:14.0f];
-    item1Label.textColor = [UIColor blackColor];
-    item1Label.text = @"城市/区县";
-    
-    UIView *vLineView = [[UIView alloc] init];
-    vLineView.backgroundColor = kLineColor;
-    
-    // 内容输入框
-    UITextField *textView = [[UITextField alloc] init];
-    textView.layer.borderColor = kLineColor.CGColor;
-    textView.layer.borderWidth = 1.0;
-    textView.layer.cornerRadius = 5;
-    textView.font = [UIFont systemFontOfSize:14.0f];
-    textView.textColor = [UIColor blackColor];
-    
-    UIView *hLineView = [[UIView alloc] init];
-    hLineView.backgroundColor = kLineColor;
-    
-    // 添加标题
-    UILabel *item2Label = [[UILabel alloc] init];
-    item2Label.font = [UIFont systemFontOfSize:14.0f];
-    item2Label.textColor = [UIColor blackColor];
-    item2Label.text = @"靠近什么路?";
-    
-    UIView *vLineView2 = [[UIView alloc] init];
-    vLineView2.backgroundColor = kLineColor;
-    
-    // 内容输入框
-    UITextField *textView2 = [[UITextField alloc] init];
-    textView2.layer.borderColor = kLineColor.CGColor;
-    textView2.layer.borderWidth = 1.0;
-    textView2.layer.cornerRadius = 5;
-    textView2.font = [UIFont systemFontOfSize:14.0f];
-    textView2.textColor = [UIColor blackColor];
-    
-    UIView *hLine2View = [[UIView alloc] init];
-    hLine2View.backgroundColor = kLineColor;
-    
-    [homeView addSubview:item1Label];
-    [homeView addSubview:vLineView];
-    [homeView addSubview:textView];
-    [homeView addSubview:hLineView];
-    [homeView addSubview:item2Label];
-    [homeView addSubview:vLineView2];
-    [homeView addSubview:textView2];
-    [homeView addSubview:hLine2View];
-
-    [item1Label mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(titleView.mas_bottom);
+    [lineView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(titleLabel);
-        make.width.mas_equalTo(item2Label);
-        make.height.mas_equalTo(40);
+        make.top.mas_equalTo(titleLabel.mas_bottom).mas_offset(5);
+        make.height.mas_equalTo(1);
+        make.right.mas_equalTo(addView);
     }];
-    [vLineView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerY.mas_equalTo(item1Label);
-        make.left.mas_equalTo(item1Label.mas_right).mas_offset(10);
-        make.width.mas_equalTo(1);
-        make.height.mas_equalTo(15);
+    noticeLabel.preferredMaxLayoutWidth = (kScreenWidth - 30);
+    [noticeLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(titleLabel);
+        make.top.mas_equalTo(lineView.mas_bottom).mas_offset(5);
+        make.right.mas_equalTo(titleLabel);
     }];
-    [textView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerY.mas_equalTo(item1Label);
-        make.left.mas_equalTo(vLineView.mas_right).mas_offset(10);
-        make.right.mas_equalTo(homeView).mas_offset(-15);
-        make.height.mas_equalTo(25);
+    [sampleButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(titleLabel);
+        make.top.mas_equalTo(noticeLabel.mas_bottom).mas_offset(5);
+        make.height.mas_equalTo(20);
     }];
-    [hLineView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.mas_equalTo(item1Label);
-        make.left.mas_equalTo(item1Label);
-        make.right.mas_equalTo(homeView);
-        make.height.mas_equalTo(0);
+    attentionLabel.preferredMaxLayoutWidth = (kScreenWidth - 30);
+    [attentionLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(titleLabel);
+        make.top.mas_equalTo(sampleButton.mas_bottom).mas_offset(5);
+        make.right.mas_equalTo(titleLabel);
     }];
-    [item2Label mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(item1Label.mas_bottom);
-        make.left.mas_equalTo(item1Label);
-        make.height.mas_equalTo(40);
-        make.width.mas_equalTo(80);
+    [imageView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(titleLabel);
+        make.top.mas_equalTo(attentionLabel.mas_bottom).mas_offset(5);
+        make.bottom.mas_equalTo(addView).mas_offset(-5);
+        make.right.mas_equalTo(titleLabel);
+        make.height.mas_equalTo(imageView.mas_width).multipliedBy((float)9/16);
     }];
-    [vLineView2 mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerY.mas_equalTo(item2Label);
-        make.left.mas_equalTo(item2Label.mas_right).mas_offset(10);
-        make.width.mas_equalTo(1);
-        make.height.mas_equalTo(15);
-    }];
-    [textView2 mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerY.mas_equalTo(item2Label);
-        make.left.mas_equalTo(vLineView2.mas_right).mas_offset(10);
-        make.right.mas_equalTo(homeView).mas_offset(-15);
-        make.height.mas_equalTo(25);
-    }];
-    [hLine2View mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.mas_equalTo(item2Label);
-        make.left.mas_equalTo(item2Label);
-        make.right.mas_equalTo(homeView);
-        make.height.mas_equalTo(0);
+    [delImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.mas_equalTo(imageView.mas_right).mas_offset(-2.5);
+        make.centerY.mas_equalTo(imageView.mas_top).mas_offset(2.5);
+        make.width.height.mas_equalTo(15);
     }];
     
-    return homeView;
+    if (index == 0) {
+        self.imageView1 = imageView;
+        self.delImageView1 = delImageView;
+    } else if (index == 1) {
+        self.imageView2 = imageView;
+        self.delImageView2 = delImageView;
+    } else if (index == 2) {
+        self.imageView3 = imageView;
+        self.delImageView3 = delImageView;
+    }
+    
+    return addView;
 }
 
 #pragma mark - getter
@@ -553,7 +289,7 @@
 - (UIImagePickerController *)imagePickerController {
     if (!_imagePickerController) {
         _imagePickerController = [[UIImagePickerController alloc] init];
-        _imagePickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        _imagePickerController.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
         _imagePickerController.delegate = self;
     }
     return _imagePickerController;
@@ -564,6 +300,28 @@
         _imageDataDict = [NSMutableDictionary dictionary];
     }
     return _imageDataDict;
+}
+
+- (NSArray *)titleList {
+    if (!_titleList) {
+        _titleList = @[
+                       @"身份验证(请上传您的身份证照片)",
+                       @"学历验证(请上传您的毕业证书照片)",
+                       @"职务验证(请上传您的单位名片照片)"
+                       ];
+    }
+    return _titleList;
+}
+
+- (NSArray *)noticeList {
+    if (!_noticeList) {
+        _noticeList = @[
+                        @"保护隐私，请自行遮盖敏感信息。但请确保姓氏、出生年份、身份证前12位信息清晰可见",
+                        @"保护隐私，请自行遮盖敏感信息。但请确保学校名称、证书编号、姓氏、毕业年份等清晰可见",
+                        @"保护隐私，请自行遮盖敏感信息。但请确保姓氏、公司名称、职务抬头信息清晰可见"
+                        ];
+    }
+    return _noticeList;
 }
 
 #pragma mark - UINavigationControllerDelegate
@@ -609,12 +367,6 @@
 
 - (void)back:(UIButton *)button {
     
-    if ([self.textView isFirstResponder]) {
-        
-        [self.view endEditing:YES];
-        return;
-    }
-    
     [self.navigationController popViewControllerAnimated:YES];
 }
 
@@ -623,35 +375,13 @@
     [self.view endEditing:YES];
 }
 
-- (void)optionSelect:(UITapGestureRecognizer *)tapGestureRecognizer {
+- (void)showSampleImage:(UIButton *)button {
     
-    [self.view endEditing:YES];
-    
-    UILabel *itemLabel = (UILabel *)tapGestureRecognizer.view;
-    NSArray *subviews = tapGestureRecognizer.view.superview.subviews;
-
-    for (UIView *subview in subviews) {
-        if ([subview isKindOfClass:[UIImageView class]]) {
-
-            [subview mas_remakeConstraints:^(MASConstraintMaker *make) {
-                make.right.mas_equalTo(itemLabel).mas_offset(-15);
-                make.centerY.mas_equalTo(itemLabel);
-                make.width.height.mas_equalTo(40);
-            }];
-            
-            NSInteger tag2 = subview.tag;
-            [self.optionValueList replaceObjectAtIndex:tag2 withObject:itemLabel.text];
-        }
-    }
+    NSString *imageUrl = [NSString stringWithFormat:@"http://www.viewatmobile.cn:80/3025/pages/img/demo0%ld.jpg", button.tag];
+    [ImageBrowser show:@[imageUrl] currentIndex:0];
 }
 
 - (void)imageViewTapped:(UITapGestureRecognizer *)tapGestureRecognizer {
-    
-    if ([self.textView isFirstResponder]) {
-        
-        [self.view endEditing:YES];
-        return;
-    }
     
     self.imageIndex = tapGestureRecognizer.view.tag;
     if (self.imageIndex < 10) {
@@ -682,13 +412,101 @@
     }
 }
 
+#pragma mark - 数据处理
+
+/**
+ *  加载数据
+ */
+- (void)loadData {
+    
+    UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    [self.view addSubview:activityIndicatorView];
+    [activityIndicatorView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.center.mas_equalTo(self.view);
+    }];
+    [activityIndicatorView startAnimating];
+    
+    NSString *sql = [NSString stringWithFormat:@"\
+                     select \
+                         images_ID, \
+                         imageIDUpdateNumber, \
+                         imageIDUpdatetime, \
+                         images_education, \
+                         imageEducationUpdateNumber, \
+                         imageEducationUpdatetime, \
+                         images_position, \
+                         imagePositionUpdateNumber, \
+                         imagePositionUpdatetime \
+                     FROM \
+                         user \
+                     where \
+                         userid = %@", self.userid];
+    
+    // 筛选条件
+    NSString *url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/query.html"];
+    NSDictionary *parameterDict = @{ @"sql": sql };
+    
+    //获取网络数据
+    [HttpUtil query:url parameter:parameterDict success:^(id responseObject) {
+        
+        NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        NSArray *array = responseDict[@"list"];
+        
+        if (array.count == 1) {
+            
+            NSDictionary *dict = array[0];
+            
+            if ([ConversionUtil isNotEmpty:dict[@"images_ID"]]) {
+                
+                [self.imageView1 sd_setImageWithURL:[NSURL URLWithString:dict[@"images_ID"]] completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+                    if (image && !error) {
+                        self.imageView1.contentMode = UIViewContentModeScaleAspectFill;
+                        self.imageView1.layer.masksToBounds = YES;
+                        self.delImageView1.hidden = NO;
+                    }
+                }];
+            }
+            
+            if ([ConversionUtil isNotEmpty:dict[@"images_education"]]) {
+                
+                [self.imageView2 sd_setImageWithURL:[NSURL URLWithString:dict[@"images_education"]] completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+                    if (image && !error) {
+                        self.imageView2.contentMode = UIViewContentModeScaleAspectFill;
+                        self.imageView2.layer.masksToBounds = YES;
+                        self.delImageView2.hidden = NO;
+                    }
+                }];
+            }
+            
+            if ([ConversionUtil isNotEmpty:dict[@"images_position"]]) {
+                
+                [self.imageView3 sd_setImageWithURL:[NSURL URLWithString:dict[@"images_position"]] completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+                    if (image && !error) {
+                        self.imageView3.contentMode = UIViewContentModeScaleAspectFill;
+                        self.imageView3.layer.masksToBounds = YES;
+                        self.delImageView3.hidden = NO;
+                    }
+                }];
+            }
+            
+            if ([dict[@"imageIDUpdateNumber"] intValue] > 1 && [dict[@"imageEducationUpdateNumber"] intValue] > 1 && [dict[@"imagePositionUpdateNumber"] intValue] > 1) {
+
+                self.submitButton.enabled = NO;
+            }
+        }
+        
+        [activityIndicatorView stopAnimating];
+        [activityIndicatorView removeFromSuperview];
+    } failure:^(NSError *error) {
+        
+        NSLog(@"*** failure %@ ***", error.description);
+        
+        [activityIndicatorView stopAnimating];
+        [activityIndicatorView removeFromSuperview];
+    }];
+}
+
 - (void)publish:(UIButton *)button {
-    
-    NSString *content = [self.textView.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-    
-    if ([ConversionUtil isEmpty:content] && [self.imageDataDict.allValues count] == 0) {
-        return;
-    }
     
     UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
     [self.view addSubview:activityIndicatorView];
@@ -705,12 +523,23 @@
     NSString *image2Key;
     NSString *image3Key;
     
+    NSMutableString *sql = [NSMutableString string];
+    [sql appendString:@"update "];
+    [sql appendString:@"    user "];
+    [sql appendString:@"set "];
+    
     if (image1) {
         
         NSData *imageData = UIImageJPEGRepresentation(image1, 0.9);
         image1Key = [ConversionUtil stringFromDate:[NSDate date] dateFormat:@"yyyyMMddHHmmssSSS"];
         
         [QiniuUtil upload:imageData key:image1Key];
+
+        [sql appendString:@"    images_ID = 'http://oqauefc7p.bkt.clouddn.com/"];
+        [sql appendString:image1Key];
+        [sql appendString:@"', "];
+        [sql appendString:@"    imageIDUpdateNumber = (imageIDUpdateNumber + 1), "];
+        [sql appendString:@"    imageIDUpdatetime = now(), "];
     }
     if (image2) {
         
@@ -718,6 +547,12 @@
         image2Key = [ConversionUtil stringFromDate:[NSDate date] dateFormat:@"yyyyMMddHHmmssSSS"];
         
         [QiniuUtil upload:imageData key:image2Key];
+
+        [sql appendString:@"    images_education = 'http://oqauefc7p.bkt.clouddn.com/"];
+        [sql appendString:image2Key];
+        [sql appendString:@"', "];
+        [sql appendString:@"    imageEducationUpdateNumber = (imageEducationUpdateNumber + 1), "];
+        [sql appendString:@"    imageEducationUpdatetime = now(), "];
     }
     if (image3) {
         
@@ -725,64 +560,31 @@
         image3Key = [ConversionUtil stringFromDate:[NSDate date] dateFormat:@"yyyyMMddHHmmssSSS"];
         
         [QiniuUtil upload:imageData key:image3Key];
+        
+        [sql appendString:@"    images_position = 'http://oqauefc7p.bkt.clouddn.com/"];
+        [sql appendString:image3Key];
+        [sql appendString:@"',"];
+        [sql appendString:@"    imagePositionUpdateNumber = (imagePositionUpdateNumber + 1), "];
+        [sql appendString:@"    imagePositionUpdatetime = now(), "];
     }
+    [sql appendString:@"    updatetime = now() "];
+    [sql appendString:@"where"];
+    [sql appendString:@"    userid = "];
+    [sql appendString:self.userid];
     
-    NSString *url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/save.html"];
-    NSMutableDictionary *parameter = [NSMutableDictionary dictionary];
-    
-    [parameter setObject:@"moment" forKey:@"table"];
-    [parameter setObject:self.userid forKey:@"userid"];
-    
-    if (![content isEqualToString:@""]) {
-        [parameter setObject:[NSString stringWithFormat:@"%@", content] forKey:@"content"];
-    }
-    if (image1) {
-        [parameter setObject:[NSString stringWithFormat:@"http://oqauefc7p.bkt.clouddn.com/%@", image1Key] forKey:@"image1"];
-    }
-    if (image2) {
-        [parameter setObject:[NSString stringWithFormat:@"http://oqauefc7p.bkt.clouddn.com/%@", image2Key] forKey:@"image2"];
-    }
-    if (image3) {
-        [parameter setObject:[NSString stringWithFormat:@"http://oqauefc7p.bkt.clouddn.com/%@", image3Key] forKey:@"image3"];
-    }
+    NSString *url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/query.html"];
+    NSDictionary *parameter = @{ @"sql" : sql };
     
     [HttpUtil query:url parameter:parameter success:^(id responseObject) {
         NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
         NSLog(@"*** success %@ ***", responseDict);
         
-        if ([responseDict[@"code"] isEqualToString:@"0"]) {
-            
-            [SVProgressHUD showImage:nil status:@"提交成功"];
-            [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
-            [SVProgressHUD dismissWithDelay:1.0];
-            
-            [activityIndicatorView stopAnimating];
-            [activityIndicatorView removeFromSuperview];
-            
-            _imageDataDict = nil;
-            
-            self.textView.text = @"";
-            
-            self.imageView1.contentMode = UIViewContentModeCenter;
-            self.imageView1.image = [UIImage imageNamed:@"add"];
-            self.delImageView1.hidden = YES;
-            
-            self.imageView2.contentMode = UIViewContentModeCenter;
-            self.imageView2.image = [UIImage imageNamed:@"add"];
-            self.delImageView2.hidden = YES;
-            
-            self.imageView3.contentMode = UIViewContentModeCenter;
-            self.imageView3.image = [UIImage imageNamed:@"add"];
-            self.delImageView3.hidden = YES;
-        } else {
-            
-            [activityIndicatorView stopAnimating];
-            [activityIndicatorView removeFromSuperview];
-            
-            [SVProgressHUD showImage:nil status:@"提交失败"];
-            [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
-            [SVProgressHUD dismissWithDelay:1.5];
-        }
+        [SVProgressHUD showImage:nil status:@"提交成功"];
+        [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
+        [SVProgressHUD dismissWithDelay:1.0];
+        
+        [activityIndicatorView stopAnimating];
+        [activityIndicatorView removeFromSuperview];
     } failure:^(NSError *error) {
         
         NSLog(@"*** failure %@ ***", error.description);

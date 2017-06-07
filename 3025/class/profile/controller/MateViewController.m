@@ -391,7 +391,6 @@
     return _cityList;
 }
 
-
 - (void)setupPickerList:(NSUInteger)type {
     
     NSMutableArray *mArr = [NSMutableArray array];
