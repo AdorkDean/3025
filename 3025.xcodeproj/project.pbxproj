@@ -15,6 +15,7 @@
 		6B4F16F41E8B53AE005972C5 /* UserListModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B4F16F31E8B53AE005972C5 /* UserListModel.m */; };
 		6B4F16F71E8BB88B005972C5 /* DatabaseUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B4F16F61E8BB88B005972C5 /* DatabaseUtil.m */; };
 		6B58D9C31EC03FCE0090DCE4 /* pcd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6B58D9C21EC03FCE0090DCE4 /* pcd.plist */; };
+		6B682FEB1EE91FC10085CB68 /* PropertyCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B682FEA1EE91FC10085CB68 /* PropertyCell.m */; };
 		6B70B78F1ED52786003BE3D3 /* QiniuUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B70B78E1ED52786003BE3D3 /* QiniuUtil.m */; };
 		6B70B7981ED94203003BE3D3 /* MomentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B70B7971ED94203003BE3D3 /* MomentViewController.m */; };
 		6B70B79B1ED9421D003BE3D3 /* MomentCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B70B79A1ED9421D003BE3D3 /* MomentCell.m */; };
@@ -62,6 +63,8 @@
 		6B4F16F51E8BB88B005972C5 /* DatabaseUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatabaseUtil.h; sourceTree = "<group>"; };
 		6B4F16F61E8BB88B005972C5 /* DatabaseUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DatabaseUtil.m; sourceTree = "<group>"; };
 		6B58D9C21EC03FCE0090DCE4 /* pcd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = pcd.plist; sourceTree = "<group>"; };
+		6B682FE91EE91FC10085CB68 /* PropertyCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PropertyCell.h; sourceTree = "<group>"; };
+		6B682FEA1EE91FC10085CB68 /* PropertyCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PropertyCell.m; sourceTree = "<group>"; };
 		6B70B78D1ED52786003BE3D3 /* QiniuUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QiniuUtil.h; sourceTree = "<group>"; };
 		6B70B78E1ED52786003BE3D3 /* QiniuUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QiniuUtil.m; sourceTree = "<group>"; };
 		6B70B7961ED94203003BE3D3 /* MomentViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MomentViewController.h; sourceTree = "<group>"; };
@@ -423,6 +426,8 @@
 			children = (
 				9A58BCE41EE3B52300AF84E2 /* BlockCell.h */,
 				9A58BCE51EE3B52300AF84E2 /* BlockCell.m */,
+				6B682FE91EE91FC10085CB68 /* PropertyCell.h */,
+				6B682FEA1EE91FC10085CB68 /* PropertyCell.m */,
 			);
 			path = view;
 			sourceTree = "<group>";
@@ -560,6 +565,7 @@
 				9A58BCF51EE43E0900AF84E2 /* BaseViewController.m in Sources */,
 				6B8B7A0E1E8A235A006B5D11 /* ProfileViewController.m in Sources */,
 				9A58BCEC1EE3C63700AF84E2 /* MatchViewController.m in Sources */,
+				6B682FEB1EE91FC10085CB68 /* PropertyCell.m in Sources */,
 				6BD595A11EC45E14004998DB /* SortViewController.m in Sources */,
 				9A58BCE91EE3B53900AF84E2 /* BlockModel.m in Sources */,
 				6B70B7981ED94203003BE3D3 /* MomentViewController.m in Sources */,

@@ -31,6 +31,7 @@
 @property (nonatomic, copy) NSArray *provinceList;
 @property (nonatomic, copy) NSArray *cityList;
 @property (nonatomic, copy) NSArray *districtList;
+@property (nonatomic, copy) NSMutableArray *images_address;
 
 @property (nonatomic, strong) NSMutableArray *optionValueList;
 
@@ -631,6 +632,16 @@
     return _districtList;
 }
 
+- (NSMutableArray *)images_address {
+    if (!_images_address) {
+        _images_address = [NSMutableArray arrayWithCapacity:3];
+        [_images_address addObject:@""];
+        [_images_address addObject:@""];
+        [_images_address addObject:@""];
+    }
+    return _images_address;
+}
+
 - (UIImagePickerController *)imagePickerController {
     if (!_imagePickerController) {
         _imagePickerController = [[UIImagePickerController alloc] init];
@@ -646,7 +657,6 @@
     }
     return _imageDataDict;
 }
-
 
 - (UIView *)shadeView {
     
@@ -742,9 +752,8 @@
 #pragma mark - UIScrollViewDelegate
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    NSLog(@" *** %@ %@ *** ", NSStringFromCGPoint(scrollView.contentOffset), NSStringFromCGSize(scrollView.contentSize));
-}
 
+}
 
 #pragma mark - UIPickerViewDataSource
 
@@ -931,18 +940,21 @@
                 self.imageView1.image = [UIImage imageNamed:@"add"];
                 self.delImageView1.hidden = YES;
                 [self.imageDataDict removeObjectForKey:@"image1"];
+                [self.images_address replaceObjectAtIndex:0 withObject:@""];
                 break;
             case 22:
                 self.imageView2.contentMode = UIViewContentModeCenter;
                 self.imageView2.image = [UIImage imageNamed:@"add"];
                 self.delImageView2.hidden = YES;
                 [self.imageDataDict removeObjectForKey:@"image2"];
+                [self.images_address replaceObjectAtIndex:1 withObject:@""];
                 break;
             case 33:
                 self.imageView3.contentMode = UIViewContentModeCenter;
                 self.imageView3.image = [UIImage imageNamed:@"add"];
                 self.delImageView3.hidden = YES;
                 [self.imageDataDict removeObjectForKey:@"image3"];
+                [self.images_address replaceObjectAtIndex:2 withObject:@""];
                 break;
             default:
                 break;
@@ -1013,7 +1025,7 @@
             self.scrollView.contentOffset = contentOffset;
         } completion:^(BOOL finished) {
             if (finished) {
-                self.scrollView.scrollEnabled = NO;
+                self.scrollView.scrollEnabled = YES;
             }
         }];
     } else {
@@ -1174,6 +1186,7 @@
                                 self.delImageView1.hidden = NO;
                             }
                         }];
+                        [self.images_address replaceObjectAtIndex:0 withObject:imageList[0]];
                     }
                     if ([ConversionUtil isNotEmpty:imageList[1]]) {
                         
@@ -1184,6 +1197,7 @@
                                 self.delImageView2.hidden = NO;
                             }
                         }];
+                        [self.images_address replaceObjectAtIndex:1 withObject:imageList[1]];
                     }
                     if ([ConversionUtil isNotEmpty:imageList[2]]) {
                         
@@ -1194,6 +1208,7 @@
                                 self.delImageView3.hidden = NO;
                             }
                         }];
+                        [self.images_address replaceObjectAtIndex:2 withObject:imageList[2]];
                     }
                 }
             }
@@ -1211,12 +1226,6 @@
 }
 
 - (void)publish:(UIButton *)button {
-    
-    NSString *content = [self.dadTextView.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-    
-    if ([ConversionUtil isEmpty:content] && [self.imageDataDict.allValues count] == 0) {
-        return;
-    }
     
     UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
     [self.view addSubview:activityIndicatorView];
@@ -1239,6 +1248,8 @@
         image1Key = [ConversionUtil stringFromDate:[NSDate date] dateFormat:@"yyyyMMddHHmmssSSS"];
         
         [QiniuUtil upload:imageData key:image1Key];
+        
+        [self.images_address replaceObjectAtIndex:0 withObject:[NSString stringWithFormat:@"http://oqauefc7p.bkt.clouddn.com/%@", image1Key]];
     }
     if (image2) {
         
@@ -1246,6 +1257,8 @@
         image2Key = [ConversionUtil stringFromDate:[NSDate date] dateFormat:@"yyyyMMddHHmmssSSS"];
         
         [QiniuUtil upload:imageData key:image2Key];
+        
+        [self.images_address replaceObjectAtIndex:1 withObject:[NSString stringWithFormat:@"http://oqauefc7p.bkt.clouddn.com/%@", image2Key]];
     }
     if (image3) {
         
@@ -1253,26 +1266,37 @@
         image3Key = [ConversionUtil stringFromDate:[NSDate date] dateFormat:@"yyyyMMddHHmmssSSS"];
         
         [QiniuUtil upload:imageData key:image3Key];
+        
+        [self.images_address replaceObjectAtIndex:2 withObject:[NSString stringWithFormat:@"http://oqauefc7p.bkt.clouddn.com/%@", image3Key]];
     }
     
     NSString *url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/save.html"];
     NSMutableDictionary *parameter = [NSMutableDictionary dictionary];
     
-    [parameter setObject:@"moment" forKey:@"table"];
+    [parameter setObject:@"user" forKey:@"table"];
     [parameter setObject:self.userid forKey:@"userid"];
+    [parameter setValue:[NSString stringWithFormat:@"id is null and userid = '%@' ", self.userid] forKey:@"id"];
+    [parameter setObject:self.userid forKey:@"updateUser"];
     
-    if (![content isEqualToString:@""]) {
-        [parameter setObject:[NSString stringWithFormat:@"%@", content] forKey:@"content"];
-    }
-    if (image1) {
-        [parameter setObject:[NSString stringWithFormat:@"http://oqauefc7p.bkt.clouddn.com/%@", image1Key] forKey:@"image1"];
-    }
-    if (image2) {
-        [parameter setObject:[NSString stringWithFormat:@"http://oqauefc7p.bkt.clouddn.com/%@", image2Key] forKey:@"image2"];
-    }
-    if (image3) {
-        [parameter setObject:[NSString stringWithFormat:@"http://oqauefc7p.bkt.clouddn.com/%@", image3Key] forKey:@"image3"];
-    }
+    [parameter setObject:self.optionValueList[0] forKey:@"important"];
+    [parameter setObject:self.optionValueList[1] forKey:@"father_job"];
+    [parameter setObject:self.optionValueList[2] forKey:@"mother_job"];
+    
+    [parameter setObject:[self.images_address componentsJoinedByString:@","] forKey:@"images_address"];
+    
+    NSString *text = [self.dadTextView.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    [parameter setObject:text forKey:@"father_comment"];
+    
+    text = [self.mumTextView.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    [parameter setObject:text forKey:@"mother_comment"];
+    
+    text = [self.cityTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    [parameter setObject:text forKey:@"address"];
+
+    text = [self.streetTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    [parameter setObject:text forKey:@"address_comment"];
+    
+    NSLog(@"*** parameter %@ ***", parameter);
     
     [HttpUtil query:url parameter:parameter success:^(id responseObject) {
         NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
