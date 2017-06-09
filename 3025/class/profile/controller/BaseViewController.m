@@ -16,7 +16,7 @@
 @property (nonatomic, copy) NSArray *provinceList;
 @property (nonatomic, copy) NSArray *cityList;
 @property (nonatomic, assign) NSUInteger currentRow;
-@property (nonatomic, copy) NSMutableArray *images_address;
+@property (nonatomic, copy) NSMutableArray *photos;
 @property (nonatomic, assign) NSInteger imageIndex;
 @property (nonatomic, strong) NSMutableDictionary *imageDataDict;
 
@@ -256,7 +256,7 @@
 #pragma mark - UIScrollViewDelegate
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    NSLog(@" *** %@ %@ %@ *** ", NSStringFromCGSize(self.tableView.bounds.size), NSStringFromCGSize(self.tableView.contentSize), NSStringFromCGPoint(self.tableView.contentOffset));
+
 }
 
 #pragma mark - PropertyCellDelegate
@@ -570,14 +570,14 @@
     return _footerView;
 }
 
-- (NSMutableArray *)images_address {
-    if (!_images_address) {
-        _images_address = [NSMutableArray arrayWithCapacity:3];
-        [_images_address addObject:@""];
-        [_images_address addObject:@""];
-        [_images_address addObject:@""];
+- (NSMutableArray *)photos {
+    if (!_photos) {
+        _photos = [NSMutableArray arrayWithCapacity:3];
+        [_photos addObject:@""];
+        [_photos addObject:@""];
+        [_photos addObject:@""];
     }
-    return _images_address;
+    return _photos;
 }
 
 - (UIImagePickerController *)imagePickerController {
@@ -600,19 +600,19 @@
     
     if (!_titleList) {
         _titleList = @[
-                       @{ @"title": @"头像", @"value": @"" },
-                       @{ @"title": @"昵称", @"value": @"" },
+                       @{ @"title": @"头像", @"value": @"http://www.viewatmobile.cn/3025/pages/img/user_photo.png" },
+                       @{ @"title": @"昵称", @"value": @"3025用户" },
                        @{ @"title": @"性别", @"value": @"男" },
-                       @{ @"title": @"身高", @"value": @"175" },
-                       @{ @"title": @"出生年份", @"value": @"1987-11-11"},
-                       @{ @"title": @"常住城市", @"value": @"上海-上海" },
-                       @{ @"title": @"户籍", @"value": @"浙江-杭州" },
-                       @{ @"title": @"婚房", @"value": @"01" },
-                       @{ @"title": @"最高学历", @"value": @"01" },
-                       @{ @"title": @"单位性质", @"value": @"01" },
-                       @{ @"title": @"职务", @"value": @"教师" },
-                       @{ @"title": @"月收入", @"value": @"8000" },
-                       @{ @"title": @"婚姻状态", @"value": @"01" },
+                       @{ @"title": @"身高", @"value": @"175cm" },
+                       @{ @"title": @"出生年份", @"value": @"1987年"},
+                       @{ @"title": @"常住城市", @"value": @"上海" },
+                       @{ @"title": @"户籍", @"value": @"上海" },
+                       @{ @"title": @"婚房", @"value": @"有独立婚房（有贷款）" },
+                       @{ @"title": @"最高学历", @"value": @"本科" },
+                       @{ @"title": @"单位性质", @"value": @"外企" },
+                       @{ @"title": @"职务", @"value": @"经理" },
+                       @{ @"title": @"月收入", @"value": @"10000以上" },
+                       @{ @"title": @"婚姻状态", @"value": @"未婚" },
                        ];
     }
     
@@ -927,21 +927,21 @@
                 self.imageView1.image = [UIImage imageNamed:@"add"];
                 self.delImageView1.hidden = YES;
                 [self.imageDataDict removeObjectForKey:@"image1"];
-                [self.images_address replaceObjectAtIndex:0 withObject:@""];
+                [self.photos replaceObjectAtIndex:0 withObject:@""];
                 break;
             case 22:
                 self.imageView2.contentMode = UIViewContentModeCenter;
                 self.imageView2.image = [UIImage imageNamed:@"add"];
                 self.delImageView2.hidden = YES;
                 [self.imageDataDict removeObjectForKey:@"image2"];
-                [self.images_address replaceObjectAtIndex:1 withObject:@""];
+                [self.photos replaceObjectAtIndex:1 withObject:@""];
                 break;
             case 33:
                 self.imageView3.contentMode = UIViewContentModeCenter;
                 self.imageView3.image = [UIImage imageNamed:@"add"];
                 self.delImageView3.hidden = YES;
                 [self.imageDataDict removeObjectForKey:@"image3"];
-                [self.images_address replaceObjectAtIndex:2 withObject:@""];
+                [self.photos replaceObjectAtIndex:2 withObject:@""];
                 break;
             default:
                 break;
@@ -1061,8 +1061,6 @@
         
         NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
         NSArray *array = responseDict[@"list"];
-        
-        NSLog(@"*** success %@ ***", responseDict);
         
         if (array.count == 1) {
             
@@ -1225,7 +1223,7 @@
                                 self.delImageView1.hidden = NO;
                             }
                         }];
-                        [self.images_address replaceObjectAtIndex:0 withObject:imageList[0]];
+                        [self.photos replaceObjectAtIndex:0 withObject:imageList[0]];
                     }
                     if ([ConversionUtil isNotEmpty:imageList[1]]) {
                         
@@ -1236,7 +1234,7 @@
                                 self.delImageView2.hidden = NO;
                             }
                         }];
-                        [self.images_address replaceObjectAtIndex:1 withObject:imageList[1]];
+                        [self.photos replaceObjectAtIndex:1 withObject:imageList[1]];
                     }
                     if ([ConversionUtil isNotEmpty:imageList[2]]) {
                         
@@ -1247,7 +1245,7 @@
                                 self.delImageView3.hidden = NO;
                             }
                         }];
-                        [self.images_address replaceObjectAtIndex:2 withObject:imageList[2]];
+                        [self.photos replaceObjectAtIndex:2 withObject:imageList[2]];
                     }
                 }
             }
@@ -1273,109 +1271,163 @@
 
 - (void)publish:(UIButton *)button {
     
-//    UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-//    [self.view addSubview:activityIndicatorView];
-//    [activityIndicatorView mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.center.mas_equalTo(self.view);
-//    }];
-//    [activityIndicatorView startAnimating];
-//    
-//    UIImage *image1 = [self.imageDataDict objectForKey:@"image1"];
-//    UIImage *image2 = [self.imageDataDict objectForKey:@"image2"];
-//    UIImage *image3 = [self.imageDataDict objectForKey:@"image3"];
-//    
-//    NSString *image1Key;
-//    NSString *image2Key;
-//    NSString *image3Key;
-//    
-//    if (image1) {
-//        
-//        NSData *imageData = UIImageJPEGRepresentation(image1, 0.9);
-//        image1Key = [ConversionUtil stringFromDate:[NSDate date] dateFormat:@"yyyyMMddHHmmssSSS"];
-//        
-//        [QiniuUtil upload:imageData key:image1Key];
-//        
-//        [self.images_address replaceObjectAtIndex:0 withObject:[NSString stringWithFormat:@"http://oqauefc7p.bkt.clouddn.com/%@", image1Key]];
-//    }
-//    if (image2) {
-//        
-//        NSData *imageData = UIImageJPEGRepresentation(image2, 0.9);
-//        image2Key = [ConversionUtil stringFromDate:[NSDate date] dateFormat:@"yyyyMMddHHmmssSSS"];
-//        
-//        [QiniuUtil upload:imageData key:image2Key];
-//        
-//        [self.images_address replaceObjectAtIndex:1 withObject:[NSString stringWithFormat:@"http://oqauefc7p.bkt.clouddn.com/%@", image2Key]];
-//    }
-//    if (image3) {
-//        
-//        NSData *imageData = UIImageJPEGRepresentation(image3, 0.9);
-//        image3Key = [ConversionUtil stringFromDate:[NSDate date] dateFormat:@"yyyyMMddHHmmssSSS"];
-//        
-//        [QiniuUtil upload:imageData key:image3Key];
-//        
-//        [self.images_address replaceObjectAtIndex:2 withObject:[NSString stringWithFormat:@"http://oqauefc7p.bkt.clouddn.com/%@", image3Key]];
-//    }
-//    
-//    NSString *url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/save.html"];
-//    NSMutableDictionary *parameter = [NSMutableDictionary dictionary];
-//    
-//    [parameter setObject:@"user" forKey:@"table"];
-//    [parameter setObject:self.userid forKey:@"userid"];
-//    [parameter setValue:[NSString stringWithFormat:@"id is null and userid = '%@' ", self.userid] forKey:@"id"];
-//    [parameter setObject:self.userid forKey:@"updateUser"];
-//    
-//    [parameter setObject:self.optionValueList[0] forKey:@"important"];
-//    [parameter setObject:self.optionValueList[1] forKey:@"father_job"];
-//    [parameter setObject:self.optionValueList[2] forKey:@"mother_job"];
-//    
-//    [parameter setObject:[self.images_address componentsJoinedByString:@","] forKey:@"images_address"];
-//    
-//    NSString *text = [self.dadTextView.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-//    [parameter setObject:text forKey:@"father_comment"];
-//    
-//    text = [self.mumTextView.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-//    [parameter setObject:text forKey:@"mother_comment"];
-//    
-//    text = [self.cityTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-//    [parameter setObject:text forKey:@"address"];
-//    
-//    text = [self.streetTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-//    [parameter setObject:text forKey:@"address_comment"];
-//    
-//    NSLog(@"*** parameter %@ ***", parameter);
-//    
-//    [HttpUtil query:url parameter:parameter success:^(id responseObject) {
-//        NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
-//        NSLog(@"*** success %@ ***", responseDict);
-//        
-//        if ([responseDict[@"code"] isEqualToString:@"0"]) {
-//            
-//            [SVProgressHUD showImage:nil status:@"提交成功"];
-//            [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
-//            [SVProgressHUD dismissWithDelay:1.0];
-//            
-//            [activityIndicatorView stopAnimating];
-//            [activityIndicatorView removeFromSuperview];
-//        } else {
-//            
-//            [activityIndicatorView stopAnimating];
-//            [activityIndicatorView removeFromSuperview];
-//            
-//            [SVProgressHUD showImage:nil status:@"提交失败"];
-//            [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
-//            [SVProgressHUD dismissWithDelay:1.5];
-//        }
-//    } failure:^(NSError *error) {
-//        
-//        NSLog(@"*** failure %@ ***", error.description);
-//        
-//        [activityIndicatorView stopAnimating];
-//        [activityIndicatorView removeFromSuperview];
-//        
-//        [SVProgressHUD showImage:nil status:@"提交失败"];
-//        [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
-//        [SVProgressHUD dismissWithDelay:1.5];
-//    }];
+    UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    [self.view addSubview:activityIndicatorView];
+    [activityIndicatorView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.center.mas_equalTo(self.view);
+    }];
+    [activityIndicatorView startAnimating];
+    
+    NSArray *titles = @[@"poster", @"nickname", @"sex", @"height", @"birthday", @"residence", @"domicile", @"house", @"education", @"unit_nature", @"position", @"salary", @"marital_status", @"photos", @"signature", @"comment"];
+    NSMutableDictionary *mDict = [NSMutableDictionary dictionary];
+    
+    for (int i = 0; i < self.titleList.count; i++) {
+        
+        NSString *key = titles[i];
+        NSString *value = self.titleList[i][@"value"];
+        
+        switch (i) {
+            case 3:
+                value = [value stringByReplacingOccurrencesOfString:@"cm" withString:@""];
+                break;
+            case 4:
+                value = [value stringByReplacingOccurrencesOfString:@"年" withString:@""];
+                value = [value stringByAppendingString:@"-01-01"];
+                break;
+            case 5:
+            case 6: {
+                if (![value containsString:@"-"]) {
+                    value = [NSString stringWithFormat:@"%@-%@", value, value];
+                }
+                break;
+            }
+            case 7: {
+                NSUInteger index = [kHouseStatus indexOfObject:value];
+                value = [NSString stringWithFormat:@"0%ld", (index + 1)];
+                break;
+            }
+            case 8: {
+                NSUInteger index = [kEducation indexOfObject:value];
+                value = [NSString stringWithFormat:@"0%ld", (index + 1)];
+                break;
+            }
+            case 9: {
+                NSUInteger index = [kUnitNature indexOfObject:value];
+                value = [NSString stringWithFormat:@"0%ld", (index + 1)];
+                break;
+            }
+            case 11: {
+                value = [value stringByReplacingOccurrencesOfString:@"以上" withString:@""];
+                break;
+            }
+            case 12: {
+                NSUInteger index = [kMaritalStatus indexOfObject:value];
+                value = [NSString stringWithFormat:@"0%ld", (index + 1)];
+                break;
+            }
+            default:
+                break;
+        }
+        
+        [mDict setObject:value forKey:key];
+    }
+    
+    UIImage *image1 = [self.imageDataDict objectForKey:@"image1"];
+    UIImage *image2 = [self.imageDataDict objectForKey:@"image2"];
+    UIImage *image3 = [self.imageDataDict objectForKey:@"image3"];
+    UIImage *image4 = [self.imageDataDict objectForKey:@"poster"];
+    
+    NSString *image1Key;
+    NSString *image2Key;
+    NSString *image3Key;
+    NSString *image4Key;
+    
+    if (image1) {
+        
+        NSData *imageData = UIImageJPEGRepresentation(image1, 0.9);
+        image1Key = [ConversionUtil stringFromDate:[NSDate date] dateFormat:@"yyyyMMddHHmmssSSS"];
+        
+        [QiniuUtil upload:imageData key:image1Key];
+        
+        [self.photos replaceObjectAtIndex:0 withObject:[NSString stringWithFormat:@"http://oqauefc7p.bkt.clouddn.com/%@", image1Key]];
+    }
+    if (image2) {
+        
+        NSData *imageData = UIImageJPEGRepresentation(image2, 0.9);
+        image2Key = [ConversionUtil stringFromDate:[NSDate date] dateFormat:@"yyyyMMddHHmmssSSS"];
+        
+        [QiniuUtil upload:imageData key:image2Key];
+        
+        [self.photos replaceObjectAtIndex:1 withObject:[NSString stringWithFormat:@"http://oqauefc7p.bkt.clouddn.com/%@", image2Key]];
+    }
+    if (image3) {
+        
+        NSData *imageData = UIImageJPEGRepresentation(image3, 0.9);
+        image3Key = [ConversionUtil stringFromDate:[NSDate date] dateFormat:@"yyyyMMddHHmmssSSS"];
+        
+        [QiniuUtil upload:imageData key:image3Key];
+        
+        [self.photos replaceObjectAtIndex:2 withObject:[NSString stringWithFormat:@"http://oqauefc7p.bkt.clouddn.com/%@", image3Key]];
+    }
+    if (image4) {
+        
+        NSData *imageData = UIImageJPEGRepresentation(image4, 0.9);
+        image4Key = [ConversionUtil stringFromDate:[NSDate date] dateFormat:@"yyyyMMddHHmmssSSS"];
+        
+        [QiniuUtil upload:imageData key:image4Key];
+        
+        NSString *poster = [NSString stringWithFormat:@"http://oqauefc7p.bkt.clouddn.com/%@", image4Key];
+        [mDict setObject:poster forKey:@"poster"];
+    }
+    
+    NSString *url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/save.html"];
+  
+    [mDict setObject:@"user" forKey:@"table"];
+    [mDict setObject:self.userid forKey:@"userid"];
+    [mDict setValue:[NSString stringWithFormat:@"id is null and userid = '%@' ", self.userid] forKey:@"id"];
+    [mDict setObject:self.userid forKey:@"updateUser"];
+    [mDict setObject:[self.photos componentsJoinedByString:@","] forKey:@"photos"];
+    [mDict setObject:[self.signatureTextView.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] forKey:@"signature"];
+    [mDict setObject:[self.commentTextView.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] forKey:@"comment"];
+    
+    for (int i = 0; i < mDict.allKeys.count; i++) {
+        
+        NSLog(@" *** %@ %@ *** ", mDict.allKeys[i], mDict[mDict.allKeys[i]]);
+    }
+    
+    [HttpUtil query:url parameter:[NSDictionary dictionaryWithDictionary:mDict] success:^(id responseObject) {
+
+        NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        NSLog(@"*** success %@ ***", responseDict);
+        
+        if ([responseDict[@"code"] isEqualToString:@"0"]) {
+            
+            [SVProgressHUD showImage:nil status:@"提交成功"];
+            [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
+            [SVProgressHUD dismissWithDelay:1.0];
+            
+            [activityIndicatorView stopAnimating];
+            [activityIndicatorView removeFromSuperview];
+        } else {
+            
+            [activityIndicatorView stopAnimating];
+            [activityIndicatorView removeFromSuperview];
+            
+            [SVProgressHUD showImage:nil status:@"提交失败"];
+            [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
+            [SVProgressHUD dismissWithDelay:1.5];
+        }
+    } failure:^(NSError *error) {
+        
+        NSLog(@"*** failure %@ ***", error.description);
+        
+        [activityIndicatorView stopAnimating];
+        [activityIndicatorView removeFromSuperview];
+        
+        [SVProgressHUD showImage:nil status:@"提交失败"];
+        [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
+        [SVProgressHUD dismissWithDelay:1.5];
+    }];
 }
 
 @end

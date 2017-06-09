@@ -164,10 +164,10 @@
     [rightCustomView addSubview:createButton];
     
     // 导航栏右侧
-    UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightCustomView];
+//    UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightCustomView];
     
     self.navigationItem.titleView = titleLabel;
-    self.navigationItem.rightBarButtonItem = rightBarButtonItem;
+//    self.navigationItem.rightBarButtonItem = rightBarButtonItem;
 }
 
 #pragma mark - UISearchBarDelegate
