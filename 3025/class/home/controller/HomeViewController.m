@@ -11,6 +11,7 @@
 #import "UserCell.h"
 #import "DatabaseUtil.h"
 #import "SortViewController.h"
+#import "UserViewController.h"
 
 @interface HomeViewController () <UITableViewDataSource, UITableViewDelegate> {
 
@@ -145,6 +146,16 @@
 
 - (nullable UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
     return nil;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    UserModel *userModel = [UserModel mj_objectWithKeyValues:[self.userList objectAtIndex:indexPath.section]];
+
+    UserViewController *vc = [[UserViewController alloc] init];
+    vc.userModel = userModel;
+
+    [self.navigationController pushViewController:vc animated:YES];
 }
 
 #pragma mark - setter & getter

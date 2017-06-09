@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="description" content="">
+    <meta http-equiv="x-dns-prefetch-control" content="on">
+
+    <title>活动详情</title>
+    <link href="../pages/css/css.css" rel="stylesheet" type="text/css">
+	<link href="../pages/css/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="../pages/js/jquery.min.js"></script>
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+	<script type="text/javascript">
+		$(function(){
+			var registerResult;
+			// 隐藏弹出框
+			$("div#dialog_input").hide();
+			$("div#dialog_code").hide();
+			$("div#dialog_credit").hide();
+			$("div#dialog_error").hide();
+			$("div.iknowbtn").click(function(){
+				$("section.markbg").hide();
+			});
+			$("div#shareDiv").click(function(){
+				$("section.markbg").show();
+			});
+			$("div.more").click(function(){
+				var status = $("#activityStatus").val();
+				if (status == '01' || status == '02') {
+					status = '09';  // 取消
+				} else if (status == '09') {
+					status = '01';  // 恢复
+				} else {
+					alert("不能取消！");
+					return;
+				}
+				$.ajax( {  
+			        type : "post",  
+			        url : ("cancel.html"),
+			        data: {"userid":$("#userid").val(), "activityid":$("#activityid").val(), "status":status},
+			        dataType:"json",  
+			        success : function(result) {
+			            if (result.code == '00') {
+			            	if (result.status == '01') {
+				            	$("#activityStatus").val('01');
+				            	$("div.more").html('取消活动');
+				            	$("span.a_status").html('正在报名中');
+			            	} else if (result.status == '09') {
+				            	$("#activityStatus").val('09');
+				            	$("div.more").html('恢复活动');
+				            	$("span.a_status").html('活动已取消');
+			            	} else {
+			            		alert("操作失败！");
+			            	}
+			            }
+			        },
+			        error:function(xhr) {
+						alert("操作失败！");
+					}
+			    });
+			});
+			$('#input_telephone').bind('input propertychange', function() {
+				var val = $(this).val();
+				if (val.charAt(0) != '1' || isNaN(val)) {
+					$(this).val(val.substring(0, val.length-1));
+				}
+				if (val.length > 11) {
+					$(this).val(val.substring(0, 11));
+				}
+			});
+			$("#input_ok").click(function(){
+				var val = $("#input_telephone").val();
+				if (val.length != 11) {
+					$("#input_telephone")[0].focus()
+					return;
+				}
+				registerResult = null;
+				var userid = $("#userid").val();
+				var activityid = $("#activityid").val();
+				var capacityTo = $("#capacityTo").val();
+				var status = $("#registerStatus").val();
+				var activityStatus = $("#activityStatus").val();
+				if (status == '01') { // 已报名
+					status = '02';  // 取消报名
+					if (activityStatus != '01' && activityStatus != '02') {
+						alert("不能取消！");
+						return;
+					}
+				} else {
+					status = '01';
+					if (activityStatus != '01') {
+						alert("不能报名！");
+						return;
+					}
+				}
+				$.ajax({  
+			        type : "post",  
+			        url : ("register.html"),
+			        data: {"userid":userid, "activityid":activityid, "status":status, "capacityTo":capacityTo, "telephone":val},
+			        dataType:"json",  
+			        success : function(result) {
+			        	registerResult = result;
+			        	$('#signcodeFont').text('您的签到码: ' + result.signcode);
+						$("div#dialog_input").hide();
+						$("div#dialog_code").show();
+			        },
+			        error:function(xhr) {
+			        	$("div#dialog_input").hide();
+						alert("操作失败！");
+					}
+			    });
+			});
+			$("#code_ok").click(function(){
+				$("div#dialog_code").hide();
+				$("div#dialog_credit").show();
+			});
+			$("#credit_ok").click(function(){
+				$("div#dialog_credit").hide();
+	            if (registerResult.code == '00') {
+	            	var total = $("#totalFont").text();
+	            	var totalM = $("#totalFontM").text();
+	            	var totalF = $("#totalFontF").text();
+	            	var mySex = $("#mySex").val();
+	            	if (registerResult.status == '01') {
+		            	$("#registerStatus").val('01');
+		            	$("#registerBtn").html('取消报名');
+		            	$("#registerStatusDiv").html('<p><font class="red">已报名</font>  (排位= ' + registerResult.registerSort + ')</p><p id="SignCodeP">签到密码: <font class="red icon20">' + registerResult.signcode + '</font></p>');
+		            	$("#totalFont").text(parseInt(total)+1);
+		            	if (mySex == '男') {
+		            		$("#totalFontM").text(parseInt(totalM)+1);
+		            	} else if (mySex == '女') {
+		            		$("#totalFontF").text(parseInt(totalF)+1);
+		            	}
+// 		            	$("#ageRangeP").html(registerResult.ageRange);
+	            	} else if (registerResult.status == '02') {
+		            	$("#registerStatus").val('02');
+		            	$("#registerBtn").html('报名');
+		            	$("#registerStatusDiv").html('<p><font class="red">未报名</font></p>');
+		            	$("#totalFont").text(parseInt(total)-1);
+		            	if (mySex == '男') {
+		            		$("#totalFontM").text(parseInt(totalM)-1);
+		            	} else if (mySex == '女') {
+		            		$("#totalFontF").text(parseInt(totalF)-1);
+		            	}
+// 		            	$("#ageRangeP").html(registerResult.ageRange);
+	            	} else {
+	            		alert("操作失败！");
+	            	}
+	            } else if (registerResult.code == '01') {
+	            	alert("报名人数已满！");
+	            } else {
+	            	alert("操作失败！");
+	            }
+			});
+			$("#error_ok").click(function(){
+				$("div#dialog_error").hide();
+			});
+
+			// 微信JSSDK
+   			var timestamp = $("#timestamp").val();
+   			var nonceStr = $("#nonceStr").val();
+   			var signature = $("#signature").val();
+   			var userid = $("#userid").val();
+   			wx.config({
+   			    debug: false,
+   			    appId: 'wxad48b0df5c0ca7af',
+   			    timestamp: timestamp,
+   			    nonceStr: nonceStr,
+   			    signature: signature,
+   			    jsApiList: ['previewImage', 'hideOptionMenu', 'showMenuItems', 'onMenuShareAppMessage', 'onMenuShareTimeline']
+   			});
+   			wx.ready(function(){
+   				var shareurl = '<%= request.getRequestURL().toString().replace("pages/", "").replace(".jsp", ".html") + (request.getQueryString() == null ? "" : ("?" + request.getQueryString())) %>' + '&share=1';
+   				var sharetitle = '3025活动：' + $("input[name='activityname']").val();
+   				// 隐藏右上角菜单接口
+   				wx.hideOptionMenu();
+   				// 批量显示功能按钮接口
+   				wx.showMenuItems({
+    				menuList: ['menuItem:share:appMessage', 'menuItem:share:timeline'] // 要显示的菜单项
+				});
+   				// 分享到微信好友
+   				wx.onMenuShareAppMessage({
+   				    title: sharetitle,
+   				    desc: '3025定位在适婚单身白领人群，提供真诚、欢乐、有格调的婚恋交友服务。',
+   				    link: shareurl,
+   				    imgUrl: 'http://www.viewatmobile.cn/3025/pages/img/3025.png',
+   				    success: function () { 
+   				    },
+   				    cancel: function () { 
+   				    }
+   				});
+   				// 分享到微信朋友圈
+   				wx.onMenuShareTimeline({
+   				    title: sharetitle,
+   				    desc: '3025定位在适婚单身白领人群，提供真诚、欢乐、有格调的婚恋交友服务。',
+   				    link: shareurl,
+   				    imgUrl: 'http://www.viewatmobile.cn/3025/pages/img/3025.png',
+   				    success: function () { 
+   				    },
+   				    cancel: function () { 
+   				    }
+   				});
+   				$("img").click(function(){
+   					var server = '<%= request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath() %>/pages/img/';
+   					var current = $(this).attr('src');
+   					if (current.indexOf('../pages/img/') != -1) {   						
+						current = current.replace('../pages/img/', server);
+   					}
+					var urls = new Array();
+					if ($(this).parent().parent().is('li')) {
+						$(this).parent().parent().parent().children().each(function(index, element){
+							var src = $(element).children().children().attr('src');
+							if (src.length > 0) {		
+								if (src.indexOf('../pages/img/') != -1) {   						
+									src = src.replace('../pages/img/', server);
+			   					}
+								urls[index] = src;
+							}
+						});
+					} else {
+						urls[0] = current;
+					}
+					// 预览图片接口
+    				wx.previewImage({
+    				    current: current, 	// 当前显示图片的http链接
+    				    urls: urls     		// 需要预览的图片http链接列表
+    				});
+   				});
+   			});
+
+   			var isShare = $("#isShare").val();
+   			if (isShare != '1') {  
+   				// 页面返回刷新
+   				var prepage = '<%= request.getHeader("Referer") %>';
+   				if (prepage.length > 0) {
+   					prepage = '<%= request.getHeader("Referer")!=null?request.getHeader("Referer").replace("pages/", "").replace(".jsp", ".html"):"" %>';
+   					if (prepage.indexOf('activity_message.html') == -1 &&
+   						prepage.indexOf('list.html') == -1) {
+   						prepage = '';
+   					}
+   				}
+   				if (prepage.length == '') {
+   					prepage = 'list.html?userid=' + $("input[name=userid]").val();
+   				}
+   				pushHistory();
+   			    setTimeout(function () {
+   			        window.addEventListener("popstate", function (e) {
+   			            window.location.href = prepage;
+   			        }, false);
+   			    }, 300);
+   			    function pushHistory() {
+   			        var state = {
+   			            title: "title",
+   			            url: "#"
+   			        };
+   			        window.history.pushState(state, "title", "#");
+   			    }
+   			}
+		});
+		function register() {
+			var userid = $("#userid").val();
+			var activityid = $("#activityid").val();
+			var capacityTo = $("#capacityTo").val();
+			var status = $("#registerStatus").val();
+			var activityStatus = $("#activityStatus").val();
+			var activitytime = $("#activitytimeSpan").text();
+			if (status == '01') { // 已报名
+				status = '02';  // 取消报名
+				if (activityStatus != '01' && activityStatus != '02') {
+					alert("不能取消！");
+					return;
+				}
+			    $.ajax( {  
+			        type : "post",  
+			        url : ("register.html"),
+			        data: {"userid":userid, "activityid":activityid, "status":status, "capacityTo":capacityTo, "activitytime":activitytime},
+			        dataType:"json",  
+			        success : function(result) {
+			            if (result.code == '00') {
+			            	var total = $("#totalFont").text();
+			            	var totalM = $("#totalFontM").text();
+			            	var totalF = $("#totalFontF").text();
+			            	var mySex = $("#mySex").val();
+			            	if (result.status == '01') {
+				            	$("#registerStatus").val('01');
+				            	$("#registerBtn").html('取消报名');
+				            	$("#registerStatusDiv").html('<p><font class="red">已报名</font>  (排位= ' + result.registerSort + ')</p><p id="SignCodeP">签到密码: <font class="red icon20">' + result.signcode + '</font></p>)');
+				            	$("#totalFont").text(parseInt(total)+1);
+				            	if (mySex == '男') {
+				            		$("#totalFontM").text(parseInt(totalM)+1);
+				            	} else if (mySex == '女') {
+				            		$("#totalFontF").text(parseInt(totalF)+1);
+				            	}
+// 				            	$("#ageRangeP").html(result.ageRange);
+			            	} else if (result.status == '02') {
+				            	$("#registerStatus").val('02');
+				            	$("#registerBtn").html('报名');
+				            	$("#registerStatusDiv").html('<p><font class="red">未报名</font></p>');
+				            	if (result.creditscore != undefined) {
+					            	$("#creditSpan").text('信用值= ' + result.creditscore);
+				            	}
+				            	$("#totalFont").text(parseInt(total)-1);
+				            	if (mySex == '男') {
+				            		$("#totalFontM").text(parseInt(totalM)-1);
+				            	} else if (mySex == '女') {
+				            		$("#totalFontF").text(parseInt(totalF)-1);
+				            	}
+// 				            	$("#ageRangeP").html(result.ageRange);
+			            	} else {
+			            		alert("操作失败！");
+			            	}
+			            } else if (result.code == '01') {
+			            	alert("报名人数已满！");
+			            } else {
+			            	alert("操作失败！");
+			            }
+			        },
+			        error:function(xhr) {
+						alert("操作失败！");
+					}
+			    });  
+			} else {
+				status = '01';
+				if (activityStatus != '01') {
+					alert("不能报名！");
+					return;
+				}
+			    $.ajax( {  
+			        type : "post",  
+			        url : ("registercheck.html"),
+			        data: {"userid":userid, "activityid":activityid, "status":status, "capacityTo":capacityTo},
+			        dataType:"json",  
+			        success : function(result) {
+			            if (result.code == '00') {
+			            	$("div#dialog_input").show();
+			            	$('#input_telephone').val(result.telephone);
+			            	$("#input_telephone")[0].focus();
+			            } else if (result.code == '01') {
+			            	alert("报名人数已满！");
+			            } else if (result.code == '02') {
+							$("div#dialog_error").show();
+			            } else {
+			            	alert("操作失败！");
+			            }
+			        },
+			        error:function(xhr) {
+						alert("操作失败！");
+					}
+			    });
+			}
+		}
+		
+		// 背景图自动播放
+		var showImage = 0;
+		setInterval("showBackgroundImages()", 3000);
+		function showBackgroundImages () {
+			var imageCount = $("div#topImages").children().length;
+			showImage += 1;
+			if (showImage == imageCount) {
+				showImage = 0;
+			}
+			$("div#topImages").children().each(function(index, element){
+				if (showImage == index) {
+					$(element).children().children().css('display', 'block'); 
+				} else {
+					$(element).children().children().css('display', 'none'); 
+				}
+			});
+		}
+	</script>
+</head>
+<body>
+<form action="list.html" method="post">
+	<input type="hidden" id="userid" name="userid" value="${userid}">
+	<input type="hidden" id="mySex" name="mySex" value="${activity.mySex}">
+	<input type="hidden" id="activityid" name="activityid" value="${activity.activityid}">
+	<input type="hidden" id="activityname" name="activityname" value="${activity.activityname}">
+	<input type="hidden" id="capacityTo" name="capacityTo" value="${activity.capacityTo}">
+	<input type="hidden" id="owner" name="owner" value="${activity.userid}">
+	<input type="hidden" id="activityStatus" name="activityStatus" value='<c:out value="${activity.status}"></c:out>' />
+	<input type="hidden" id="registerStatus" name="registerStatus" value='<c:out value="${activity.registerStatus}"></c:out>' />
+	<input type="hidden" name="timestamp" id="timestamp" value="${config.timestamp}">
+	<input type="hidden" name="nonceStr" id="nonceStr" value="${config.nonceStr}">
+	<input type="hidden" name="signature" id="signature" value="${config.signature}">
+	<input type="hidden" name="isShare" id="isShare" value="${param.share}">
+<!--分享朋友圈提示-->
+<section class="markbg" style="display: none;">
+    <div class="shareinfo"><img src="../pages/img/share_info.png" width="100%" height="100%"/></div>
+    <div class="iknowbtn">我知道了</div>
+</section>
+<section class="titlebar">
+    活动详情
+<c:if test="${param.share != '1'}">
+<c:if test="${userid == activity.userid}">
+    <div class="more">
+	<c:choose>
+		<c:when test="${activity.status == '01'}">
+			取消活动
+		</c:when>
+		<c:when test="${activity.status == '02'}">
+			取消活动
+		</c:when>
+		<c:when test="${activity.status == '03'}">
+			活动结束
+		</c:when>
+		<c:when test="${activity.status == '09'}">
+			恢复活动
+		</c:when>
+	</c:choose>
+    </div>
+</c:if>
+</c:if>
+</section>
+<section class="mt38 headerphoto" style="height:198px;">
+    <div class="a_id_area">活动ID: ${activity.activityid}</div>
+    <div id="topImages">
+    	<c:if test="${activity.image1 != null && activity.image1 != ''}">
+	    	<li>
+	    		<span>
+	    			<img id="bg01" src="${activity.image1}" width="100%" height="100%" style="display: block;"/>
+	    		</span>
+	    	</li>
+    	</c:if>
+    	<c:if test="${activity.image2 != null && activity.image2 != ''}">
+	    	<li>
+	    		<span>
+	    			<img id="bg02" src="${activity.image2}" width="100%" height="100%" style="display: none;"/>
+	    		</span>
+	    	</li>
+    	</c:if>
+    	<c:if test="${activity.image3 != null && activity.image3 != ''}">
+	    	<li>
+	    		<span>
+	    			<img id="bg03" src="${activity.image3}" width="100%" height="100%" style="display: none;"/>
+	    		</span>
+	    	</li>
+    	</c:if>
+    </div>
+</section>
+<section class="itemgroup p15">
+    <div class="photoitem">
+        <span class="itemname">${activity.activityname}</span>
+        <span class="a_status">
+	        <c:choose>
+				<c:when test="${activity.status == '01'}">
+					正在报名中
+				</c:when>
+				<c:when test="${activity.status == '02'}">
+					报名人数已满
+				</c:when>
+				<c:when test="${activity.status == '03'}">
+					活动已结束
+				</c:when>
+				<c:when test="${activity.status == '09'}">
+					活动已取消
+				</c:when>
+			</c:choose>
+        </span>
+        <div class="type right">${activity.category}</div>
+    </div>
+</section>
+<c:if test="${param.share != '1'}">
+<section class="itemgroup p15 mt10">
+    <h2>我的报名状态<span class="tr right" id="creditSpan">信用值= ${userinfo.creditscore}</span></h2>
+    <div class="itemprofession" id="registerStatusDiv">
+        <p>
+        	<c:choose>
+        		<c:when test="${activity.registerStatus == '01'}">
+        			<font class="red">已报名</font>  (排位= ${registerSort})
+        		</c:when>
+        		<c:when test="${activity.registerStatus == '03'}">
+        			<font class="red">已报名、已审核</font>  (排位= ${registerSort})
+        		</c:when>
+        		<c:when test="${activity.registerStatus == '04'}">
+        			<font class="red">已报名、审核未通过</font>
+        		</c:when>
+        		<c:otherwise>
+        			<font class="red">未报名</font>
+        		</c:otherwise>
+        	</c:choose>
+        </p>
+       	<c:if test="${activity.registerStatus == '01' || activity.registerStatus == '03'}">
+       	<p id="SignCodeP">签到密码: <font class="red icon20">${activityUser.signcode}</font></p>
+       	</c:if>
+    </div>
+</section>
+</c:if>
+<section class="subtitle mt5 p15 p15r">活动详情:</section>
+<section class="itemgroup p15">
+    <div class="inputarea">
+        <span class="inputname">城市</span>
+        <span class="inputform">
+		<c:choose>
+			<c:when test="${activity.province == activity.city}">
+				${activity.province}${activity.district}
+			</c:when>
+			<c:otherwise>
+				${activity.province}${activity.city}${activity.district}
+			</c:otherwise>
+		</c:choose>
+        </span>
+    </div>
+    <div class="inputarea">
+        <span class="inputname">时间</span>
+        <span class="inputform" id="activitytimeSpan">
+            ${activity.activitytime}
+        </span>
+    </div>
+    <div class="inputarea">
+        <span class="inputname">具体地址</span>
+        <span class="inputform">
+            ${activity.address}
+        </span>
+    </div>
+    <div class="inputarea">
+        <span class="inputname">人数限制</span>
+        <span class="inputform">
+            ${activity.capacityFrom}-${activity.capacityTo}人
+        </span>
+    </div>
+    <div class="inputarea">
+        <span class="inputname">费用</span>
+        <span class="inputform">
+            ${activity.cost}元/人
+<c:if test="${activity.prepayment == '01'}">
+            (需预付费)
+</c:if>
+        </span>
+    </div>
+</section>
+<section class="itemgroup p15 mt10">
+    <h2>活动内容</h2>
+    <div class="itemprofession">${activity.content}</div>
+</section>
+<section class="itemgroup p15 mt10">
+    <h2>报名情况</h2>
+    <div class="itemprofession">
+        <p>当前报名总人数 <font class="red mr5" id="totalFont">${activity.registeredNumber}</font>人 (男=<font class="red mr5" id="totalFontM">${activity.men}</font>, 女=<font class="red mr5" id="totalFontF">${activity.women}</font>)</p>
+<%--         <p id="ageRangeP">${ageRange}</p> --%>
+        <c:if test="${param.share != '1'}">
+        <p class="font12 gray">“我的择偶条件”满足度</p>
+        </c:if>
+    </div>
+<c:if test="${param.share != '1'}">
+    <div class="match">
+        <li class="mr3p greenkuang">
+            <span class="font12 green">100%满足</span>
+            <span>${activity.match100}人</span>
+        </li>
+<!--         <li class="mr3p orangekuang"> -->
+<!--             <span class="font12 orange2">90%满足</span> -->
+<%--             <span>${activity.match90}人</span> --%>
+<!--         </li> -->
+<!--         <li class="bluekuang"> -->
+<!--             <span class="font12 blue">80%满足</span> -->
+<%--             <span>${activity.match80}人</span> --%>
+<!--         </li> -->
+    </div>
+</c:if>
+</section>
+<section class="itemgroup p15 mt10 mb56" style="display: none">
+    <h2>发起人资料真实性证明<font class="gold right tr font12">用户ID: ${activity.userid}</font></h2>
+    <div class="checkphoto">
+<c:if test="${activity.user.imagesID != null}">
+        <li class="mr3p" style="height: 66px;">
+            <span><img src="${activity.user.imagesID}" width="100%" height="100%"/></span>
+            <span>身份证</span>
+        </li>
+</c:if>
+<c:if test="${activity.user.imagesEducation != null}">
+        <li class="mr3p" style="height: 66px;">
+            <span><img src="${activity.user.imagesEducation}" width="100%" height="100%"/></span>
+            <span>学历</span>
+        </li>
+</c:if>
+<c:if test="${activity.user.imagesPosition != null}">
+        <li style="height: 66px;">
+            <span><img src="${activity.user.imagesPosition}" width="100%" height="100%"/></span>
+            <span>职位</span>
+        </li>
+</c:if>
+    </div>
+</section>
+<c:if test="${param.share != '1'}">
+	<div style="height: 10px;"></div>
+	<div style="height: 49px"></div>
+</c:if>
+<c:if test="${param.share != '1'}">
+<section class="detialbottom">
+    <div class="certarea gray" id="shareDiv">
+        <i class="iconfont icon20">&#xe609;</i><span>转发</span>
+    </div>
+    <a href="report.html?userid=${userid}&activityid=${activity.activityid}&activityUserid=${activity.userid}">
+	    <div class="certarea gray">
+	        <i class="iconfont icon20">&#xe652;</i><span>举报</span>
+	    </div>
+    </a>
+    <button type="button" id="registerBtn" onclick="register()" class="btn activity_btn">
+    	<c:if test="${activity.registerStatus == '01'}">取消</c:if>报名
+    </button>
+</section>
+</c:if>
+<c:if test="${param.share == '1'}">
+<div style="height: 30px;"></div>
+<div>
+	<p style="margin-left: 10px; margin-right: 10px;">3025定位在适婚单身白领人群，提供真诚、欢乐、有格调的婚恋交友服务。</p>
+	<br />
+	<div align="center">
+		<img src="../pages/img/3025.png" width="40%" height="40%" />
+	</div>
+	<br />
+	<p style="margin-left: 10px; margin-right: 10px;">飞去3025服务号，功能平台超好用！</p>
+	<br />
+	<div align="center"><img src="../pages/img/3025-service.jpg" width="40%" height="40%" /></div>
+	<br />
+	<p style="margin-left: 10px; margin-right: 10px;">飞去3025订阅号，精彩资讯早知道！<br>(长按无效，请扫描或保存至相册再长按识别)</p>
+	<br />
+	<div align="center"><img src="../pages/img/3025-subscription.jpg" width="40%" height="40%" /></div>
+	<br />
+</div>
+</c:if>
+</form>
+
+<!-- 弹出提示框 -->
+<div class="weui_dialog_alert" id="dialog_input">
+    <div class="weui_mask"></div>
+    <div class="weui_dialog">
+        <div class="weui_dialog_hd"><strong class="weui_dialog_title">感谢报名！</strong></div>
+        <div class="weui_dialog_bd">
+            请填写手机号码，以便联系。
+            <input type="text" class="formline mt10" value="" placeholder="请输入手机号" id="input_telephone"/>
+        </div>
+        <div class="weui_dialog_ft">
+            <a href="javascript:;" class="weui_btn_dialog primary" id="input_ok">确定</a>
+        </div>
+    </div>
+</div>
+
+<div class="weui_dialog_alert" id="dialog_code">
+    <div class="weui_mask"></div>
+    <div class="weui_dialog">
+        <div class="weui_dialog_hd"><strong class="weui_dialog_title"><font class="red mr5" id="signcodeFont">您的签到码: xxxxxxxxxxxx</font></strong></div>
+        <div class="weui_dialog_bd tl">
+            活动签到时，请要求工作人员将您的签到码录入后台，系统将自动计算您的<font class="red mr5">信用值</font>。
+        </div>
+        <div class="weui_dialog_ft">
+            <a href="javascript:;" class="weui_btn_dialog primary" id="code_ok">确定</a>
+        </div>
+    </div>
+</div>
+
+<div class="weui_dialog_alert" id="dialog_credit">
+    <div class="weui_mask"></div>
+    <div class="weui_dialog">
+        <div class="weui_dialog_hd"><strong class="weui_dialog_title"><font class="red mr5">注意</font></strong></div>
+        <div class="weui_dialog_bd tl">
+            <p>1.<font class="red mr5">信用值</font>会影响到您的活动报名排位顺序。</p>
+            <p>2. 在活动开始前一天晚上的23:59:59之前<font class="red mr5">取消报名</font>，将不会扣减您的<font class="red mr5">信用值</font>。</p>
+            <p>3.活动当天的活动开始前，取消报名，信用值-1。</p>
+            <p>4. 活动开始后，不能取消报名，48小时内不签到，信用值-10。</p>
+        </div>
+        <div class="weui_dialog_ft">
+            <a href="javascript:;" class="weui_btn_dialog primary" id="credit_ok">确定</a>
+        </div>
+    </div>
+</div>
+
+<div class="weui_dialog_alert" id="dialog_error">
+    <div class="weui_mask"></div>
+    <div class="weui_dialog">
+        <div class="weui_dialog_hd"><strong class="weui_dialog_title">错误</strong></div>
+        <div class="weui_dialog_bd tl">
+            <p>请到【我的基本资料】中，至少完成<font class="red mr5">性别</font>和<font class="red mr5">年龄</font>的设置。</p>
+            <p>注意：</p>
+            <p>1. 请务必填写您的真实资料。</p>
+            <p>2.其他用户能够查看您的基本资料的变更次数情况。</p>
+        </div>
+        <div class="weui_dialog_ft">
+            <a href="javascript:;" class="weui_btn_dialog primary" id="error_ok">确定</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

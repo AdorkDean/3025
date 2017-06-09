@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="description" content="">
+    <meta http-equiv="x-dns-prefetch-control" content="on">
+    <title>详情</title>
+    <link rel="stylesheet" href="css/css.css" />
+    <link href="css.css" rel="stylesheet" type="text/css">
+    <script src="jquery.min.js"></script>
+	<script type="text/javascript">
+        function setupWebViewJavascriptBridge(callback) {
+            if (window.WebViewJavascriptBridge) {
+                return callback(WebViewJavascriptBridge);
+            }
+            if (window.WVJBCallbacks) {
+                return window.WVJBCallbacks.push(callback);
+            }
+            window.WVJBCallbacks = [callback];
+            var WVJBIframe = document.createElement('iframe');
+            WVJBIframe.style.display = 'none';
+            WVJBIframe.src = 'https://__bridge_loaded__';
+            document.documentElement.appendChild(WVJBIframe);
+            setTimeout(function() {
+                document.documentElement.removeChild(WVJBIframe)
+            }, 0);
+        }
+        setupWebViewJavascriptBridge(function(bridge) {
+            bridge.registerHandler('init', function(data, responseCallback) {
+                
+                $("section.detailheadr div.detailID").text('ID: ' + data.userid);
+                $("section.detailheadr img.userimg").attr("src", data.poster);
+                $("section.detailheadr p.font18.mt5").text(data.nickname);
+                $("section.detailheadr p.font14").text('职业: ' + data.unitNature + data.position);
+                $("div#baseInfo").text(data.sex + ', ' + data.birthday + ', ' + data.height + ', 户籍' + data.domicile + ', 常住' + data.residence + ', ' + data.education + ', 月薪' + data.salary + ', ' + data.maritalStatus + ', ' + data.house);
+                $("div#signature").text('');
+                $("div#comment").text('');
+                responseCallback(data);
+            });
+            bridge.registerHandler('init2', function(data, responseCallback) {
+                
+                $("div#signature").text(data.signature);
+                $("div#comment").text(data.comment);
+                $("p#important").text(data.important);
+                $("p#fatherJob").text(data.father_job);
+                $("p#motherJob").text(data.mother_job);
+                $("p#address").text(data.address);
+                responseCallback(data);
+            });
+            bridge.callHandler('ObjC Echo', {'key':'value'}, function responseCallback(responseData) {
+                console.log("JS received response:", responseData);
+            });
+        });
+	</script>
+</head>
+<body>
+<form action="" method="post">
+<section class="detailheadr" style="margin-top: 0px;">
+    <div class="detailID" id="userid">ID:</div>
+    <div class="detailuserphoto"><img src="user_photo.png" width="100%" height="100%" class="userimg"/></div>
+    <p class="font18 mt5"></p>
+    <p class="font14">职业: </p>
+</section>
+<section class="itemgroup p15 mt10">
+    <h2>个性签名</h2>
+    <div style="height: 5px;"></div>
+    <div class="itemprofession" id="signature"></div>
+    <div style="height: 5px;"></div>
+</section>
+<section class="itemgroup p15 mt10">
+    <h2>补充说明</h2>
+    <div style="height: 5px;"></div>
+    <div class="itemprofession" id="comment">补充说明</div>
+    <div style="height: 5px;"></div>
+</section>
+
+<section class="checkphoto p15 p15r">
+    <div class="checkphoto">
+        <li class="mr3p" style="height: 66px;">
+            <span><img src="user_photo.png" width="100%" height="100%"/></span>
+        </li>
+        <li class="mr3p" style="height: 66px;">
+            <span><img src="user_photo.png" width="100%" height="100%"/></span>
+        </li>
+        <li style="height: 66px;">
+            <span><img src="user_photo.png" width="100%" height="100%"/></span>
+        </li>
+    </c:if>
+    </div>
+</section>
+<section class="itemgroup mt10">
+    <div class="certitem p15 lh30">
+        <img src="i_shenhuo.png" width="100%" height="100%" class="shenhuo"/>
+        <span class="left mt5 mb5">查看生活圈</span>
+        <i class="iconfont rightsmallicon mt5">&#xe63e;</i>
+    </div>
+</section>
+<section class="itemgroup p15 mt10">
+    <h2>
+        基本资料
+    </h2>
+    <div class="itemprofession" id="baseInfo"></div>
+</section>
+<section class="itemgroup p15 mt10">
+    <h2>择偶要求</h2>
+    <div class="itemprofession">
+    	<c:choose>
+    		<c:when test="${user.condition == null}">
+    			未设定
+    		</c:when>
+    		<c:otherwise>
+    			${user.conditionSex}, ${user.conditionAge}, ${user.conditionHeight}, 户籍${user.conditionDomicile}, 常住${user.conditionDomicile}, ${user.conditionEducation}, ${user.conditionSalary}, ${user.conditionMaritalStatus}, ${user.conditionHouse}
+    		</c:otherwise>
+    	</c:choose>
+    </div>
+</section>
+<section class="itemgroup p15 mt10">
+    <h2>真实性验证</h2>
+    <div class="checkphoto">
+    <c:if test="${user.imagesID != null}">
+        <li class="mr3p" style="height: 66px;">
+            <span><img src="${user.imagesID}" width="100%" height="100%"/></span>
+            <span>身份证</span>
+        </li>
+    </c:if>
+    <c:if test="${user.imagesEducation != null}">
+        <li class="mr3p" style="height: 66px;">
+            <span><img src="${user.imagesEducation}" width="100%" height="100%"/></span>
+            <span>学历证明</span>
+        </li>
+    </c:if>
+    <c:if test="${user.imagesPosition != null}">
+        <li style="height: 66px;">
+            <span><img src="${user.imagesPosition}" width="100%" height="100%"/></span>
+            <span>职位证明</span>
+        </li>
+    </c:if>
+    </div>
+</section>
+<section class="itemgroup p15 mt10 mb56">
+    <h2>关于门当户对</h2>
+    <div class="itemprofession">
+        <p class="orange">我认为:</p>
+        <p id="important"></p>
+        <p class="orange mt5">我的父亲:</p>
+        <p id="fatherJob"></p>
+        <p class="orange mt5">我的母亲:</p>
+        <p id="motherJob"></p>
+        <p class="orange mt5">我家照片:</p>
+        <p id="address"></p>
+        <div class="checkphoto mb56">
+        <c:if test="${user.addressImage01 != null}">
+            <li class="mr3p" style="height: 66px;">
+                <span><img src="${user.addressImage01}" width="100%" height="100%"/></span>
+            </li>
+    	</c:if>
+    	<c:if test="${user.addressImage02 != null}">
+            <li class="mr3p" style="height: 66px;">
+                <span><img src="${user.addressImage02}" width="100%" height="100%"/></span>
+            </li>
+    	</c:if>
+    	<c:if test="${user.addressImage03 != null}">
+            <li style="height: 66px;">
+                <span><img src="${user.addressImage03}" width="100%" height="100%"/></span>
+            </li>
+    	</c:if>
+        </div>
+    </div>
+    <div style="height: 49px;"></div>
+</section>
+<section class="detialbottom">
+    <div class="certarea gray" id="shareDiv">
+        <i class="iconfont icon20">&#xe609;</i><span>转发</span>
+    </div>
+    <div class="certarea gray" id="chat">
+        <i class="iconfont icon20">&#xe649;</i><span>发送信息</span>
+    </div>
+    <div class="certarea orange" id="interestDiv" style="display: none;">
+        <i class="iconfont icon20">&#xe629;</i><span>已关注</span>
+    </div>
+    <div class="certarea gray" id="unInterestDiv" style="display: block;">
+        <i class="iconfont icon20">&#xe629;</i><span>关注</span>
+    </div>	
+    <div class="certarea gray">
+        <i class="iconfont icon20">&#xe652;</i><span>举报</span>
+    </div>
+</section>
+</form>
+</body>
+</html>
