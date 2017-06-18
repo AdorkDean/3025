@@ -86,7 +86,9 @@
     
     self.navigationItem.leftBarButtonItem = leftBarButtonItem;
     self.navigationItem.titleView = titleLabel;
-    self.navigationItem.rightBarButtonItem = rightBarButtonItem;
+    if (!self.uid) {
+        self.navigationItem.rightBarButtonItem = rightBarButtonItem;
+    }
 }
 
 - (void)setupUI {
@@ -100,6 +102,10 @@
         make.left.width.mas_equalTo(self.view);
         make.bottom.mas_equalTo(self.mas_bottomLayoutGuide);
     }];
+    
+    if (self.uid) {
+        return;
+    }
     
     UIImageView *imageView = [[UIImageView alloc] init];
     imageView.contentMode = UIViewContentModeCenter;
@@ -121,6 +127,10 @@
 #pragma mark - 事件处理
 
 - (void)toPublishMoment:(UITapGestureRecognizer *)tapGestureRecognizer {
+    
+    if ([self goLogin:nil message:nil]) {
+        return;
+    }
 
     PublishViewController *vc = [[PublishViewController alloc] init];
     [self presentViewController:[[UINavigationController alloc] initWithRootViewController:vc] animated:YES completion:nil];
@@ -329,7 +339,7 @@
     
     
     url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/query.html"];
-    cacheUrl = [NSString stringWithFormat:@"%@?page=%@&category=%ld", url, @"Moment", self.category];
+    cacheUrl = [NSString stringWithFormat:@"%@?page=%@&category=%ld%@", url, @"Moment", self.category, self.uid ? [NSString stringWithFormat:@"&uid=%@", self.uid] : @""];
     parameterDict = @{ @"sql": sql };
     
     // 初次加载数据或者刷新
@@ -449,6 +459,17 @@
 }
 
 - (NSString *)sql {
+    
+    NSString *userSql = @"";
+    if (self.category == 0) {
+        if (!self.uid) {
+            userSql = [NSString stringWithFormat:@" AND u.userid != '%@' ", self.userid];
+        } else {
+            userSql = [NSString stringWithFormat:@" AND u.userid = '%@' ", self.uid];
+        }
+    } else {
+        userSql = [NSString stringWithFormat:@" AND u.userid = '%@' ", self.userid];
+    }
 
     NSString *sql = [NSString stringWithFormat:@"SELECT \
                                                      u.poster, \
@@ -471,7 +492,7 @@
                                                      m.createtime DESC \
                                                  LIMIT %ld, %ld"
                      , @"%Y/%m/%d %H:%i:%s"
-                     , (self.category == 0) ? [NSString stringWithFormat:@" AND u.userid != '%@' ", self.userid] : [NSString stringWithFormat:@" AND u.userid = '%@' ", self.userid]
+                     , userSql
                      , self.userid
                      , self.pageNumber * 10
                      , self.pageNumber * 10 + 10

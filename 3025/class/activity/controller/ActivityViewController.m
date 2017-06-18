@@ -7,6 +7,7 @@
 //
 
 #import "ActivityViewController.h"
+#import "DetailViewController.h"
 #import "ActivityCell.h"
 #import "ActivityModel.h"
 
@@ -557,6 +558,16 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
     return 0.01f;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    ActivityModel *activityModel = [ActivityModel mj_objectWithKeyValues:self.activityArray[indexPath.row]];
+    
+    DetailViewController *vc = [[DetailViewController alloc] init];
+    vc.activityModel = activityModel;
+    
+    [self.navigationController pushViewController:vc animated:YES];
 }
 
 #pragma mark - 事件处理

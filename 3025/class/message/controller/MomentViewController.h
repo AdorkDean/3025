@@ -12,5 +12,6 @@
 @interface MomentViewController : MKViewController
 
 @property (nonatomic, assign) NSUInteger category;
+@property (nonatomic, copy) NSString *uid;
 
 @end

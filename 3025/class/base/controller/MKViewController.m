@@ -27,8 +27,6 @@
         _me = [UserModel mj_objectWithKeyValues:userInfo];
     } else {
         _me = nil;
-        _me = [[UserModel alloc] init];
-        _me.userid = @"1138";
     }
     
     return _me;

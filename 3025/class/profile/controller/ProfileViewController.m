@@ -13,6 +13,7 @@
 #import "TruthViewController.h"
 #import "MatchViewController.h"
 #import "BlockViewController.h"
+#import "UserViewController.h"
 
 @interface ProfileViewController () <UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate> {
 
@@ -163,6 +164,7 @@
     [previewButton setTitle:@"预览资料" forState:UIControlStateNormal];
     [previewButton setTitleColor:kNavigationTitleColor forState:UIControlStateNormal];
     [previewButton.titleLabel setFont:[UIFont systemFontOfSize:14.0f]];
+    [previewButton addTarget:self action:@selector(preview:) forControlEvents:UIControlEventTouchUpInside];
     
     [customView addSubview:previewButton];
     
@@ -174,6 +176,20 @@
 }
 
 #pragma mark - 事件处理
+
+- (void)preview:(UIButton *)button {
+    
+    if (!self.me.userid) {
+
+        [self login:nil];
+    } else {
+        
+        UserViewController *vc = [[UserViewController alloc] init];
+        vc.userModel = self.me;
+        
+        [self.navigationController pushViewController:vc animated:YES];
+    }
+}
 
 - (void)login:(UITapGestureRecognizer *)gestureRecognizer {
     

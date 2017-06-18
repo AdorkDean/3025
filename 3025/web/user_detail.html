@@ -9,7 +9,6 @@
     <meta name="description" content="">
     <meta http-equiv="x-dns-prefetch-control" content="on">
     <title>详情</title>
-    <link rel="stylesheet" href="css/css.css" />
     <link href="css.css" rel="stylesheet" type="text/css">
     <script src="jquery.min.js"></script>
 	<script type="text/javascript">
@@ -39,26 +38,175 @@
                 $("div#baseInfo").text(data.sex + ', ' + data.birthday + ', ' + data.height + ', 户籍' + data.domicile + ', 常住' + data.residence + ', ' + data.education + ', 月薪' + data.salary + ', ' + data.maritalStatus + ', ' + data.house);
                 $("div#signature").text('');
                 $("div#comment").text('');
+                if (data.me == "1") {
+                    $("div#placeholderDiv").css("height", "7px");
+                    $("section.detialbottom").css("display", "none");
+                }
                 responseCallback(data);
             });
             bridge.registerHandler('init2', function(data, responseCallback) {
                 
                 $("div#signature").text(data.signature);
                 $("div#comment").text(data.comment);
+                if (data.photos) {
+                    $("section#checkphotoSection").css("display", "block");
+                    if (data.photo1) {
+                        $("li#li_photo1").css("display", "block");
+                        $("img#img_photo1").attr("src", data.photo1);
+                    }
+                    if (data.photo2) {
+                        $("li#li_photo2").css("display", "block");
+                        $("img#img_photo2").attr("src", data.photo2);
+                    }
+                    if (data.photo3) {
+                        $("li#li_photo3").css("display", "block");
+                        $("img#img_photo3").attr("src", data.photo3);
+                    }
+                }
+                if (data.images_ID && data.images_education && data.images_position) {
+                    $("section#truthSection").css("display", "block");
+                    if (data.images_ID) {
+                        $("li#li_ID").css("display", "block");
+                        $("img#img_ID").attr("src", data.images_ID);
+                    }
+                    if (data.images_education) {
+                        $("li#li_education").css("display", "block");
+                        $("img#img_education").attr("src", data.images_education);
+                    }
+                    if (data.images_position) {
+                        $("li#li_position").css("display", "block");
+                        $("img#img_position").attr("src", data.images_position);
+                    }
+                }
+                if (data.images_address) {
+                    $("div#addressDiv").css("display", "block");
+                    if (data.address_photo1) {
+                        $("li#li_address1").css("display", "block");
+                        $("img#img_address1").attr("src", data.address_photo1);
+                    }
+                    if (data.address_photo2) {
+                        $("li#li_address2").css("display", "block");
+                        $("img#img_address2").attr("src", data.address_photo2);
+                    }
+                    if (data.address_photo3) {
+                        $("li#li_address3").css("display", "block");
+                        $("img#img_address3").attr("src", data.address_photo3);
+                    }
+                }
                 $("p#important").text(data.important);
                 $("p#fatherJob").text(data.father_job);
                 $("p#motherJob").text(data.mother_job);
                 $("p#address").text(data.address);
+                
+                var text = "未填写";
+                if (data.conditionid) {
+                    text = "";
+                    if (data.sex) {
+                        text = data.sex + ", ";
+                    }
+                    text += data.age + ", " + data.height + ", " + data.domicile + ", " + data.residence + ", " + data.education + ", " + data.salary + ", " + data.maritalstatus + ", " + data.house;
+                }
+                $("div#mateCondition").text(text);
+
+                if (data.interest) {
+                    $("div#interestDiv").attr("class", "certarea orange");
+                    $("div#interestDiv").children("span").text("已关注");
+                } else {
+                    $("div#interestDiv").attr("class", "certarea gray");
+                    $("div#interestDiv").children("span").text("关注");
+                }
+                if (data.block) {
+                    $("div#blockDiv").attr("class", "certarea orange");
+                    $("div#blockDiv").children("span").text("已拉黑");
+                } else {
+                    $("div#blockDiv").attr("class", "certarea gray");
+                    $("div#blockDiv").children("span").text("拉黑");
+                }
+                                   
                 responseCallback(data);
             });
-            bridge.callHandler('ObjC Echo', {'key':'value'}, function responseCallback(responseData) {
-                console.log("JS received response:", responseData);
+            $("section#momentSection").click(function(){
+                bridge.callHandler('jsEvent', {"action":"moment"}, function responseCallback(responseData) {
+                });
+            });
+            $("div#shareDiv,div#chatDiv,div#interestDiv,div#blockDiv").click(function(){
+                var data = {};
+                var id = $(this).attr("id");
+                if (id == "shareDiv") {
+                    data.action = "share";
+                } else if (id == "chatDiv") {
+                    data.action = "chat";
+                } else if (id == "interestDiv") {
+                    data.action = "interest";
+                    if ($(this).children("span").text() == "已关注") {
+                        data.value = '1';
+                    } else {
+                        data.value = '0';
+                    }
+                } else if (id == "blockDiv") {
+                    data.action = "block";
+                    if ($(this).children("span").text() == "已拉黑") {
+                        data.value = '1';
+                    } else {
+                        data.value = '0';
+                    }
+                } else {
+                    return;
+                }
+                bridge.callHandler('jsEvent', data, function responseCallback(responseData) {
+                    if (responseData.code == '0') {
+                        if (data.action == "interest") {
+                            if (data.value == '0') {
+                                $("div#interestDiv").attr("class", "certarea orange");
+                                $("div#interestDiv").children("span").text("已关注");
+                            } else {
+                                $("div#interestDiv").attr("class", "certarea gray");
+                                $("div#interestDiv").children("span").text("关注");
+                            }
+                        }
+                        if (data.action == "block") {
+                            if (data.value == '0') {
+                                $("div#blockDiv").attr("class", "certarea orange");
+                                $("div#blockDiv").children("span").text("已拉黑");
+                            } else {
+                                $("div#blockDiv").attr("class", "certarea gray");
+                                $("div#blockDiv").children("span").text("拉黑");
+                            }
+                        }
+                    }
+                });
+            });
+            $("img").click(function(){
+                var src = $(this).attr("src");
+                if (src.indexOf("http") == -1) {
+                    return;
+                }
+                var imgList = [];
+                var current = "0";
+                var id = $(this).attr("id");
+                if (id && id.indexOf("img_") >= 0) {
+                    $.each($(this).parent().parent().parent().children(), function(idx, e){
+                        var imgSrc = $(e).find("img").attr("src");
+                        if (imgSrc && imgSrc.indexOf("http") >= 0) {
+                            imgList[idx] = imgSrc;
+                            if (imgSrc == src) {
+                                current = "" + idx;
+                            }
+                        }
+                    });
+                } else {
+                    imgList = [src];
+                }
+                var data = {"action":"img"};
+                data.value = imgList;
+                data.current = current;
+                bridge.callHandler('jsEvent', data, function responseCallback(responseData) {
+                });
             });
         });
 	</script>
 </head>
 <body>
-<form action="" method="post">
 <section class="detailheadr" style="margin-top: 0px;">
     <div class="detailID" id="userid">ID:</div>
     <div class="detailuserphoto"><img src="user_photo.png" width="100%" height="100%" class="userimg"/></div>
@@ -77,22 +225,20 @@
     <div class="itemprofession" id="comment">补充说明</div>
     <div style="height: 5px;"></div>
 </section>
-
-<section class="checkphoto p15 p15r">
+<section class="checkphoto p15 p15r" id="checkphotoSection" style="display: none;">
     <div class="checkphoto">
-        <li class="mr3p" style="height: 66px;">
-            <span><img src="user_photo.png" width="100%" height="100%"/></span>
+        <li class="mr3p" style="height: 66px;display: none;" id="li_photo1">
+            <span><img src="" width="100%" height="100%" id="img_photo1"/></span>
         </li>
-        <li class="mr3p" style="height: 66px;">
-            <span><img src="user_photo.png" width="100%" height="100%"/></span>
+        <li class="mr3p" style="height: 66px;display: none;" id="li_photo2">
+            <span><img src="" width="100%" height="100%" id="img_photo2"/></span>
         </li>
-        <li style="height: 66px;">
-            <span><img src="user_photo.png" width="100%" height="100%"/></span>
+        <li style="height: 66px;display: none;" id="li_photo3">
+            <span><img src="" width="100%" height="100%" id="img_photo3"/></span>
         </li>
-    </c:if>
     </div>
 </section>
-<section class="itemgroup mt10">
+<section class="itemgroup mt10" id="momentSection">
     <div class="certitem p15 lh30">
         <img src="i_shenhuo.png" width="100%" height="100%" class="shenhuo"/>
         <span class="left mt5 mb5">查看生活圈</span>
@@ -103,46 +249,37 @@
     <h2>
         基本资料
     </h2>
+    <div style="height: 5px;"></div>
     <div class="itemprofession" id="baseInfo"></div>
+    <div style="height: 5px;"></div>
 </section>
 <section class="itemgroup p15 mt10">
     <h2>择偶要求</h2>
-    <div class="itemprofession">
-    	<c:choose>
-    		<c:when test="${user.condition == null}">
-    			未设定
-    		</c:when>
-    		<c:otherwise>
-    			${user.conditionSex}, ${user.conditionAge}, ${user.conditionHeight}, 户籍${user.conditionDomicile}, 常住${user.conditionDomicile}, ${user.conditionEducation}, ${user.conditionSalary}, ${user.conditionMaritalStatus}, ${user.conditionHouse}
-    		</c:otherwise>
-    	</c:choose>
-    </div>
+    <div style="height: 5px;"></div>
+    <div class="itemprofession" id="mateCondition"></div>
+    <div style="height: 5px;"></div>
 </section>
-<section class="itemgroup p15 mt10">
+<section class="itemgroup p15 mt10" id="truthSection" style="display: none;">
     <h2>真实性验证</h2>
-    <div class="checkphoto">
-    <c:if test="${user.imagesID != null}">
-        <li class="mr3p" style="height: 66px;">
-            <span><img src="${user.imagesID}" width="100%" height="100%"/></span>
+    <div class="checkphoto" style="height: 91px;">
+        <li class="mr3p" style="height: 66px;" id="li_ID">
             <span>身份证</span>
+            <span><img src="" width="100%" height="100%" id="img_ID"/></span>
         </li>
-    </c:if>
-    <c:if test="${user.imagesEducation != null}">
-        <li class="mr3p" style="height: 66px;">
-            <span><img src="${user.imagesEducation}" width="100%" height="100%"/></span>
+        <li class="mr3p" style="height: 66px;" id="li_education">
             <span>学历证明</span>
+            <span><img src="" width="100%" height="100%" id="img_education"/></span>
         </li>
-    </c:if>
-    <c:if test="${user.imagesPosition != null}">
-        <li style="height: 66px;">
-            <span><img src="${user.imagesPosition}" width="100%" height="100%"/></span>
+        <li style="height: 66px;" id="li_position">
             <span>职位证明</span>
+            <span><img src="" width="100%" height="100%" id="img_position"/></span>
         </li>
-    </c:if>
     </div>
+    <div style="height: 5px;"></div>
 </section>
 <section class="itemgroup p15 mt10 mb56">
     <h2>关于门当户对</h2>
+    <div style="height: 5px;"></div>
     <div class="itemprofession">
         <p class="orange">我认为:</p>
         <p id="important"></p>
@@ -150,45 +287,36 @@
         <p id="fatherJob"></p>
         <p class="orange mt5">我的母亲:</p>
         <p id="motherJob"></p>
-        <p class="orange mt5">我家照片:</p>
+        <p class="orange mt5">我家:</p>
         <p id="address"></p>
-        <div class="checkphoto mb56">
-        <c:if test="${user.addressImage01 != null}">
-            <li class="mr3p" style="height: 66px;">
-                <span><img src="${user.addressImage01}" width="100%" height="100%"/></span>
+        <div class="checkphoto" id="addressDiv" style="display: none;">
+            <li class="mr3p" style="height: 66px;" id="li_address1">
+                <span><img src="" width="100%" height="100%" id="img_address1"/></span>
             </li>
-    	</c:if>
-    	<c:if test="${user.addressImage02 != null}">
-            <li class="mr3p" style="height: 66px;">
-                <span><img src="${user.addressImage02}" width="100%" height="100%"/></span>
+            <li class="mr3p" style="height: 66px;" id="li_address2">
+                <span><img src="" width="100%" height="100%" id="img_address2"/></span>
             </li>
-    	</c:if>
-    	<c:if test="${user.addressImage03 != null}">
-            <li style="height: 66px;">
-                <span><img src="${user.addressImage03}" width="100%" height="100%"/></span>
+            <li style="height: 66px;" id="li_address3">
+                <span><img src="" width="100%" height="100%" id="img_address3"/></span>
             </li>
-    	</c:if>
+            <div style="height: 5px;"></div>
         </div>
     </div>
-    <div style="height: 49px;"></div>
+    <div style="height: 56px;" id="placeholderDiv"></div>
 </section>
 <section class="detialbottom">
     <div class="certarea gray" id="shareDiv">
         <i class="iconfont icon20">&#xe609;</i><span>转发</span>
     </div>
-    <div class="certarea gray" id="chat">
+    <div class="certarea gray" id="chatDiv">
         <i class="iconfont icon20">&#xe649;</i><span>发送信息</span>
     </div>
-    <div class="certarea orange" id="interestDiv" style="display: none;">
-        <i class="iconfont icon20">&#xe629;</i><span>已关注</span>
-    </div>
-    <div class="certarea gray" id="unInterestDiv" style="display: block;">
+    <div class="certarea gray" id="interestDiv">
         <i class="iconfont icon20">&#xe629;</i><span>关注</span>
     </div>	
-    <div class="certarea gray">
-        <i class="iconfont icon20">&#xe652;</i><span>举报</span>
+    <div class="certarea gray" id="blockDiv">
+        <i class="iconfont icon20">&#xe6e7;</i><span>拉黑</span>
     </div>
 </section>
-</form>
 </body>
 </html>

@@ -10,10 +10,8 @@
     <meta http-equiv="x-dns-prefetch-control" content="on">
 
     <title>活动详情</title>
-    <link href="../pages/css/css.css" rel="stylesheet" type="text/css">
-	<link href="../pages/css/weui.min.css" rel="stylesheet" type="text/css">
-    <script src="../pages/js/jquery.min.js"></script>
-    <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    <link href="css.css" rel="stylesheet" type="text/css">
+    <script src="jquery.min.js"></script>
 	<script type="text/javascript">
 		$(function(){
 			var registerResult;
@@ -374,48 +372,7 @@
 	</script>
 </head>
 <body>
-<form action="list.html" method="post">
-	<input type="hidden" id="userid" name="userid" value="${userid}">
-	<input type="hidden" id="mySex" name="mySex" value="${activity.mySex}">
-	<input type="hidden" id="activityid" name="activityid" value="${activity.activityid}">
-	<input type="hidden" id="activityname" name="activityname" value="${activity.activityname}">
-	<input type="hidden" id="capacityTo" name="capacityTo" value="${activity.capacityTo}">
-	<input type="hidden" id="owner" name="owner" value="${activity.userid}">
-	<input type="hidden" id="activityStatus" name="activityStatus" value='<c:out value="${activity.status}"></c:out>' />
-	<input type="hidden" id="registerStatus" name="registerStatus" value='<c:out value="${activity.registerStatus}"></c:out>' />
-	<input type="hidden" name="timestamp" id="timestamp" value="${config.timestamp}">
-	<input type="hidden" name="nonceStr" id="nonceStr" value="${config.nonceStr}">
-	<input type="hidden" name="signature" id="signature" value="${config.signature}">
-	<input type="hidden" name="isShare" id="isShare" value="${param.share}">
-<!--分享朋友圈提示-->
-<section class="markbg" style="display: none;">
-    <div class="shareinfo"><img src="../pages/img/share_info.png" width="100%" height="100%"/></div>
-    <div class="iknowbtn">我知道了</div>
-</section>
-<section class="titlebar">
-    活动详情
-<c:if test="${param.share != '1'}">
-<c:if test="${userid == activity.userid}">
-    <div class="more">
-	<c:choose>
-		<c:when test="${activity.status == '01'}">
-			取消活动
-		</c:when>
-		<c:when test="${activity.status == '02'}">
-			取消活动
-		</c:when>
-		<c:when test="${activity.status == '03'}">
-			活动结束
-		</c:when>
-		<c:when test="${activity.status == '09'}">
-			恢复活动
-		</c:when>
-	</c:choose>
-    </div>
-</c:if>
-</c:if>
-</section>
-<section class="mt38 headerphoto" style="height:198px;">
+<section class="mt38 headerphoto" style="height:198px;margin-top: 0px;">
     <div class="a_id_area">活动ID: ${activity.activityid}</div>
     <div id="topImages">
     	<c:if test="${activity.image1 != null && activity.image1 != ''}">
@@ -594,36 +551,11 @@
     <div class="certarea gray" id="shareDiv">
         <i class="iconfont icon20">&#xe609;</i><span>转发</span>
     </div>
-    <a href="report.html?userid=${userid}&activityid=${activity.activityid}&activityUserid=${activity.userid}">
-	    <div class="certarea gray">
-	        <i class="iconfont icon20">&#xe652;</i><span>举报</span>
-	    </div>
-    </a>
     <button type="button" id="registerBtn" onclick="register()" class="btn activity_btn">
     	<c:if test="${activity.registerStatus == '01'}">取消</c:if>报名
     </button>
 </section>
 </c:if>
-<c:if test="${param.share == '1'}">
-<div style="height: 30px;"></div>
-<div>
-	<p style="margin-left: 10px; margin-right: 10px;">3025定位在适婚单身白领人群，提供真诚、欢乐、有格调的婚恋交友服务。</p>
-	<br />
-	<div align="center">
-		<img src="../pages/img/3025.png" width="40%" height="40%" />
-	</div>
-	<br />
-	<p style="margin-left: 10px; margin-right: 10px;">飞去3025服务号，功能平台超好用！</p>
-	<br />
-	<div align="center"><img src="../pages/img/3025-service.jpg" width="40%" height="40%" /></div>
-	<br />
-	<p style="margin-left: 10px; margin-right: 10px;">飞去3025订阅号，精彩资讯早知道！<br>(长按无效，请扫描或保存至相册再长按识别)</p>
-	<br />
-	<div align="center"><img src="../pages/img/3025-subscription.jpg" width="40%" height="40%" /></div>
-	<br />
-</div>
-</c:if>
-</form>
 
 <!-- 弹出提示框 -->
 <div class="weui_dialog_alert" id="dialog_input">
