@@ -17,6 +17,7 @@
 
 @property (nonatomic, strong) WKWebView *webview;
 @property (nonatomic, strong) WKWebViewJavascriptBridge *bridge;
+@property (nonatomic, strong) NSMutableDictionary *data;
 
 @end
 
@@ -85,77 +86,70 @@
     }];
     
     [self.bridge registerHandler:@"jsEvent" handler:^(id data, WVJBResponseCallback responseCallback) {
-//        
-//        NSDictionary *dict = data;
-//        
-//        if ([dict[@"action"] isEqualToString:@"moment"]) {
-//            
-//            MomentViewController *vc = [[MomentViewController alloc] init];
-//            vc.category = 0;
-//            vc.uid = self.activityModel.userid;
-//            
-//            [self.navigationController pushViewController:vc animated:YES];
-//        } else if ([dict[@"action"] isEqualToString:@"img"]) {
-//            
-//            NSArray *arr = dict[@"value"];
-//            NSUInteger index = [dict[@"current"] integerValue];
-//            
-//            [ImageBrowser show:arr currentIndex:index];
-//        } else if ([dict[@"action"] isEqualToString:@"share"]) {
-//            
-//            UIAlertController *vc = [UIAlertController alertControllerWithTitle:nil message:@"分享到" preferredStyle:UIAlertControllerStyleActionSheet];
-//            
-//            [vc addAction:[UIAlertAction actionWithTitle:@"微信好友" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-//                [vc dismissViewControllerAnimated:YES completion:nil];
-//            }]];
-//            [vc addAction:[UIAlertAction actionWithTitle:@"微信朋友圈" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-//                [vc dismissViewControllerAnimated:YES completion:nil];
-//            }]];
-//            [vc addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-//                [vc dismissViewControllerAnimated:YES completion:nil];
-//            }]];
-//            
-//            [self presentViewController:vc animated:YES completion:nil];
-//            
-//        } else if ([dict[@"action"] isEqualToString:@"chat"]) {
-//            
-//            ChatViewController *vc = [[ChatViewController alloc] init];
-//            vc.withUserid = self.userModel.userid;
-//            vc.withUsername = self.userModel.nickname;
-//            vc.me_poster = self.me.poster;
-//            vc.other_poster = self.userModel.poster;
-//            
-//            [self.navigationController pushViewController:vc animated:YES];
-//        } else if ([dict[@"action"] isEqualToString:@"interest"]) {
-//            
-//            [self save:[dict[@"value"] integerValue] type:@"1" compelete:responseCallback];
-//        } else if ([dict[@"action"] isEqualToString:@"block"]) {
-//            
-//            [self save:[dict[@"value"] integerValue] type:@"0" compelete:responseCallback];
-//        }
+        
+        NSDictionary *dict = data;
+        
+        if ([dict[@"action"] isEqualToString:@"img"]) {
+
+            NSArray *arr = dict[@"value"];
+            NSUInteger index = [dict[@"current"] integerValue];
+            
+            [ImageBrowser show:arr currentIndex:index];
+        } else if ([dict[@"action"] isEqualToString:@"share"]) {
+            
+            UIAlertController *vc = [UIAlertController alertControllerWithTitle:nil message:@"分享到" preferredStyle:UIAlertControllerStyleActionSheet];
+            
+            [vc addAction:[UIAlertAction actionWithTitle:@"微信好友" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [vc dismissViewControllerAnimated:YES completion:nil];
+            }]];
+            [vc addAction:[UIAlertAction actionWithTitle:@"微信朋友圈" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [vc dismissViewControllerAnimated:YES completion:nil];
+            }]];
+            [vc addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                [vc dismissViewControllerAnimated:YES completion:nil];
+            }]];
+            
+            [self presentViewController:vc animated:YES completion:nil];
+            
+        } else if ([dict[@"action"] isEqualToString:@"register"]) {
+            
+            if ([self goLogin:nil message:nil]) {
+                return;
+            }
+            
+            NSString *title = @"";
+            NSString *msg = @"";
+            
+            if ([self.data[@"registerStatus"] isEqualToString:@"01"] ||
+                [self.data[@"registerStatus"] isEqualToString:@"03"] ||
+                [self.data[@"registerStatus"] isEqualToString:@"04"]) {
+                title = @"不能取消报名！";
+            } else {
+                title = @"不能报名！";
+            }
+
+            if ([self.data[@"status"] isEqualToString:@"02"]) {
+                msg = @"报名人数已满！";
+            } else if ([self.data[@"status"] isEqualToString:@"03"]) {
+                msg = @"活动已结束！";
+            } else if ([self.data[@"status"] isEqualToString:@"09"]) {
+                msg = @"活动已取消！";
+            }
+            UIAlertController *vc = [UIAlertController alertControllerWithTitle:msg message:nil preferredStyle:UIAlertControllerStyleAlert];
+            [vc addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                [vc dismissViewControllerAnimated:YES completion:nil];
+            }]];
+            [self presentViewController:vc animated:YES completion:nil];
+        }
     }];
-//    
-//    NSMutableDictionary *mDict = [self.userModel mj_keyValues];
-//    if (mDict[@"salary"]) {
-//        [mDict setObject:[mDict[@"salary"] stringByAppendingString:@"以上"] forKey:@"salary"];
-//    } else {
-//        [mDict setObject:@"未填写" forKey:@"salary"];
-//    }
-//    if (mDict[@"house"]) {
-//        [mDict setObject:[kHouseStatus objectAtIndex:([mDict[@"house"] intValue] - 1)] forKey:@"house"];
-//    } else {
-//        [mDict setObject:@"婚房状况未填写" forKey:@"house"];
-//    }
-//    if (mDict[@"maritalStatus"]) {
-//        [mDict setObject:[kMaritalStatus objectAtIndex:([mDict[@"maritalStatus"] intValue] - 1)] forKey:@"maritalStatus"];
-//    } else {
-//        [mDict setObject:@"婚姻状况未填写" forKey:@"maritalStatus"];
-//    }
-//    
-//    [mDict setObject:([self.userid isEqualToString:self.userModel.userid] ? @"1" : @"0") forKey:@"me"];
-//    
-//    [self.bridge callHandler:@"init" data:mDict responseCallback:^(id responseData) {
-//    }];
+    
+    NSMutableDictionary *mDict = [self.activityModel mj_keyValues];
+    if (self.userid) {
+        [mDict setObject:self.userid forKey:@"me"];
+    }
+    
+    [self.bridge callHandler:@"init" data:mDict responseCallback:^(id responseData) {
+    }];
 }
 
 #pragma mark - WKUIDelegate
@@ -254,6 +248,31 @@
     }];
     [activityIndicatorView startAnimating];
     
+    NSString *subSql = [NSString stringWithFormat:@" left join (\
+                        SELECT \
+                            signcode, \
+                            status as registerStatus \
+                        FROM \
+                            activity_user \
+                        WHERE \
+                            auid = (select max(auid) from activity_user where userid = '%@' and activityid = '%@')) t1 on 1 = 1 ",
+                        self.userid,
+                        self.activityModel.activityid];
+
+    NSString *subSql2 = [NSString stringWithFormat:@" left join (select creditscore from user where userid = '%@') t2 on 1 = 1 ", self.userid];
+    
+    NSString *subSql3 = [NSString stringWithFormat:@" (select count(au.auid) as total from activity_user au, user u where au.auid in \
+                         (select max(auid) from activity_user where activityid = '%@' group by userid) \
+                         and au.status = '01' and u.userid = au.userid) c1 ", self.activityModel.activityid];
+    
+    NSString *subSql4 = [NSString stringWithFormat:@" (select count(au.auid) as mCount from activity_user au, user u where au.auid in \
+                         (select max(auid) from activity_user where activityid = '%@' group by userid) \
+                         and au.status = '01' and u.userid = au.userid and u.sex = '男') c2 ", self.activityModel.activityid];
+    
+    NSString *subSql5 = [NSString stringWithFormat:@" left join (select t.registerSort from (select @rownum:=@rownum+1 as registerSort, u.userid from activity_user au, user u, (select @rownum:=0) r where au.auid in \
+                         (select max(auid) from activity_user where activityid = '%@' group by userid) \
+                         and au.status = '01' and u.userid = au.userid order by u.creditscore desc) t where t.userid = '%@') c3 ON 1 = 1 ", self.activityModel.activityid, self.userid];
+    
     NSString *sql = [NSString stringWithFormat:@"\
                      SELECT \
                          a.activityid, \
@@ -273,11 +292,25 @@
                          a.cost, \
                          a.prepayment, \
                          a.content, \
-                         a.status \
+                         a.status, \
+                         c1.total, \
+                         c2.mCount, \
+                         c3.registerSort \
+                         %@ \
+                         %@ \
                      FROM \
-                         activity a \
+                         activity a, %@, %@ %@ \
+                         \
+                         %@ \
+                         %@ \
                      WHERE \
-                         a.activityid = '%@'", self.activityModel.activityid];
+                         a.activityid = '%@'",
+                     self.userid ? @", t1.signcode, t1.registerStatus " : @"",
+                     self.userid ? @", t2.creditscore " : @"",
+                     subSql3, subSql4, subSql5,
+                     self.userid ? subSql : @"",
+                     self.userid ? subSql2 : @"",
+                     self.activityModel.activityid];
     
     // 筛选条件
     NSString *url = [NSString stringWithFormat:@"%@%@", kDomain, @"manager/query.html"];
@@ -292,74 +325,47 @@
         if (array.count > 0) {
             
             NSDictionary *dict = array[0];
-            
             NSMutableDictionary *mDict = [NSMutableDictionary dictionaryWithDictionary:dict];
-            
-            if (mDict[@"conditionid"]) {
-                
-                // 择偶条件-户籍
-                if ([ConversionUtil isNotEmpty:mDict[@"domicileprovince"]] && ![mDict[@"domicileprovince"] isEqualToString:@"不限"]) {
-                    
-                    NSString *province = mDict[@"domicileprovince"];
-                    NSString *city = mDict[@"domicilecity"];
-                    if (![province isEqualToString:city]) {
-                        [mDict setObject:[NSString stringWithFormat:@"户籍%@省%@市", province, city] forKey:@"domicile"];
-                    } else {
-                        [mDict setObject:[NSString stringWithFormat:@"户籍%@市", province] forKey:@"domicile"];
-                    }
-                } else {
-                    [mDict setObject:@"户籍不限" forKey:@"domicile"];
-                }
-                
-                // 择偶条件-常住
-                if ([ConversionUtil isNotEmpty:mDict[@"residenceprovince"]] && ![mDict[@"residenceprovince"] isEqualToString:@"不限"]) {
-                    
-                    NSString *province = mDict[@"residenceprovince"];
-                    NSString *city = mDict[@"residencecity"];
-                    if (![province isEqualToString:city]) {
-                        [mDict setObject:[NSString stringWithFormat:@"常住%@省%@市", province, city] forKey:@"residence"];
-                    } else {
-                        [mDict setObject:[NSString stringWithFormat:@"常住%@市", province] forKey:@"residence"];
-                    }
-                } else {
-                    [mDict setObject:@"常住不限" forKey:@"residence"];
-                }
-                
-                // 择偶条件-学历
-                if ([ConversionUtil isNotEmpty:mDict[@"educationFrom"]] && ![mDict[@"educationFrom"] isEqualToString:@"0"]) {
-                    int index = [mDict[@"educationFrom"] intValue] - 1;
-                    [mDict setObject:[NSString stringWithFormat:@"%@", kEducation[index]] forKey:@"education"];
-                } else {
-                    [mDict setObject:@"学历不限" forKey:@"education"];
-                }
-                
-                // 择偶条件-月薪
-                if ([ConversionUtil isNotEmpty:mDict[@"salaryFrom"]] && ![mDict[@"salaryFrom"] isEqualToString:@"0"]) {
-                    [mDict setObject:[NSString stringWithFormat:@"月薪%@以上", mDict[@"salaryFrom"]] forKey:@"salary"];
-                } else {
-                    [mDict setObject:@"月薪不限" forKey:@"salary"];
-                }
-                
-                // 择偶条件-婚姻状况
-                if ([ConversionUtil isNotEmpty:mDict[@"maritalstatus"]] && ![mDict[@"maritalstatus"] isEqualToString:@"0"]) {
-                    int index = [mDict[@"maritalstatus"] intValue] - 1;
-                    [mDict setObject:[NSString stringWithFormat:@"%@", kMaritalStatus[index]] forKey:@"maritalstatus"];
-                } else {
-                    [mDict setObject:@"婚姻状况不限" forKey:@"maritalstatus"];
-                }
-                
-                // 择偶条件-婚房
-                if ([ConversionUtil isNotEmpty:mDict[@"house"]] && ![mDict[@"house"] isEqualToString:@"0"]) {
-                    int index = [mDict[@"house"] intValue] - 1;
-                    [mDict setObject:[NSString stringWithFormat:@"%@", kHouseStatus[index]] forKey:@"house"];
-                } else {
-                    [mDict setObject:@"婚房不限" forKey:@"house"];
-                }
+            if (self.userid) {
+                [mDict setObject:self.userid forKey:@"me"];
             }
             
-            [self.bridge callHandler:@"init2" data:mDict responseCallback:^(id responseData) {
+            @try {
+                if ([mDict[@"province"] isEqualToString:mDict[@"city"]]) {
+                    [mDict setObject:@"" forKey:@"province"];
+                    [mDict setObject:[NSString stringWithFormat:@"%@市", mDict[@"city"]] forKey:@"city"];
+                } else {
+                    [mDict setObject:[NSString stringWithFormat:@"%@省", mDict[@"province"]] forKey:@"province"];
+                    [mDict setObject:[NSString stringWithFormat:@"%@市", mDict[@"city"]] forKey:@"city"];
+                }
+                
+                int idx = [[mDict[@"category"] substringToIndex:2] intValue];
+                int idx2 = [[mDict[@"category"] substringFromIndex:2] intValue];
+                
+                NSString *category = kActivityCategorys[idx][idx2];
+                [mDict setObject:category forKey:@"category"];
+                
+                NSString *content = mDict[@"content"];
+                content = [content stringByReplacingOccurrencesOfString:@"\n" withString:@"<br>"];
+                [mDict setObject:[NSString stringWithFormat:@"<p>%@</p>", content] forKey:@"content"];
+                
+                NSString *now = [ConversionUtil stringFromDate:[NSDate date] dateFormat:@"yyyy/MM/dd HH:mm"];
+                if ([now compare:mDict[@"activitytime"]] == NSOrderedDescending) {
+                    [mDict setObject:@"03" forKey:@"status"];
+                } else {
+                    if ([mDict[@"total"] intValue] >= [mDict[@"capacityfrom"] intValue]) {
+                        [mDict setObject:@"02" forKey:@"status"];
+                    }
+                }
+            } @catch (NSException *exception) {
+                NSLog(@" *** %@ *** ", exception);
+            }
+            
+            [self.bridge callHandler:@"init" data:mDict responseCallback:^(id responseData) {
                 NSLog(@"ObjC received response: %@", responseData);
             }];
+            
+            self.data = [NSMutableDictionary dictionaryWithDictionary:mDict];
         }
         
         [activityIndicatorView stopAnimating];

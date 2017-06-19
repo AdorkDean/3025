@@ -12,7 +12,181 @@
     <title>活动详情</title>
     <link href="css.css" rel="stylesheet" type="text/css">
     <script src="jquery.min.js"></script>
-	<script type="text/javascript">
+    <script type="text/javascript">
+    		// 背景图自动播放
+		var showImage = 0;
+		function showBackgroundImages () {
+			var imageCount = $("div#topImages").children().length;
+			showImage += 1;
+			if (showImage == imageCount) {
+				showImage = 0;
+			}
+			$("div#topImages").children().each(function(index, element){
+				if (showImage == index) {
+					$(element).children().children().css('display', 'block'); 
+				} else {
+					$(element).children().children().css('display', 'none'); 
+				}
+			});
+		}
+        function setupWebViewJavascriptBridge(callback) {
+            if (window.WebViewJavascriptBridge) {
+                return callback(WebViewJavascriptBridge);
+            }
+            if (window.WVJBCallbacks) {
+                return window.WVJBCallbacks.push(callback);
+            }
+            window.WVJBCallbacks = [callback];
+            var WVJBIframe = document.createElement('iframe');
+            WVJBIframe.style.display = 'none';
+            WVJBIframe.src = 'https://__bridge_loaded__';
+            document.documentElement.appendChild(WVJBIframe);
+            setTimeout(function() {
+            		document.documentElement.removeChild(WVJBIframe)
+            }, 0);
+        }
+        setupWebViewJavascriptBridge(function(bridge) {
+            bridge.registerHandler('init', function(data, responseCallback) {
+                // 活动ID
+                $("div.a_id_area").text('活动ID: ' + data.activityid);
+
+				// 活动图片
+                var html = '';
+                if (data.image1) {
+                    html += '<li><span><img src="' + data.image1 + '" width="100%" height="100%" style="display: block;" id="img_top1"/></span></li>';
+                }
+                if (data.image2) {
+                    html += '<li><span><img src="' + data.image2 + '" width="100%" height="100%" style="display: block;" id="img_top2"/></span></li>';
+                }
+                if (data.image3) {
+                    html += '<li><span><img src="' + data.image3 + '" width="100%" height="100%" style="display: block;" id="img_top3"/></span></li>';
+                }
+                if (html != '') {
+	                $("div#topImages").html(html);
+					setInterval("showBackgroundImages()", 3000);
+					$("img").click(function(){
+						var src = $(this).attr("src");
+			            if (src.indexOf("http") == -1) {
+			            		return;
+			            }
+			            var imgList = [];
+			            var current = "0";
+			            var id = $(this).attr("id");
+			            if (id && id.indexOf("img_") >= 0) {
+				            $.each($(this).parent().parent().parent().children(), function(idx, e){
+				            		var imgSrc = $(e).find("img").attr("src");
+				                if (imgSrc && imgSrc.indexOf("http") >= 0) {
+				                		imgList[idx] = imgSrc;
+				                    if (imgSrc == src) {
+				                    		current = "" + idx;
+				                    }
+				                }
+				            });
+			            } else {
+			            		imgList = [src];
+			            }
+			            var data = {"action":"img"};
+			            data.value = imgList;
+			            data.current = current;
+			            bridge.callHandler('jsEvent', data, function responseCallback(responseData) {
+			            });
+			    		});
+                }
+                
+                // 活动名称
+                $("span#activityname").text(data.activityname);
+                
+                // 活动状态
+                if (data.status == '01') {
+                		$("span.a_status").text('正在报名中');
+                } else if (data.status == '02') {
+                		$("span.a_status").text('报名人数已满');
+                } else if (data.status == '03') {
+                		$("span.a_status").text('活动已结束');
+                } else if (data.status == '09') {
+                		$("span.a_status").text('活动已取消');
+                }
+                
+                // 活动分类
+                $("div#category").text(data.category);
+                
+                // 活动城市
+                $("span#location").text(data.province + '' + data.city + '' + data.district);
+                
+                // 活动时间
+                $("span#activitytimeSpan").text(data.activitytime);
+                
+                // 活动具体地址
+                $("span#address").text(data.address);
+                
+                // 活动人数限制
+                $("span#capacity").text(data.capacityfrom + '-' + data.capacityto + '人');
+                
+                // 活动费用
+                if (data.prepayment == '01') {
+                		$("span#fee").text(data.cost + '元/人 (需预付费)');
+                } else {
+                		$("span#fee").text(data.cost);
+                }
+                
+                // 活动内容
+                $("div#content").html(data.content);
+                
+                if (!data.me) {
+                		$("section#mySection").css("display", "none");
+                		$("p#myP").css("display", "none");
+                		$("div#myDiv").css("display", "none");
+                } else {
+	                // 信用值
+	                $("span#creditSpan").text('信用值 ' + data.creditscore);
+	                // 我的报名情况
+	                var html = '<p>';
+	                if (data.registerStatus == '01') {
+	                		html += '<font class="red">已报名</font>  (排位= ' + data.registerSort + ' / ' + data.total + ')';
+	                		$("button#registerBtn").text("取消报名");
+	                } else if (data.registerStatus == '03') {
+        					html += '<font class="red">已报名、已审核</font>  (排位= ' + data.registerSort + ' / ' + data.total + ')';
+	                		$("button#registerBtn").text("取消报名");
+        				} else if (data.registerStatus == '04') {
+        					html += '<font class="red">已报名、审核未通过</font>';
+	                		$("button#registerBtn").text("取消报名");
+        				} else {
+        					html += '<font class="red">未报名</font>';
+        					$("button#registerBtn").text("报名");
+        				}
+        				html += '</p>';
+        				if (data.registerStatus == '01' || data.registerStatus == '03') {
+        					html += '<p id="SignCodeP">签到密码: <font class="red icon20">' + data.signcode + '</font></p>';
+        				}
+        				$("div#registerStatusDiv").html(html);
+                }
+                
+                if (data.total) {
+                		$("font#totalFont").text(data.total);
+                		$("font#totalFontM").text(data.mCount);
+                		$("font#totalFontF").text(data.total - data.mCount);
+                }
+                
+                if (data.match100) {
+                		$("span#match100").text(data.match100 + '人');
+                }
+                if (data.match90) {
+                		$("span#match90").text(data.match90 + '人');
+                }
+                if (data.match80) {
+                		$("span#match80").text(data.match80 + '人');
+                }
+                
+				responseCallback(data);
+			});
+			$("div#shareDiv").click(function(){
+				bridge.callHandler('jsEvent', {"action":"share"}, function responseCallback(responseData) {});
+			});
+			$("button#registerBtn").click(function(){
+				bridge.callHandler('jsEvent', {"action":"register"}, function responseCallback(responseData) {});
+			});
+ 		});
+
 		$(function(){
 			var registerResult;
 			// 隐藏弹出框
@@ -158,106 +332,6 @@
 				$("div#dialog_error").hide();
 			});
 
-			// 微信JSSDK
-   			var timestamp = $("#timestamp").val();
-   			var nonceStr = $("#nonceStr").val();
-   			var signature = $("#signature").val();
-   			var userid = $("#userid").val();
-   			wx.config({
-   			    debug: false,
-   			    appId: 'wxad48b0df5c0ca7af',
-   			    timestamp: timestamp,
-   			    nonceStr: nonceStr,
-   			    signature: signature,
-   			    jsApiList: ['previewImage', 'hideOptionMenu', 'showMenuItems', 'onMenuShareAppMessage', 'onMenuShareTimeline']
-   			});
-   			wx.ready(function(){
-   				var shareurl = '<%= request.getRequestURL().toString().replace("pages/", "").replace(".jsp", ".html") + (request.getQueryString() == null ? "" : ("?" + request.getQueryString())) %>' + '&share=1';
-   				var sharetitle = '3025活动：' + $("input[name='activityname']").val();
-   				// 隐藏右上角菜单接口
-   				wx.hideOptionMenu();
-   				// 批量显示功能按钮接口
-   				wx.showMenuItems({
-    				menuList: ['menuItem:share:appMessage', 'menuItem:share:timeline'] // 要显示的菜单项
-				});
-   				// 分享到微信好友
-   				wx.onMenuShareAppMessage({
-   				    title: sharetitle,
-   				    desc: '3025定位在适婚单身白领人群，提供真诚、欢乐、有格调的婚恋交友服务。',
-   				    link: shareurl,
-   				    imgUrl: 'http://www.viewatmobile.cn/3025/pages/img/3025.png',
-   				    success: function () { 
-   				    },
-   				    cancel: function () { 
-   				    }
-   				});
-   				// 分享到微信朋友圈
-   				wx.onMenuShareTimeline({
-   				    title: sharetitle,
-   				    desc: '3025定位在适婚单身白领人群，提供真诚、欢乐、有格调的婚恋交友服务。',
-   				    link: shareurl,
-   				    imgUrl: 'http://www.viewatmobile.cn/3025/pages/img/3025.png',
-   				    success: function () { 
-   				    },
-   				    cancel: function () { 
-   				    }
-   				});
-   				$("img").click(function(){
-   					var server = '<%= request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath() %>/pages/img/';
-   					var current = $(this).attr('src');
-   					if (current.indexOf('../pages/img/') != -1) {   						
-						current = current.replace('../pages/img/', server);
-   					}
-					var urls = new Array();
-					if ($(this).parent().parent().is('li')) {
-						$(this).parent().parent().parent().children().each(function(index, element){
-							var src = $(element).children().children().attr('src');
-							if (src.length > 0) {		
-								if (src.indexOf('../pages/img/') != -1) {   						
-									src = src.replace('../pages/img/', server);
-			   					}
-								urls[index] = src;
-							}
-						});
-					} else {
-						urls[0] = current;
-					}
-					// 预览图片接口
-    				wx.previewImage({
-    				    current: current, 	// 当前显示图片的http链接
-    				    urls: urls     		// 需要预览的图片http链接列表
-    				});
-   				});
-   			});
-
-   			var isShare = $("#isShare").val();
-   			if (isShare != '1') {  
-   				// 页面返回刷新
-   				var prepage = '<%= request.getHeader("Referer") %>';
-   				if (prepage.length > 0) {
-   					prepage = '<%= request.getHeader("Referer")!=null?request.getHeader("Referer").replace("pages/", "").replace(".jsp", ".html"):"" %>';
-   					if (prepage.indexOf('activity_message.html') == -1 &&
-   						prepage.indexOf('list.html') == -1) {
-   						prepage = '';
-   					}
-   				}
-   				if (prepage.length == '') {
-   					prepage = 'list.html?userid=' + $("input[name=userid]").val();
-   				}
-   				pushHistory();
-   			    setTimeout(function () {
-   			        window.addEventListener("popstate", function (e) {
-   			            window.location.href = prepage;
-   			        }, false);
-   			    }, 300);
-   			    function pushHistory() {
-   			        var state = {
-   			            title: "title",
-   			            url: "#"
-   			        };
-   			        window.history.pushState(state, "title", "#");
-   			    }
-   			}
 		});
 		function register() {
 			var userid = $("#userid").val();
@@ -352,210 +426,84 @@
 			}
 		}
 		
-		// 背景图自动播放
-		var showImage = 0;
-		setInterval("showBackgroundImages()", 3000);
-		function showBackgroundImages () {
-			var imageCount = $("div#topImages").children().length;
-			showImage += 1;
-			if (showImage == imageCount) {
-				showImage = 0;
-			}
-			$("div#topImages").children().each(function(index, element){
-				if (showImage == index) {
-					$(element).children().children().css('display', 'block'); 
-				} else {
-					$(element).children().children().css('display', 'none'); 
-				}
-			});
-		}
+		
 	</script>
 </head>
 <body>
 <section class="mt38 headerphoto" style="height:198px;margin-top: 0px;">
-    <div class="a_id_area">活动ID: ${activity.activityid}</div>
-    <div id="topImages">
-    	<c:if test="${activity.image1 != null && activity.image1 != ''}">
-	    	<li>
-	    		<span>
-	    			<img id="bg01" src="${activity.image1}" width="100%" height="100%" style="display: block;"/>
-	    		</span>
-	    	</li>
-    	</c:if>
-    	<c:if test="${activity.image2 != null && activity.image2 != ''}">
-	    	<li>
-	    		<span>
-	    			<img id="bg02" src="${activity.image2}" width="100%" height="100%" style="display: none;"/>
-	    		</span>
-	    	</li>
-    	</c:if>
-    	<c:if test="${activity.image3 != null && activity.image3 != ''}">
-	    	<li>
-	    		<span>
-	    			<img id="bg03" src="${activity.image3}" width="100%" height="100%" style="display: none;"/>
-	    		</span>
-	    	</li>
-    	</c:if>
-    </div>
+    <div class="a_id_area">活动ID: </div>
+    <div id="topImages"></div>
 </section>
 <section class="itemgroup p15">
     <div class="photoitem">
-        <span class="itemname">${activity.activityname}</span>
-        <span class="a_status">
-	        <c:choose>
-				<c:when test="${activity.status == '01'}">
-					正在报名中
-				</c:when>
-				<c:when test="${activity.status == '02'}">
-					报名人数已满
-				</c:when>
-				<c:when test="${activity.status == '03'}">
-					活动已结束
-				</c:when>
-				<c:when test="${activity.status == '09'}">
-					活动已取消
-				</c:when>
-			</c:choose>
-        </span>
-        <div class="type right">${activity.category}</div>
+        <span class="itemname" id="activityname"></span>
+        <span class="a_status"></span>
+        <div class="type right" id="category"></div>
     </div>
 </section>
-<c:if test="${param.share != '1'}">
-<section class="itemgroup p15 mt10">
-    <h2>我的报名状态<span class="tr right" id="creditSpan">信用值= ${userinfo.creditscore}</span></h2>
-    <div class="itemprofession" id="registerStatusDiv">
-        <p>
-        	<c:choose>
-        		<c:when test="${activity.registerStatus == '01'}">
-        			<font class="red">已报名</font>  (排位= ${registerSort})
-        		</c:when>
-        		<c:when test="${activity.registerStatus == '03'}">
-        			<font class="red">已报名、已审核</font>  (排位= ${registerSort})
-        		</c:when>
-        		<c:when test="${activity.registerStatus == '04'}">
-        			<font class="red">已报名、审核未通过</font>
-        		</c:when>
-        		<c:otherwise>
-        			<font class="red">未报名</font>
-        		</c:otherwise>
-        	</c:choose>
-        </p>
-       	<c:if test="${activity.registerStatus == '01' || activity.registerStatus == '03'}">
-       	<p id="SignCodeP">签到密码: <font class="red icon20">${activityUser.signcode}</font></p>
-       	</c:if>
-    </div>
+<section class="itemgroup p15 mt10" id="mySection">
+    <h2>我的报名状态<span class="tr right" id="creditSpan">信用值 </span></h2>
+    <div style="height: 5px"></div>
+    <div class="itemprofession" id="registerStatusDiv"></div>
+    <div style="height: 5px"></div>
 </section>
-</c:if>
 <section class="subtitle mt5 p15 p15r">活动详情:</section>
 <section class="itemgroup p15">
     <div class="inputarea">
         <span class="inputname">城市</span>
-        <span class="inputform">
-		<c:choose>
-			<c:when test="${activity.province == activity.city}">
-				${activity.province}${activity.district}
-			</c:when>
-			<c:otherwise>
-				${activity.province}${activity.city}${activity.district}
-			</c:otherwise>
-		</c:choose>
-        </span>
+        <span class="inputform" id="location"></span>
     </div>
     <div class="inputarea">
         <span class="inputname">时间</span>
-        <span class="inputform" id="activitytimeSpan">
-            ${activity.activitytime}
-        </span>
+        <span class="inputform" id="activitytimeSpan"></span>
     </div>
     <div class="inputarea">
         <span class="inputname">具体地址</span>
-        <span class="inputform">
-            ${activity.address}
-        </span>
+        <span class="inputform" id="address"></span>
     </div>
     <div class="inputarea">
         <span class="inputname">人数限制</span>
-        <span class="inputform">
-            ${activity.capacityFrom}-${activity.capacityTo}人
-        </span>
+        <span class="inputform" id="capacity"></span>
     </div>
     <div class="inputarea">
         <span class="inputname">费用</span>
-        <span class="inputform">
-            ${activity.cost}元/人
-<c:if test="${activity.prepayment == '01'}">
-            (需预付费)
-</c:if>
-        </span>
+        <span class="inputform" id="fee"></span>
     </div>
 </section>
 <section class="itemgroup p15 mt10">
     <h2>活动内容</h2>
-    <div class="itemprofession">${activity.content}</div>
+	<div style="height: 5px;"></div>
+    <div class="itemprofession" id="content"></div>
+	<div style="height: 5px;"></div>
 </section>
 <section class="itemgroup p15 mt10">
     <h2>报名情况</h2>
     <div class="itemprofession">
-        <p>当前报名总人数 <font class="red mr5" id="totalFont">${activity.registeredNumber}</font>人 (男=<font class="red mr5" id="totalFontM">${activity.men}</font>, 女=<font class="red mr5" id="totalFontF">${activity.women}</font>)</p>
-<%--         <p id="ageRangeP">${ageRange}</p> --%>
-        <c:if test="${param.share != '1'}">
-        <p class="font12 gray">“我的择偶条件”满足度</p>
-        </c:if>
+        <p>当前报名总人数 <font class="red mr5" id="totalFont">0</font>人 (男 <font class="red mr5" id="totalFontM">0</font>, 女 <font class="red mr5" id="totalFontF">0</font>)</p>
+        <p class="font12 gray" id="myP">“我的择偶条件”满足度</p>
     </div>
-<c:if test="${param.share != '1'}">
-    <div class="match">
+    <div class="match" id="myDiv">
         <li class="mr3p greenkuang">
             <span class="font12 green">100%满足</span>
-            <span>${activity.match100}人</span>
+            <span id="match100">0人</span>
         </li>
-<!--         <li class="mr3p orangekuang"> -->
-<!--             <span class="font12 orange2">90%满足</span> -->
-<%--             <span>${activity.match90}人</span> --%>
-<!--         </li> -->
-<!--         <li class="bluekuang"> -->
-<!--             <span class="font12 blue">80%满足</span> -->
-<%--             <span>${activity.match80}人</span> --%>
-<!--         </li> -->
-    </div>
-</c:if>
+        <li class="mr3p orangekuang"> 
+            <span class="font12 orange2">90%满足</span> 
+            <span id="match90">0人</span>
+        </li> 
+        <li class="bluekuang"> 
+            <span class="font12 blue">80%满足</span> 
+            <span id="match80">0人</span>
+        </li> 
+   </div>
 </section>
-<section class="itemgroup p15 mt10 mb56" style="display: none">
-    <h2>发起人资料真实性证明<font class="gold right tr font12">用户ID: ${activity.userid}</font></h2>
-    <div class="checkphoto">
-<c:if test="${activity.user.imagesID != null}">
-        <li class="mr3p" style="height: 66px;">
-            <span><img src="${activity.user.imagesID}" width="100%" height="100%"/></span>
-            <span>身份证</span>
-        </li>
-</c:if>
-<c:if test="${activity.user.imagesEducation != null}">
-        <li class="mr3p" style="height: 66px;">
-            <span><img src="${activity.user.imagesEducation}" width="100%" height="100%"/></span>
-            <span>学历</span>
-        </li>
-</c:if>
-<c:if test="${activity.user.imagesPosition != null}">
-        <li style="height: 66px;">
-            <span><img src="${activity.user.imagesPosition}" width="100%" height="100%"/></span>
-            <span>职位</span>
-        </li>
-</c:if>
-    </div>
-</section>
-<c:if test="${param.share != '1'}">
-	<div style="height: 10px;"></div>
-	<div style="height: 49px"></div>
-</c:if>
-<c:if test="${param.share != '1'}">
+<div style="height: 59px"></div>
 <section class="detialbottom">
     <div class="certarea gray" id="shareDiv">
         <i class="iconfont icon20">&#xe609;</i><span>转发</span>
     </div>
-    <button type="button" id="registerBtn" onclick="register()" class="btn activity_btn">
-    	<c:if test="${activity.registerStatus == '01'}">取消</c:if>报名
-    </button>
+    <button type="button" id="registerBtn" class="btn activity_btn"></button>
 </section>
-</c:if>
 
 <!-- 弹出提示框 -->
 <div class="weui_dialog_alert" id="dialog_input">

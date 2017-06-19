@@ -9,6 +9,7 @@
 #import "UserViewController.h"
 #import <WebKit/WebKit.h>
 #import "WKWebViewJavascriptBridge.h"
+#import "WXApi.h"
 #import "ImageBrowser.h"
 #import "ChatViewController.h"
 #import "MomentViewController.h"
@@ -110,9 +111,51 @@
             UIAlertController *vc = [UIAlertController alertControllerWithTitle:nil message:@"分享到" preferredStyle:UIAlertControllerStyleActionSheet];
             
             [vc addAction:[UIAlertAction actionWithTitle:@"微信好友" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+/*
+                WXMediaMessage *message = [WXMediaMessage message];
+                message.title = @"title";
+                message.description = @"description";
+                NSData *imageData = [NSData dataWithContentsOfURL:[NSURL URLWithString:@"http://p3.img.kksmg.com/image/2017/06/15/cbfca7e8e77e2bf40c6c6aceaa54f1c2.jpg"]];
+                
+                // 图片分享
+                WXWebpageObject *webpageObject = [WXWebpageObject object];
+                webpageObject.webpageUrl = @"http://www.kankanews.com/";
+                
+                message.thumbData = imageData;
+                message.mediaObject = webpageObject;
+                
+                SendMessageToWXReq *req = [[SendMessageToWXReq alloc] init];
+                req.message = message;
+                req.bText = NO;
+                req.scene = 0;
+                
+                // 追加分享记录
+                [WXApi sendReq:req];
+*/
                 [vc dismissViewControllerAnimated:YES completion:nil];
             }]];
             [vc addAction:[UIAlertAction actionWithTitle:@"微信朋友圈" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+/*
+                WXMediaMessage *message = [WXMediaMessage message];
+                message.title = @"title";
+                message.description = @"description";
+                NSData *imageData = [NSData dataWithContentsOfURL:[NSURL URLWithString:@"http://p3.img.kksmg.com/image/2017/06/15/cbfca7e8e77e2bf40c6c6aceaa54f1c2.jpg"]];
+                
+                // 图片分享
+                WXWebpageObject *webpageObject = [WXWebpageObject object];
+                webpageObject.webpageUrl = @"http://www.kankanews.com/";
+                
+                message.thumbData = imageData;
+                message.mediaObject = webpageObject;
+                
+                SendMessageToWXReq *req = [[SendMessageToWXReq alloc] init];
+                req.message = message;
+                req.bText = NO;
+                req.scene = 0;
+                
+                // 追加分享记录
+                [WXApi sendReq:req];
+*/
                 [vc dismissViewControllerAnimated:YES completion:nil];
             }]];
             [vc addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
