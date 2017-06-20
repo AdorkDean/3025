@@ -133,9 +133,10 @@
                 $("div#content").html(data.content);
                 
                 if (!data.me) {
-                		$("section#mySection").css("display", "none");
-                		$("p#myP").css("display", "none");
-                		$("div#myDiv").css("display", "none");
+                	$("section#mySection").css("display", "none");
+                	$("p#myP").css("display", "none");
+                    $("div#myDiv").css("display", "none");
+                    $("button#registerBtn").text("报名");
                 } else {
 	                // 信用值
 	                $("span#creditSpan").text('信用值 ' + data.creditscore);
@@ -478,8 +479,10 @@
 </section>
 <section class="itemgroup p15 mt10">
     <h2>报名情况</h2>
+    <div style="height: 5px;"></div>
     <div class="itemprofession">
         <p>当前报名总人数 <font class="red mr5" id="totalFont">0</font>人 (男 <font class="red mr5" id="totalFontM">0</font>, 女 <font class="red mr5" id="totalFontF">0</font>)</p>
+        <div style="height: 2.5px;"></div>
         <p class="font12 gray" id="myP">“我的择偶条件”满足度</p>
     </div>
     <div class="match" id="myDiv">
