@@ -1362,6 +1362,7 @@
         }
         NSString *sql = [NSString stringWithFormat:@"\
                      select \
+                         u.userid, \
                          u.poster, \
                          a.activityid, \
                          a.activityname, \

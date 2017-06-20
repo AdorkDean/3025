@@ -111,51 +111,51 @@
             UIAlertController *vc = [UIAlertController alertControllerWithTitle:nil message:@"分享到" preferredStyle:UIAlertControllerStyleActionSheet];
             
             [vc addAction:[UIAlertAction actionWithTitle:@"微信好友" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-/*
+
                 WXMediaMessage *message = [WXMediaMessage message];
-                message.title = @"title";
-                message.description = @"description";
-                NSData *imageData = [NSData dataWithContentsOfURL:[NSURL URLWithString:@"http://p3.img.kksmg.com/image/2017/06/15/cbfca7e8e77e2bf40c6c6aceaa54f1c2.jpg"]];
+                message.title = [NSString stringWithFormat:@"%@ 在3025的恋爱名片", self.userModel.nickname];
+                message.description = @"3025定位在适婚单身白领人群，提供真诚、欢乐、有格调的婚恋交友服务。";
+                [message setThumbImage:[UIImage imageNamed:@"poster"]];
                 
-                // 图片分享
+                // 分享
                 WXWebpageObject *webpageObject = [WXWebpageObject object];
-                webpageObject.webpageUrl = @"http://www.kankanews.com/";
+                webpageObject.webpageUrl = [NSString stringWithFormat:@"http://www.viewatmobile.cn/3025/user_detail.html?userid=%@&detailUserid=%@&share=1", self.userid ? self.userid : @"0", self.userModel.userid];
                 
-                message.thumbData = imageData;
+                message.thumbData = UIImagePNGRepresentation([UIImage imageNamed:@"poster"]);
                 message.mediaObject = webpageObject;
                 
                 SendMessageToWXReq *req = [[SendMessageToWXReq alloc] init];
                 req.message = message;
                 req.bText = NO;
-                req.scene = 0;
+                req.scene = WXSceneSession;
                 
-                // 追加分享记录
+                // 分享
                 [WXApi sendReq:req];
-*/
+
                 [vc dismissViewControllerAnimated:YES completion:nil];
             }]];
             [vc addAction:[UIAlertAction actionWithTitle:@"微信朋友圈" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-/*
+
                 WXMediaMessage *message = [WXMediaMessage message];
-                message.title = @"title";
-                message.description = @"description";
-                NSData *imageData = [NSData dataWithContentsOfURL:[NSURL URLWithString:@"http://p3.img.kksmg.com/image/2017/06/15/cbfca7e8e77e2bf40c6c6aceaa54f1c2.jpg"]];
+                message.title = [NSString stringWithFormat:@"%@ 在3025的恋爱名片", self.userModel.nickname];
+                message.description = @"3025定位在适婚单身白领人群，提供真诚、欢乐、有格调的婚恋交友服务。";
+                [message setThumbImage:[UIImage imageNamed:@"poster"]];
                 
-                // 图片分享
+                // 分享
                 WXWebpageObject *webpageObject = [WXWebpageObject object];
-                webpageObject.webpageUrl = @"http://www.kankanews.com/";
+                webpageObject.webpageUrl = [NSString stringWithFormat:@"http://www.viewatmobile.cn/3025/user_detail.html?userid=%@&detailUserid=%@&share=1", self.userid ? self.userid : @"0", self.userModel.userid];
                 
-                message.thumbData = imageData;
+                message.thumbData = UIImagePNGRepresentation([UIImage imageNamed:@"poster"]);
                 message.mediaObject = webpageObject;
                 
                 SendMessageToWXReq *req = [[SendMessageToWXReq alloc] init];
                 req.message = message;
                 req.bText = NO;
-                req.scene = 0;
+                req.scene = WXSceneTimeline;
                 
-                // 追加分享记录
+                // 分享
                 [WXApi sendReq:req];
-*/
+
                 [vc dismissViewControllerAnimated:YES completion:nil];
             }]];
             [vc addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {

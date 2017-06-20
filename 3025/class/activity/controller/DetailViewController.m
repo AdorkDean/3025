@@ -8,6 +8,7 @@
 
 #import "DetailViewController.h"
 #import <WebKit/WebKit.h>
+#import "WXApi.h"
 #import "WKWebViewJavascriptBridge.h"
 #import "ImageBrowser.h"
 #import "ChatViewController.h"
@@ -100,9 +101,51 @@
             UIAlertController *vc = [UIAlertController alertControllerWithTitle:nil message:@"分享到" preferredStyle:UIAlertControllerStyleActionSheet];
             
             [vc addAction:[UIAlertAction actionWithTitle:@"微信好友" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                
+                WXMediaMessage *message = [WXMediaMessage message];
+                message.title = [NSString stringWithFormat:@"3025活动 %@", self.activityModel.activityname];
+                message.description = @"3025定位在适婚单身白领人群，提供真诚、欢乐、有格调的婚恋交友服务。";
+                [message setThumbImage:[UIImage imageNamed:@"poster"]];
+                
+                // 分享
+                WXWebpageObject *webpageObject = [WXWebpageObject object];
+                webpageObject.webpageUrl = [NSString stringWithFormat:@"http://www.viewatmobile.cn/3025/activity/detail.html?userid=%@&activityUserid=%@&activityid=%@&share=1", self.userid ? self.userid : @"0", self.activityModel.user.userid, self.activityModel.activityid];
+                
+                message.thumbData = UIImagePNGRepresentation([UIImage imageNamed:@"poster"]);
+                message.mediaObject = webpageObject;
+                
+                SendMessageToWXReq *req = [[SendMessageToWXReq alloc] init];
+                req.message = message;
+                req.bText = NO;
+                req.scene = WXSceneSession;
+                
+                // 分享
+                [WXApi sendReq:req];
+                
                 [vc dismissViewControllerAnimated:YES completion:nil];
             }]];
             [vc addAction:[UIAlertAction actionWithTitle:@"微信朋友圈" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                
+                WXMediaMessage *message = [WXMediaMessage message];
+                message.title = [NSString stringWithFormat:@"3025活动 %@", self.activityModel.activityname];
+                message.description = @"3025定位在适婚单身白领人群，提供真诚、欢乐、有格调的婚恋交友服务。";
+                [message setThumbImage:[UIImage imageNamed:@"poster"]];
+                
+                // 分享
+                WXWebpageObject *webpageObject = [WXWebpageObject object];
+                webpageObject.webpageUrl = [NSString stringWithFormat:@"http://www.viewatmobile.cn/3025/activity/detail.html?userid=%@&activityUserid=%@&activityid=%@&share=1", self.userid ? self.userid : @"0", self.activityModel.user.userid, self.activityModel.activityid];
+                
+                message.thumbData = UIImagePNGRepresentation([UIImage imageNamed:@"poster"]);
+                message.mediaObject = webpageObject;
+                
+                SendMessageToWXReq *req = [[SendMessageToWXReq alloc] init];
+                req.message = message;
+                req.bText = NO;
+                req.scene = WXSceneTimeline;
+                
+                // 分享
+                [WXApi sendReq:req];
+                
                 [vc dismissViewControllerAnimated:YES completion:nil];
             }]];
             [vc addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
