@@ -13,6 +13,8 @@
 #define kWXAppKey @"wxad48b0df5c0ca7af"
 #define kWXAppSecret @"00c2102413f8139ebb7fb0ab196c91e7"
 
+#define kWXAppKey2 @"wx01491bffc6b629cd"
+
 #define kWXAuthNotification @"wxAuthNotification"
 
 #define kSort @"sort"

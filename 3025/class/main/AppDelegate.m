@@ -34,7 +34,7 @@
     [self.window setRootViewController:tabBarController];
     [self.window makeKeyAndVisible];
     
-    [WXApi registerApp:@"wxad48b0df5c0ca7af"];
+    [WXApi registerApp:kWXAppKey];
     
     return YES;
 }

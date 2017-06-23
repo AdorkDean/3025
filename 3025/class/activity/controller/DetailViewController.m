@@ -102,16 +102,17 @@
             
             [vc addAction:[UIAlertAction actionWithTitle:@"微信好友" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                 
+                [WXApi registerApp:kWXAppKey2];
+                
                 WXMediaMessage *message = [WXMediaMessage message];
                 message.title = [NSString stringWithFormat:@"3025活动 %@", self.activityModel.activityname];
                 message.description = @"3025定位在适婚单身白领人群，提供真诚、欢乐、有格调的婚恋交友服务。";
-                [message setThumbImage:[UIImage imageNamed:@"poster"]];
+                [message setThumbImage:[UIImage imageNamed:@"activity_poster"]];
                 
                 // 分享
                 WXWebpageObject *webpageObject = [WXWebpageObject object];
                 webpageObject.webpageUrl = [NSString stringWithFormat:@"http://www.viewatmobile.cn/3025/activity/detail.html?userid=%@&activityUserid=%@&activityid=%@&share=1", self.userid ? self.userid : @"0", self.activityModel.user.userid, self.activityModel.activityid];
                 
-                message.thumbData = UIImagePNGRepresentation([UIImage imageNamed:@"poster"]);
                 message.mediaObject = webpageObject;
                 
                 SendMessageToWXReq *req = [[SendMessageToWXReq alloc] init];
@@ -126,16 +127,17 @@
             }]];
             [vc addAction:[UIAlertAction actionWithTitle:@"微信朋友圈" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                 
+                [WXApi registerApp:kWXAppKey2];
+                
                 WXMediaMessage *message = [WXMediaMessage message];
                 message.title = [NSString stringWithFormat:@"3025活动 %@", self.activityModel.activityname];
                 message.description = @"3025定位在适婚单身白领人群，提供真诚、欢乐、有格调的婚恋交友服务。";
-                [message setThumbImage:[UIImage imageNamed:@"poster"]];
+                [message setThumbImage:[UIImage imageNamed:@"activity_poster"]];
                 
                 // 分享
                 WXWebpageObject *webpageObject = [WXWebpageObject object];
                 webpageObject.webpageUrl = [NSString stringWithFormat:@"http://www.viewatmobile.cn/3025/activity/detail.html?userid=%@&activityUserid=%@&activityid=%@&share=1", self.userid ? self.userid : @"0", self.activityModel.user.userid, self.activityModel.activityid];
                 
-                message.thumbData = UIImagePNGRepresentation([UIImage imageNamed:@"poster"]);
                 message.mediaObject = webpageObject;
                 
                 SendMessageToWXReq *req = [[SendMessageToWXReq alloc] init];

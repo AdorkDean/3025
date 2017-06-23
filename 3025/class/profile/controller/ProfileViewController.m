@@ -227,6 +227,8 @@
 
 - (void)wxLogin {
     
+    [WXApi registerApp:kWXAppKey];
+    
     SendAuthReq *authReq =[[SendAuthReq alloc] init];
     authReq.scope = @"snsapi_userinfo" ;
     authReq.state = @"123" ;
